@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 448cf871d3a3c4d9297724d2666bc49d, type: 3}
+  m_Name: rei.WeaponScriptableObject
+  m_EditorClassIdentifier: 
+  weapons_all:
+  - itemName: 
+    itemDescription: 
+    icon: {fileID: 0}
+    oh_idle: 
+    th_idle: 
+    itemType: 0
+    actions: []
+    two_handedActions: []
+    parryMultiplier: 0
+    backstabMultiplier: 0
+    LeftHandMirror: 0
+    modelPrefab: {fileID: 0}
+    weaponStats:
+      physical: 0
+      strike: 0
+      slash: 0
+      thrust: 0
+      magic: 0
+    r_model_pos: {x: 0, y: 0, z: 0}
+    l_model_pos: {x: 0, y: 0, z: 0}
+    r_model_eulers: {x: 0, y: 0, z: 0}
+    l_model_eulers: {x: 0, y: 0, z: 0}
+    model_scale: {x: 0, y: 0, z: 0}
