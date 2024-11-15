@@ -4,7 +4,10 @@ using UnityEngine;
 
 namespace rei
 {
-    public class AnimatorHook : MonoBehaviour {
+    public class AnimatorHook : MonoBehaviour 
+    {
+        
+        //rei test
 
     Animator anim;                 // 用于角色动画控制的Animator对象
     StateManager states;           // 管理角色状态的StateManager
