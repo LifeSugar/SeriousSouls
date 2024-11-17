@@ -225,34 +225,86 @@ namespace rei
         // public static string R = "R";
         
         // 通用的输入名称
-        public static string DPadVertical => IsMac ? "DPadVerticalM" : "DPadVertical";
-        public static string DPadHorizontal => IsMac ? "DPadHorizontalM" : "DPadHorizontal";
-        public static string DPadLeft => IsMac ? "DPadLeftM" : "DPadHorizontal";
-        public static string DPadRight => IsMac ? "DPadRightM" : "DPadHorizontal";
-        public static string DPadUp => IsMac ? "DPadUpM" : "DPadVertical";
-        public static string DPadDown => IsMac ? "DPadDownM" : "DPadVertical";
-    
-        public static string Vertical => IsMac ? "VerticalM" : "Vertical";
-        public static string Horizontal => IsMac ? "HorizontalM" : "Horizontal";
-        public static string B => IsMac ? "BM" : "B";
-        public static string A => IsMac ? "AM" : "A";
-        public static string X => IsMac ? "XM" : "X";
-        public static string Y => IsMac ? "YM" : "Y";
-        public static string RT => IsMac ? "RTM" : "RT";
-        public static string LT => IsMac ? "LTM" : "LT";
-        public static string RB => IsMac ? "RBM" : "RB";
-        public static string LB => IsMac ? "LBM" : "LB";
-        public static string L => IsMac ? "LM" : "L";
-        public static string R => IsMac ? "RM" : "R";
-        public static string RightVertical => IsMac ? "RightVerticalM" : "RightVertical";
-        public static string RightHorizontal => IsMac ? "RightHorizontalM" : "RightHorizontal";
-    
-        public static string View => IsMac ? "ViewM" : "View";
-        public static string Menu => IsMac ? "MenuM" : "Menu";
+         // 通用的输入名称
+#if UNITY_STANDALONE_WIN
+    public static string DPadVertical = "DPadVertical";
+    public static string DPadHorizontal = "DPadHorizontal";
+    public static string DPadLeft = "DPadHorizontal"; // Windows上DPad左右为Horizontal轴
+    public static string DPadRight = "DPadHorizontal"; // Windows上DPad左右为Horizontal轴
+    public static string DPadUp = "DPadVertical"; // Windows上DPad上下为Vertical轴
+    public static string DPadDown = "DPadVertical"; // Windows上DPad上下为Vertical轴
 
-        // 判断当前平台是否为Mac
-        private static bool IsMac => Application.platform == RuntimePlatform.OSXPlayer || 
-                                     Application.platform == RuntimePlatform.OSXEditor;
+    public static string Vertical = "Vertical";
+    public static string Horizontal = "Horizontal";
+    public static string B = "B";
+    public static string A = "A";
+    public static string X = "X";
+    public static string Y = "Y";
+    public static string RT = "RT";
+    public static string LT = "LT";
+    public static string RB = "RB";
+    public static string LB = "LB";
+    public static string L = "L";
+    public static string R = "R";
+    public static string RightVertical = "RightVertical";
+    public static string RightHorizontal = "RightHorizontal";
+
+    public static string View = "View";
+    public static string Menu = "Menu";
+
+#elif UNITY_STANDALONE_OSX
+    public static string DPadVertical = "DPadVerticalM";
+    public static string DPadHorizontal = "DPadHorizontalM";
+    public static string DPadLeft = "DPadLeftM"; // Mac上DPad左右为独立按钮
+    public static string DPadRight = "DPadRightM"; // Mac上DPad左右为独立按钮
+    public static string DPadUp = "DPadUpM"; // Mac上DPad上下为独立按钮
+    public static string DPadDown = "DPadDownM"; // Mac上DPad上下为独立按钮
+
+    public static string Vertical = "VerticalM";
+    public static string Horizontal = "HorizontalM";
+    public static string B = "BM";
+    public static string A = "AM";
+    public static string X = "XM";
+    public static string Y = "YM";
+    public static string RT = "RTM";
+    public static string LT = "LTM";
+    public static string RB = "RBM";
+    public static string LB = "LBM";
+    public static string L = "LM";
+    public static string R = "RM";
+    public static string RightVertical = "RightVerticalM";
+    public static string RightHorizontal = "RightHorizontalM";
+
+    public static string View = "ViewM";
+    public static string Menu = "MenuM";
+
+#else
+    // 默认情况（其他平台可以根据需求修改）
+    public static string DPadVertical = "DPadVertical";
+    public static string DPadHorizontal = "DPadHorizontal";
+    public static string DPadLeft = "DPadHorizontal";
+    public static string DPadRight = "DPadHorizontal";
+    public static string DPadUp = "DPadVertical";
+    public static string DPadDown = "DPadVertical";
+
+    public static string Vertical = "Vertical";
+    public static string Horizontal = "Horizontal";
+    public static string B = "B";
+    public static string A = "A";
+    public static string X = "X";
+    public static string Y = "Y";
+    public static string RT = "RT";
+    public static string LT = "LT";
+    public static string RB = "RB";
+    public static string LB = "LB";
+    public static string L = "L";
+    public static string R = "R";
+    public static string RightVertical = "RightVertical";
+    public static string RightHorizontal = "RightHorizontal";
+
+    public static string View = "View";
+    public static string Menu = "Menu";
+#endif
 
 
         // Animator Parameters

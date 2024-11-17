@@ -68,14 +68,11 @@ namespace rei
         {
             Debug.Log("start!");
             states = GetComponent<StateManager>();
-            // if (states == null)
-            //     Debug.LogWarning("No StateManager component found!");
-            // else
-            //     Debug.Log(states.name);
+            if (states == null)
+                Debug.LogWarning("No StateManager component found!");
+            else
+                Debug.Log("StateManager component found!");
             states.Init();
-            Debug.Log("start!");
-            Debug.Log("start!");
-            Debug.Log("start!");
             
             
 
@@ -86,6 +83,10 @@ namespace rei
             else
                 Debug.Log(camManager.name);
             camManager.Init(states);
+            
+            uiManager = UIManager.instance;
+
+            dialogueManager = DialogueManager.instance;
 
 
             Cursor.lockState = CursorLockMode.Locked;
@@ -93,95 +94,96 @@ namespace rei
         }
 
         // intitialize the movement and camera functionalities
-        // void FixedUpdate()
-        // {
-        //     delta = Time.fixedDeltaTime;
-        //     GetInput();
-        //     UpdateStates();
-        //     states.FixedTick(delta);
-        //     camManager.Tick(delta);
-        // }
+        void FixedUpdate()
+        {
+            delta = Time.fixedDeltaTime;
+            GetInput();
+            UpdateStates();
+            states.FixedTick(delta);
+            camManager.Tick(delta);
+        }
 
         bool preferItem;
 
-        // void Update()
-        // {
-        //     delta = Time.deltaTime;
-        //     if (a_input)
-        //         a_input_count++;
-        //     // Debug.Log(delta);
-        //     states.Tick(delta);
-        //     if (!dialogueManager.dialogueActive)
-        //     {
-        //         if (states.pickManager.itemCandidate != null || states.pickManager.interactionCandidate != null)
-        //         {
-        //             if (states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
-        //             {
-        //                 if (preferItem)
-        //                 {
-        //                     PickupItem();
-        //                 }
-        //                 else
-        //                     Interact();
-        //             }
-        //
-        //             if (states.pickManager.itemCandidate && !states.pickManager.interactionCandidate)
-        //             {
-        //                 PickupItem();
-        //             }
-        //
-        //             if (!states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
-        //             {
-        //                 Interact();
-        //             }
-        //         }
-        //         else
-        //         {
-        //             uiManager.CloseInteractCanvas();
-        //             if (uiManager.ItemCards[0].gameObject.activeSelf == true
-        //                 || uiManager.ItemCards[1].gameObject.activeSelf == true
-        //                 || uiManager.ItemCards[2].gameObject.activeSelf == true
-        //                 || uiManager.ItemCards[3].gameObject.activeSelf == true
-        //                 || uiManager.ItemCards[4].gameObject.activeSelf == true)
-        //                 close_timer += 1;
-        //             if (close_timer > 190)
-        //             {
-        //                 close_timer = 0;
-        //                 uiManager.CloseItemCards();
-        //                 a_input = false;
-        //             }
-        //         }
-        //     }
-        //     else
-        //     {
-        //         uiManager.CloseInteractCanvas();
-        //     }
-        //
-        //     if (a_input_count > 1f)
-        //     {
-        //         a_input = false;
-        //         a_input_count = 0;
-        //     }
-        //
-        //
-        //     dialogueManager.Tick(a_input);
-        //     states.MonitorStats();
-        //     ResetInputNState();
-        //     uiManager.Tick(states.characterStats, delta, states);
-        // }
-        //
-        // void PickupItem()
-        // {
-        //     uiManager.OpenInteractCanvas(UIActionType.pickup);
-        //     if (a_input)
-        //     {
-        //         Vector3 targetDir = states.pickManager.itemCandidate.transform.position - transform.position;
-        //         states.SnapToRotation(targetDir);
-        //         states.pickManager.PickCandidate(states);
-        //         states.PlayAnimation("pick_up");
-        //         a_input = false;
-        //     }
-        // }
+        void Update()
+        {
+            delta = Time.deltaTime;
+            if (a_input)
+                a_input_count++;
+            // Debug.Log(delta);
+            states.Tick(delta);
+            
+            // if (!dialogueManager.dialogueActive)
+            // {
+            //     if (states.pickManager.itemCandidate != null || states.pickManager.interactionCandidate != null)
+            //     {
+            //         if (states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+            //         {
+            //             if (preferItem)
+            //             {
+            //                 PickupItem();
+            //             }
+            //             else
+            //                 Interact();
+            //         }
+            //
+            //         if (states.pickManager.itemCandidate && !states.pickManager.interactionCandidate)
+            //         {
+            //             PickupItem();
+            //         }
+            //
+            //         if (!states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+            //         {
+            //             Interact();
+            //         }
+            //     }
+            //     else
+            //     {
+            //         uiManager.CloseInteractCanvas();
+            //         if (uiManager.ItemCards[0].gameObject.activeSelf == true
+            //             || uiManager.ItemCards[1].gameObject.activeSelf == true
+            //             || uiManager.ItemCards[2].gameObject.activeSelf == true
+            //             || uiManager.ItemCards[3].gameObject.activeSelf == true
+            //             || uiManager.ItemCards[4].gameObject.activeSelf == true)
+            //             close_timer += 1;
+            //         if (close_timer > 190)
+            //         {
+            //             close_timer = 0;
+            //             uiManager.CloseItemCards();
+            //             a_input = false;
+            //         }
+            //     }
+            // }
+            // else
+            // {
+            //     uiManager.CloseInteractCanvas();
+            // }
+        
+            if (a_input_count > 1f)
+            {
+                a_input = false;
+                a_input_count = 0;
+            }
+        
+        
+            // dialogueManager.Tick(a_input);
+            states.MonitorStats();
+            ResetInputNState();
+            uiManager.Tick(states.characterStats, delta, states);
+        }
+        
+        void PickupItem()
+        {
+            uiManager.OpenInteractCanvas(UIActionType.pickup);
+            if (a_input)
+            {
+                Vector3 targetDir = states.pickManager.itemCandidate.transform.position - transform.position;
+                states.SnapToRotation(targetDir);
+                states.pickManager.PickCandidate(states);
+                states.PlayAnimation("pick_up");
+                a_input = false;
+            }
+        }
 
         void Interact()
         {

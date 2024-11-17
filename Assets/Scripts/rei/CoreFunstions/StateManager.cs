@@ -170,6 +170,7 @@ namespace rei
         //--------------------runner------------------------
         public void FixedTick(float d)
         {
+            
             delta = d;
             isBlocking = false;
             rigid.constraints &= ~RigidbodyConstraints.FreezePositionY;
@@ -266,6 +267,7 @@ namespace rei
 
             if (onGround && canMove)
                 rigid.velocity = moveDir * (moveSpeed * moveAmount);
+            
 
             if (run)
             {
