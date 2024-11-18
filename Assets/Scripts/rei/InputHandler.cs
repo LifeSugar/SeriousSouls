@@ -12,6 +12,8 @@ namespace rei
         bool a_input;
         bool x_input;
         bool y_input;
+        
+        
 
 
         bool rb_input;
@@ -55,12 +57,15 @@ namespace rei
 
 
         //用于win平台方向键
-        private const float threshold = 0.5f;
-        private bool wasDPadUpPressed = false;
-        private bool wasDPadDownPressed = false;
-        private bool wasDPadLeftPressed = false;
-        private bool wasDPadRightPressed = false;
+        private const float threshold = 0.5f;  // 阈值，用于判断DPad和扳机键是否按下
+        private bool isLTPressed = false;  // LT按键状态
+        private bool isRTPressed = false;  // RT按键状态
 
+        // DPad按键状态（仅适用于Windows平台）
+        private bool isDPadUpPressed = false;
+        private bool isDPadDownPressed = false;
+        private bool isDPadLeftPressed = false;
+        private bool isDPadRightPressed = false;
 
         //-----------------------------------------------------------------------
 
@@ -101,12 +106,14 @@ namespace rei
             UpdateStates();
             states.FixedTick(delta);
             camManager.Tick(delta);
+            states.MonitorStats();
         }
 
         bool preferItem;
 
         void Update()
         {
+            
             delta = Time.deltaTime;
             if (a_input)
                 a_input_count++;
@@ -167,7 +174,8 @@ namespace rei
         
         
             // dialogueManager.Tick(a_input);
-            states.MonitorStats();
+            
+            // states.MonitorStats();
             ResetInputNState();
             uiManager.Tick(states.characterStats, delta, states);
         }
@@ -210,16 +218,58 @@ namespace rei
             rb_input = Input.GetButton(GlobalStrings.RB);
             lb_input = Input.GetButton(GlobalStrings.LB);
 
-            rt_input = Input.GetButton(GlobalStrings.RT);
-            rt_axis = Input.GetAxis(GlobalStrings.RT);
+            // rt_input = Input.GetButton(GlobalStrings.RT);
+            // rt_axis = Input.GetAxis(GlobalStrings.RT);
+            //
+            // if (rt_axis != 0)
+            //     rt_input = true;
+            //
+            // lt_input = Input.GetButton(GlobalStrings.LT);
+            // lt_axis = Input.GetAxis(GlobalStrings.LT);
+            // if (lt_axis != 0)
+            //     lt_input = true;
+            
+            // 检查LT和RT是否“按下”
+            float ltValue = Input.GetAxis(GlobalStrings.LT);
+            float rtValue = Input.GetAxis(GlobalStrings.RT);
 
-            if (rt_axis != 0)
-                rt_input = true;
-
-            lt_input = Input.GetButton(GlobalStrings.LT);
-            lt_axis = Input.GetAxis(GlobalStrings.LT);
-            if (lt_axis != 0)
+            // LT按键处理：按下时显示一次"LT Pressed"
+            if (ltValue > threshold && !isLTPressed)
+            {
                 lt_input = true;
+                isLTPressed = true;
+                
+            }
+            else if (ltValue <= threshold && isLTPressed)
+            {
+                
+                isLTPressed = false;  // 重置状态
+                lt_input = false;
+                
+            }
+            else
+            {
+                lt_input = false;
+            }
+
+            // RT按键处理：按下时显示一次"RT Pressed"
+            if (rtValue > threshold && !isRTPressed)
+            {
+                rt_input = true;
+                
+                isRTPressed = true;
+            }
+            else if (rtValue <= threshold && isRTPressed)
+            {
+                rt_input = false;
+                
+                isRTPressed = false;  // 重置状态
+                
+            }
+            else
+            {
+                rt_input = false;
+            }
 
             rightAxis_down = Input.GetButtonUp(GlobalStrings.L);
 
@@ -334,10 +384,10 @@ namespace rei
 
 
 #elif UNITY_STANDALONE_OSX
-            d_up = Input.GetButton(GlobalStrings.DPadUp);
-            d_down = Input.GetButton(GlobalStrings.DPadDown);
-            d_left = Input.GetButton(GlobalStrings.DPadLeft);
-            d_right = Input.GetButton(GlobalStrings.DPadRight);
+            // d_up = Input.GetButton(GlobalStrings.DPadUp);
+            // d_down = Input.GetButton(GlobalStrings.DPadDown);
+            // d_left = Input.GetButton(GlobalStrings.DPadLeft);
+            // d_right = Input.GetButton(GlobalStrings.DPadRight);
 #endif
         }
 
@@ -364,10 +414,10 @@ namespace rei
             states.moveAmount = Mathf.Clamp01(m);
 
             // B_input: 
-            if (b_input && b_timer > 0.5f)
+            if (b_input && b_timer > 0.3f)
             {
                 // run when holding down.
-                states.run = (states.moveAmount > 0) && states.characterStats._stamina > 0;
+                states.run = (states.moveAmount > 0.8f) && states.characterStats._stamina > 0;
             }
 
             /* roll when tap the button b_input, thus b_input must equal false at the following FixedFrame because b_input == false when not the button for it is released.

@@ -15,7 +15,8 @@ namespace rei
 
     public static class GlobalFuntions
     {
-         public static void DeepCopyWeapon(Weapon from, Weapon to) {
+        public static void DeepCopyWeapon(Weapon from, Weapon to)
+        {
             //Item
             to.itemName = from.itemName;
             to.itemDescription = from.itemDescription;
@@ -55,8 +56,10 @@ namespace rei
             to.weaponStats = new WeaponStats();
             DeepCopyWeaponStats(from.weaponStats, to.weaponStats);
         }
+
         // (1.1)
-        public static void DeepCopyActionToAction(Action a, Action w_a) {
+        public static void DeepCopyActionToAction(Action a, Action w_a)
+        {
             a.input = w_a.input;
             a.targetAnim = w_a.targetAnim;
             a.audio_ids = w_a.audio_ids;
@@ -75,7 +78,8 @@ namespace rei
             DeepCopyStepsList(w_a, a);
         }
 
-        public static void DeepCopyStepsList(Action from, Action to) {
+        public static void DeepCopyStepsList(Action from, Action to)
+        {
             to.steps = new List<ActionStep>();
             for (int i = 0; i < from.steps.Count; i++)
             {
@@ -85,7 +89,8 @@ namespace rei
             }
         }
 
-        public static void DeepCopySteps(ActionStep from, ActionStep to) {
+        public static void DeepCopySteps(ActionStep from, ActionStep to)
+        {
             to.branches = new List<ActionAnim>();
             for (int i = 0; i < from.branches.Count; i++)
             {
@@ -106,10 +111,11 @@ namespace rei
             to.magic = from.magic;
         }
 
-        
+
         //***********************Spells***************************
 
-        public static void DeepCopySpell(Spell from, Spell to) {
+        public static void DeepCopySpell(Spell from, Spell to)
+        {
             //Item
             to.itemName = from.itemName;
             to.itemDescription = from.itemDescription;
@@ -127,7 +133,7 @@ namespace rei
             for (int i = 0; i < from.actions.Count; i++)
             {
                 SpellAction a = new SpellAction();
-                DeepCopySpellAction(from.actions[i], a );
+                DeepCopySpellAction(from.actions[i], a);
                 to.actions.Add(a);
             }
         }
@@ -144,7 +150,8 @@ namespace rei
 
         //***********************Consumables***************************
 
-        public static void DeepCopyConsumable(Consumable to, Consumable from) {
+        public static void DeepCopyConsumable(Consumable to, Consumable from)
+        {
             to.itemName = from.itemName;
             to.icon = from.icon;
             to.itemDescription = from.itemDescription;
@@ -157,19 +164,24 @@ namespace rei
             to.model_scale = from.model_scale;
             to.r_model_eulers = from.r_model_eulers;
             to.r_model_pos = from.r_model_pos;
-
         }
-
 
 
         //----------------------------------------------For ActionManager to StateManager--------------------------------------------------------------------------
         //(2)
-        public static void DeepCopyAction(Weapon w, ActionInput inp, ActionInput assign, List<Action> actionList, bool isLeftHand = false)
+        public static void DeepCopyAction(Weapon w, ActionInput inp, ActionInput assign, List<Action> actionList,
+            bool isLeftHand = false)
         {
             Action a = GetAction(assign, actionList);
+            Debug.Log(a.input.ToString());
+            Debug.Log(w.itemName + "114");
             Action w_a = w.GetAction(w.actions, inp);
             if (w_a == null)
+            {
+                Debug.Log("weapon action not found");
                 return;
+            }
+
             DeepCopyStepsList(w_a, a);
             a.type = w_a.type;
             a.targetAnim = w_a.targetAnim;
@@ -194,16 +206,17 @@ namespace rei
         }
 
         // private Getter (Get actionSlots)
-        public static Action GetAction(ActionInput inp, List<Action> actionSlots)
+        public static Action
+            GetAction(ActionInput inp, List<Action> actionSlots) //从Action Slots中提取对映输入的Action（里面有step，step里有branch）
         {
             for (int i = 0; i < actionSlots.Count; i++)
             {
                 if (actionSlots[i].input == inp)
                     return actionSlots[i];
             }
+
             return null;
         }
-
     }
 
 
@@ -223,9 +236,9 @@ namespace rei
         // public static string LB = "LB";
         // public static string L = "L";
         // public static string R = "R";
-        
+
         // 通用的输入名称
-         // 通用的输入名称
+        // 通用的输入名称
 #if UNITY_STANDALONE_WIN
     public static string DPadVertical = "DPadVertical";
     public static string DPadHorizontal = "DPadHorizontal";
@@ -253,30 +266,30 @@ namespace rei
     public static string Menu = "Menu";
 
 #elif UNITY_STANDALONE_OSX
-    public static string DPadVertical = "DPadVerticalM";
-    public static string DPadHorizontal = "DPadHorizontalM";
-    public static string DPadLeft = "DPadLeftM"; // Mac上DPad左右为独立按钮
-    public static string DPadRight = "DPadRightM"; // Mac上DPad左右为独立按钮
-    public static string DPadUp = "DPadUpM"; // Mac上DPad上下为独立按钮
-    public static string DPadDown = "DPadDownM"; // Mac上DPad上下为独立按钮
+        public static string DPadVertical = "DPadVerticalM";
+        public static string DPadHorizontal = "DPadHorizontalM";
+        public static string DPadLeft = "DPadLeftM"; // Mac上DPad左右为独立按钮
+        public static string DPadRight = "DPadRightM"; // Mac上DPad左右为独立按钮
+        public static string DPadUp = "DPadUpM"; // Mac上DPad上下为独立按钮
+        public static string DPadDown = "DPadDownM"; // Mac上DPad上下为独立按钮
 
-    public static string Vertical = "VerticalM";
-    public static string Horizontal = "HorizontalM";
-    public static string B = "BM";
-    public static string A = "AM";
-    public static string X = "XM";
-    public static string Y = "YM";
-    public static string RT = "RTM";
-    public static string LT = "LTM";
-    public static string RB = "RBM";
-    public static string LB = "LBM";
-    public static string L = "LM";
-    public static string R = "RM";
-    public static string RightVertical = "RightVerticalM";
-    public static string RightHorizontal = "RightHorizontalM";
+        public static string Vertical = "VerticalM";
+        public static string Horizontal = "HorizontalM";
+        public static string B = "BM";
+        public static string A = "AM";
+        public static string X = "XM";
+        public static string Y = "YM";
+        public static string RT = "RTM";
+        public static string LT = "LTM";
+        public static string RB = "RBM";
+        public static string LB = "LBM";
+        public static string L = "LM";
+        public static string R = "RM";
+        public static string RightVertical = "RightVerticalM";
+        public static string RightHorizontal = "RightHorizontalM";
 
-    public static string View = "ViewM";
-    public static string Menu = "MenuM";
+        public static string View = "ViewM";
+        public static string Menu = "MenuM";
 
 #else
     // 默认情况（其他平台可以根据需求修改）
@@ -334,7 +347,6 @@ namespace rei
         //获取应用程序的存储路径
         public static string SaveLocation()
         {
-
             string r = Application.streamingAssetsPath;
             if (!Directory.Exists(r))
             {
@@ -345,6 +357,3 @@ namespace rei
         }
     }
 }
-
-
-
