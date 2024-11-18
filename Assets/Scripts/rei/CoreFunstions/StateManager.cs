@@ -170,6 +170,21 @@ namespace rei
         //--------------------runner------------------------
         public void FixedTick(float d)
         {
+            
+            
+            // 如果正在计时
+            if (isTiming)
+            {
+                actionTimer += Time.fixedDeltaTime; // 累加计时器
+
+                // 如果超过两秒未调用 DetectAction，则重置 actionIndex
+                if (actionTimer >= resetTime)
+                {
+                    actionManager.actionIndex = 0; // 重置动作索引
+                    isTiming = false;             // 停止计时
+                }
+            }
+            
             delta = d;
             isBlocking = false;
             rigid.constraints &= ~RigidbodyConstraints.FreezePositionY;
@@ -266,6 +281,7 @@ namespace rei
 
             if (onGround && canMove)
                 rigid.velocity = moveDir * (moveSpeed * moveAmount);
+            
 
             if (run)
             {
@@ -444,6 +460,10 @@ namespace rei
         }
 
         //**********Actions*********************
+        
+        private float actionTimer = 0f; // 计时器
+        private bool isTiming = false; // 是否正在计时
+        private float resetTime = 1.1f;  // 1.1秒后重置时间
         public void DetectAction()
         {
             // if cannot move, exit the function
@@ -485,49 +505,83 @@ namespace rei
                     ParryAction(slot);
                     break;
             }
+            
+            isTiming = true; // 开始计时
+            actionTimer = 0f; // 重置计时器
         }
 
         void AttackAction(Action slot)
         {
+            // 如果角色体力不足，则无法执行攻击，直接返回
             if (characterStats._stamina < 5)
                 return;
 
+            // 检查是否可以执行格挡反击（Parry），如果成功触发，则直接返回
             if (CheckForParry(slot))
                 return;
+
+            // 检查是否可以执行背刺（BackStab），如果成功触发，则直接返回
             if (CheckForBackStab(slot))
                 return;
 
+            // 初始化目标动画变量
             string targetAnim = null;
+
+            // 获取当前 Action 的步骤（step），并根据输入动作（storeActionInput）获取对应分支动画信息
             ActionAnim branch = slot.GetActionStep(ref actionManager.actionIndex).GetBranch(storeActionInput);
+
+            // 从分支中获取目标动画名称
             targetAnim = branch.targetAnim;
-            audio_clip = ResourceManager.instance.GetAudio(branch.audio_ids).audio_clip;
+
+            // 获取动画对应的音频资源并保存到 `audio_clip` 中
+            if (audio_clip != null)
+            {
+                audio_clip = ResourceManager.instance.GetAudio(branch.audio_ids).audio_clip;
+            }
             
 
+            // 如果目标动画为空或未指定，则直接返回
             if (string.IsNullOrEmpty(targetAnim))
                 return;
 
+            // 设置当前的攻击 Action 信息
             currentAction = slot;
+
+            // 是否可以被格挡反击
             canBeParried = slot.canBeParried;
 
-            canAttack = false;
-            onEmpty = false;
-            canMove = false;
-            inAction = true;
+            // 更新角色状态，禁用攻击、移动等其他行为
+            canAttack = false; // 禁止再次攻击
+            onEmpty = false;   // 表示角色处于“非空闲”状态
+            canMove = false;   // 禁止移动
+            inAction = true;   // 标记为当前正在执行动作
 
+            // 设置目标动画速度，默认速度为 1
             float targetSpeed = 1;
             if (slot.changeSpeed)
             {
                 targetSpeed = slot.animSpeed;
+                Debug.Log(slot.animSpeed);
                 if (targetSpeed == 0)
-                    targetSpeed = 1;
+                    targetSpeed = 1; // 如果动画速度为 0，则将其恢复为默认值 1
             }
 
+            // 将动画速度传递给 Animator，控制动画播放速度
             anim.SetFloat("animSpeed", targetSpeed);
 
+            // 设置 Animator 的“镜像”状态，控制是否反转动画（例如左手或右手攻击）
             anim.SetBool("mirror", slot.mirror);
+
+            // 切换到目标攻击动画，使用 0.2 秒的过渡时间
             anim.CrossFade(targetAnim, 0.2f);
+
+            // 减少角色的体力值，消耗对应攻击的体力成本
             characterStats._stamina -= slot.staminaCost;
-            // rigid.velocity = Vector3.zero -> instead of turning off the velocity, we add velocity AnimatorHook.cs
+            //战技会耗蓝
+            characterStats._focus -= slot.fpCost;
+
+            // 注释：没有直接将角色的速度清零（如 `rigid.velocity = Vector3.zero`），
+            // 而是在 AnimatorHook 中通过根运动（Root Motion）处理角色的运动速度。
         }
 
         //格挡
@@ -775,26 +829,37 @@ namespace rei
 
         public bool OnGround()
         {
+            // 初始化返回值为 false，表示默认情况下不在地面上
             bool r = false;
 
-            // make the model to fall fast to the ground.
+            // 从对象位置向上移动一定距离（`toGround`）的起点
             Vector3 origin = transform.position + (Vector3.up * toGround);
+
+            // 射线的方向为向下
             Vector3 dir = -Vector3.up;
+
+            // 射线的长度为 `toGround` + 0.2f，多增加了 0.2f 是为了稍微超出地面范围
             float dis = toGround + 0.2f;
+
+            // 用于存储射线检测的结果
             RaycastHit hit;
 
+            // 在 Scene 视图中画出射线，用于调试（可视化检测）
             Debug.DrawRay(origin, dir * dis, Color.cyan);
 
+            // 使用物理射线检测（从 origin 向 dir 方向发射射线，长度为 dis，忽略指定的层）
             if (Physics.Raycast(origin, dir, out hit, dis, ignoreLayers))
             {
+                // 如果射线检测到碰撞，说明对象处于地面上
                 r = true;
+
+                // 将对象位置调整到射线碰撞点（即地面高度）
                 Vector3 targetPosition = hit.point;
                 transform.position = targetPosition;
-
             }
 
+            // 返回是否在地面上的检测结果
             return r;
-
         }
 
         //***********TwoHanded********************
@@ -864,11 +929,11 @@ namespace rei
         {
             if (run & moveAmount > 0)
             {
-                characterStats._stamina -= delta * 10;
+                characterStats._stamina -= delta * 17;
             }
             else
             {
-                characterStats._stamina += delta * 9;
+                characterStats._stamina += delta * 15;
             }
 
             characterStats._health = Mathf.Clamp(characterStats._health, 0, characterStats.hp);
