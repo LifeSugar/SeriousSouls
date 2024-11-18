@@ -44,6 +44,11 @@ namespace rei
                 Debug.Log("rei.WeaponScriptableObject could not be loaded!"); // 输出错误信息
                 return; // 如果加载失败，直接返回
             }
+            else
+            {
+                Debug.Log("rei.Weapon loaded!");
+                Debug.Log(obj.weapons_all[0].itemName);
+            }
 
             // 遍历 weapons_all 列表，将每个武器的名称和索引存储到字典 weapon_ids 中
             for (int i = 0; i < obj.weapons_all.Count; i++)
@@ -76,8 +81,12 @@ namespace rei
 
             // 使用武器名称通过 GetWeaponIdfromString 方法获取对应的索引
             int index = GetWeaponIdfromString(name);
-            if (index == -1) // 如果索引无效（-1），返回 null 表示未找到
+            if (index == -1)
+            {
+                Debug.Log("get no weapon");
                 return null;
+            }
+                
 
             // 根据索引返回武器对象
             return obj.weapons_all[index];

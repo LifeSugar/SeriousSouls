@@ -12,6 +12,8 @@ namespace rei
         bool a_input;
         bool x_input;
         bool y_input;
+        
+        
 
 
         bool rb_input;
@@ -55,12 +57,15 @@ namespace rei
 
 
         //用于win平台方向键
-        private const float threshold = 0.5f;
-        private bool wasDPadUpPressed = false;
-        private bool wasDPadDownPressed = false;
-        private bool wasDPadLeftPressed = false;
-        private bool wasDPadRightPressed = false;
+        private const float threshold = 0.5f;  // 阈值，用于判断DPad和扳机键是否按下
+        private bool isLTPressed = false;  // LT按键状态
+        private bool isRTPressed = false;  // RT按键状态
 
+        // DPad按键状态（仅适用于Windows平台）
+        private bool isDPadUpPressed = false;
+        private bool isDPadDownPressed = false;
+        private bool isDPadLeftPressed = false;
+        private bool isDPadRightPressed = false;
 
         //-----------------------------------------------------------------------
 
@@ -68,14 +73,11 @@ namespace rei
         {
             Debug.Log("start!");
             states = GetComponent<StateManager>();
-            // if (states == null)
-            //     Debug.LogWarning("No StateManager component found!");
-            // else
-            //     Debug.Log(states.name);
+            if (states == null)
+                Debug.LogWarning("No StateManager component found!");
+            else
+                Debug.Log("StateManager component found!");
             states.Init();
-            Debug.Log("start!");
-            Debug.Log("start!");
-            Debug.Log("start!");
             
             
 
@@ -86,6 +88,10 @@ namespace rei
             else
                 Debug.Log(camManager.name);
             camManager.Init(states);
+            
+            uiManager = UIManager.instance;
+
+            dialogueManager = DialogueManager.instance;
 
 
             Cursor.lockState = CursorLockMode.Locked;
@@ -93,95 +99,99 @@ namespace rei
         }
 
         // intitialize the movement and camera functionalities
-        // void FixedUpdate()
-        // {
-        //     delta = Time.fixedDeltaTime;
-        //     GetInput();
-        //     UpdateStates();
-        //     states.FixedTick(delta);
-        //     camManager.Tick(delta);
-        // }
+        void FixedUpdate()
+        {
+            delta = Time.fixedDeltaTime;
+            GetInput();
+            UpdateStates();
+            states.FixedTick(delta);
+            camManager.Tick(delta);
+            states.MonitorStats();
+        }
 
         bool preferItem;
 
-        // void Update()
-        // {
-        //     delta = Time.deltaTime;
-        //     if (a_input)
-        //         a_input_count++;
-        //     // Debug.Log(delta);
-        //     states.Tick(delta);
-        //     if (!dialogueManager.dialogueActive)
-        //     {
-        //         if (states.pickManager.itemCandidate != null || states.pickManager.interactionCandidate != null)
-        //         {
-        //             if (states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
-        //             {
-        //                 if (preferItem)
-        //                 {
-        //                     PickupItem();
-        //                 }
-        //                 else
-        //                     Interact();
-        //             }
-        //
-        //             if (states.pickManager.itemCandidate && !states.pickManager.interactionCandidate)
-        //             {
-        //                 PickupItem();
-        //             }
-        //
-        //             if (!states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
-        //             {
-        //                 Interact();
-        //             }
-        //         }
-        //         else
-        //         {
-        //             uiManager.CloseInteractCanvas();
-        //             if (uiManager.ItemCards[0].gameObject.activeSelf == true
-        //                 || uiManager.ItemCards[1].gameObject.activeSelf == true
-        //                 || uiManager.ItemCards[2].gameObject.activeSelf == true
-        //                 || uiManager.ItemCards[3].gameObject.activeSelf == true
-        //                 || uiManager.ItemCards[4].gameObject.activeSelf == true)
-        //                 close_timer += 1;
-        //             if (close_timer > 190)
-        //             {
-        //                 close_timer = 0;
-        //                 uiManager.CloseItemCards();
-        //                 a_input = false;
-        //             }
-        //         }
-        //     }
-        //     else
-        //     {
-        //         uiManager.CloseInteractCanvas();
-        //     }
-        //
-        //     if (a_input_count > 1f)
-        //     {
-        //         a_input = false;
-        //         a_input_count = 0;
-        //     }
-        //
-        //
-        //     dialogueManager.Tick(a_input);
-        //     states.MonitorStats();
-        //     ResetInputNState();
-        //     uiManager.Tick(states.characterStats, delta, states);
-        // }
-        //
-        // void PickupItem()
-        // {
-        //     uiManager.OpenInteractCanvas(UIActionType.pickup);
-        //     if (a_input)
-        //     {
-        //         Vector3 targetDir = states.pickManager.itemCandidate.transform.position - transform.position;
-        //         states.SnapToRotation(targetDir);
-        //         states.pickManager.PickCandidate(states);
-        //         states.PlayAnimation("pick_up");
-        //         a_input = false;
-        //     }
-        // }
+        void Update()
+        {
+            
+            delta = Time.deltaTime;
+            if (a_input)
+                a_input_count++;
+            // Debug.Log(delta);
+            states.Tick(delta);
+            
+            // if (!dialogueManager.dialogueActive)
+            // {
+            //     if (states.pickManager.itemCandidate != null || states.pickManager.interactionCandidate != null)
+            //     {
+            //         if (states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+            //         {
+            //             if (preferItem)
+            //             {
+            //                 PickupItem();
+            //             }
+            //             else
+            //                 Interact();
+            //         }
+            //
+            //         if (states.pickManager.itemCandidate && !states.pickManager.interactionCandidate)
+            //         {
+            //             PickupItem();
+            //         }
+            //
+            //         if (!states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+            //         {
+            //             Interact();
+            //         }
+            //     }
+            //     else
+            //     {
+            //         uiManager.CloseInteractCanvas();
+            //         if (uiManager.ItemCards[0].gameObject.activeSelf == true
+            //             || uiManager.ItemCards[1].gameObject.activeSelf == true
+            //             || uiManager.ItemCards[2].gameObject.activeSelf == true
+            //             || uiManager.ItemCards[3].gameObject.activeSelf == true
+            //             || uiManager.ItemCards[4].gameObject.activeSelf == true)
+            //             close_timer += 1;
+            //         if (close_timer > 190)
+            //         {
+            //             close_timer = 0;
+            //             uiManager.CloseItemCards();
+            //             a_input = false;
+            //         }
+            //     }
+            // }
+            // else
+            // {
+            //     uiManager.CloseInteractCanvas();
+            // }
+        
+            if (a_input_count > 1f)
+            {
+                a_input = false;
+                a_input_count = 0;
+            }
+        
+        
+            // dialogueManager.Tick(a_input);
+            
+            // states.MonitorStats();
+            ResetInputNState();
+            uiManager.Tick(states.characterStats, delta, states);
+        }
+        
+        void PickupItem()
+        {
+            uiManager.OpenInteractCanvas(UIActionType.pickup);
+            if (a_input)
+            {
+                Vector3 targetDir = states.pickManager.itemCandidate.transform.position - transform.position;
+                states.SnapToRotation(targetDir);
+                states.pickManager.PickCandidate(states);
+                states.PlayAnimation("pick_up");
+                a_input = false;
+            }
+        }
 
         void Interact()
         {
@@ -208,16 +218,58 @@ namespace rei
             rb_input = Input.GetButton(GlobalStrings.RB);
             lb_input = Input.GetButton(GlobalStrings.LB);
 
-            rt_input = Input.GetButton(GlobalStrings.RT);
-            rt_axis = Input.GetAxis(GlobalStrings.RT);
+            // rt_input = Input.GetButton(GlobalStrings.RT);
+            // rt_axis = Input.GetAxis(GlobalStrings.RT);
+            //
+            // if (rt_axis != 0)
+            //     rt_input = true;
+            //
+            // lt_input = Input.GetButton(GlobalStrings.LT);
+            // lt_axis = Input.GetAxis(GlobalStrings.LT);
+            // if (lt_axis != 0)
+            //     lt_input = true;
+            
+            // 检查LT和RT是否“按下”
+            float ltValue = Input.GetAxis(GlobalStrings.LT);
+            float rtValue = Input.GetAxis(GlobalStrings.RT);
 
-            if (rt_axis != 0)
-                rt_input = true;
-
-            lt_input = Input.GetButton(GlobalStrings.LT);
-            lt_axis = Input.GetAxis(GlobalStrings.LT);
-            if (lt_axis != 0)
+            // LT按键处理：按下时显示一次"LT Pressed"
+            if (ltValue > threshold && !isLTPressed)
+            {
                 lt_input = true;
+                isLTPressed = true;
+                
+            }
+            else if (ltValue <= threshold && isLTPressed)
+            {
+                
+                isLTPressed = false;  // 重置状态
+                lt_input = false;
+                
+            }
+            else
+            {
+                lt_input = false;
+            }
+
+            // RT按键处理：按下时显示一次"RT Pressed"
+            if (rtValue > threshold && !isRTPressed)
+            {
+                rt_input = true;
+                
+                isRTPressed = true;
+            }
+            else if (rtValue <= threshold && isRTPressed)
+            {
+                rt_input = false;
+                
+                isRTPressed = false;  // 重置状态
+                
+            }
+            else
+            {
+                rt_input = false;
+            }
 
             rightAxis_down = Input.GetButtonUp(GlobalStrings.L);
 
@@ -332,10 +384,10 @@ namespace rei
 
 
 #elif UNITY_STANDALONE_OSX
-            d_up = Input.GetButton(GlobalStrings.DPadUp);
-            d_down = Input.GetButton(GlobalStrings.DPadDown);
-            d_left = Input.GetButton(GlobalStrings.DPadLeft);
-            d_right = Input.GetButton(GlobalStrings.DPadRight);
+            // d_up = Input.GetButton(GlobalStrings.DPadUp);
+            // d_down = Input.GetButton(GlobalStrings.DPadDown);
+            // d_left = Input.GetButton(GlobalStrings.DPadLeft);
+            // d_right = Input.GetButton(GlobalStrings.DPadRight);
 #endif
         }
 
@@ -362,10 +414,10 @@ namespace rei
             states.moveAmount = Mathf.Clamp01(m);
 
             // B_input: 
-            if (b_input && b_timer > 0.5f)
+            if (b_input && b_timer > 0.3f)
             {
                 // run when holding down.
-                states.run = (states.moveAmount > 0) && states.characterStats._stamina > 0;
+                states.run = (states.moveAmount > 0.8f) && states.characterStats._stamina > 0;
             }
 
             /* roll when tap the button b_input, thus b_input must equal false at the following FixedFrame because b_input == false when not the button for it is released.

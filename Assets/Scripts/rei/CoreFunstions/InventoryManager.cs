@@ -444,17 +444,26 @@ namespace rei
         // 根据动作输入（ActionInput）获取对应的动作（Action）
         public Action GetAction(List<Action> l, ActionInput inp)
         {
-            if (l == null) // 若传入的动作列表为空，直接返回null
+            if (l == null)
+            {
+                Debug.Log("this weapon dont have actions");
                 return null;
+            }
+
+            Debug.Log(l.Count);
+                
 
             // 遍历动作列表，找到与输入匹配的动作
             for (int i = 0; i < l.Count; i++)
             {
+                Debug.Log(l[i].input.ToString());
                 if (l[i].input == inp) // 如果动作的输入与指定输入匹配，返回该动作
                 {
+                    Debug.Log("找到了");
                     return l[i];
                 }
             }
+            Debug.Log("没找到");
             return null; // 若未找到匹配的动作，返回null
         }
 

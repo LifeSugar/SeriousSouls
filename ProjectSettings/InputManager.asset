@@ -371,7 +371,7 @@ InputManager:
     snap: 0
     invert: 1
     type: 0
-    axis: 4
+    axis: 0
     joyNum: 0
   - serializedVersion: 3
     m_Name: RBM
@@ -380,14 +380,14 @@ InputManager:
     negativeButton: 
     positiveButton: joystick button 14
     altNegativeButton: 
-    altPositiveButton: 
+    altPositiveButton: b
     gravity: 0
     dead: 0.19
     sensitivity: 1
     snap: 0
     invert: 1
     type: 0
-    axis: 4
+    axis: 0
     joyNum: 0
   - serializedVersion: 3
     m_Name: LTM
@@ -457,15 +457,15 @@ InputManager:
     m_Name: HorizontalM
     descriptiveName: 
     descriptiveNegativeName: 
-    negativeButton: 
-    positiveButton: 
+    negativeButton: a
+    positiveButton: d
     altNegativeButton: 
     altPositiveButton: 
     gravity: 0
     dead: 0.19
     sensitivity: 1
     snap: 0
-    invert: 1
+    invert: 0
     type: 2
     axis: 0
     joyNum: 0
@@ -473,8 +473,8 @@ InputManager:
     m_Name: VerticalM
     descriptiveName: 
     descriptiveNegativeName: 
-    negativeButton: 
-    positiveButton: 
+    negativeButton: s
+    positiveButton: w
     altNegativeButton: 
     altPositiveButton: 
     gravity: 0
@@ -497,7 +497,7 @@ InputManager:
     dead: 0.19
     sensitivity: 1
     snap: 0
-    invert: 1
+    invert: 0
     type: 2
     axis: 2
     joyNum: 0
@@ -644,6 +644,38 @@ InputManager:
     invert: 1
     type: 0
     axis: 4
+    joyNum: 0
+  - serializedVersion: 3
+    m_Name: DPadHorizontalM
+    descriptiveName: 
+    descriptiveNegativeName: 
+    negativeButton: 
+    positiveButton: 
+    altNegativeButton: 
+    altPositiveButton: 
+    gravity: 0
+    dead: 0.19
+    sensitivity: 1
+    snap: 0
+    invert: 1
+    type: 2
+    axis: 6
+    joyNum: 0
+  - serializedVersion: 3
+    m_Name: DPadVerticalM
+    descriptiveName: 
+    descriptiveNegativeName: 
+    negativeButton: 
+    positiveButton: 
+    altNegativeButton: 
+    altPositiveButton: 
+    gravity: 0
+    dead: 0.19
+    sensitivity: 1
+    snap: 0
+    invert: 1
+    type: 2
+    axis: 7
     joyNum: 0
   - serializedVersion: 3
     m_Name: Enable Debug Button 1
