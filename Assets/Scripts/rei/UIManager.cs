@@ -136,10 +136,14 @@ namespace rei
         //捡到东西的UI
         public void AddItemCard(Item i)
         {
+            Debug.Log(i.itemName);
+            Debug.Log(i.icon != null);
+            
             ItemCards[item_idx].itemName.text = i.itemName;
             ItemCards[item_idx].icon.sprite = i.icon;
             ItemCards[item_idx].gameObject.SetActive(true);
             item_idx++;
+            Debug.Log("AddItemCard");
         }
 
         public void CloseItemCards()

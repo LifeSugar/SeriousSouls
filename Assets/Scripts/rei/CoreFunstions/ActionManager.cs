@@ -93,7 +93,7 @@ namespace rei
                  GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.rb, actionSlots);
                  GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rt, ActionInput.rt, actionSlots);
              }
-             // 如果装备了左手武器，则为左手输入映射相应动作；否则，将右手动作映射到左手输入
+             // 如果装备了左手武器，则为左手输入映射相应动作；否则，将空手动作映射到左手输入
              if (states.inventoryManager.hasLeftHandWeapon)
              {
                  GlobalFuntions.DeepCopyAction(states.inventoryManager.leftHandWeapon.instance, ActionInput.rb,

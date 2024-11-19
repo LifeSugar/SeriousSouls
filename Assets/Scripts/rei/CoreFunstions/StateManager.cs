@@ -527,7 +527,7 @@ namespace rei
             // 初始化目标动画变量
             string targetAnim = null;
 
-            // 获取当前 Action 的步骤（step），并根据输入动作（storeActionInput）获取对应分支动画信息
+            // 获取当前 Action 的步骤（step），并根据输入动作（storeActionInput）获取对应分支动画信息，branch也可以处理冲刺攻击和蓄力攻击等情况，再说吧
             ActionAnim branch = slot.GetActionStep(ref actionManager.actionIndex).GetBranch(storeActionInput);
 
             // 从分支中获取目标动画名称
@@ -561,7 +561,7 @@ namespace rei
             if (slot.changeSpeed)
             {
                 targetSpeed = slot.animSpeed;
-                Debug.Log(slot.animSpeed);
+                
                 if (targetSpeed == 0)
                     targetSpeed = 1; // 如果动画速度为 0，则将其恢复为默认值 1
             }
