@@ -8,10 +8,10 @@ namespace rei
     {
         float vertical;
         float horizontal;
-        bool b_input;
-        bool a_input;
-        bool x_input;
-        bool y_input;
+        public bool b_input;
+        public bool a_input;
+        public bool x_input;
+        public bool y_input;
         
         
 
@@ -28,10 +28,10 @@ namespace rei
         float d_y;
         float d_x;
 
-        bool d_up;
-        bool d_down;
-        bool d_right;
-        bool d_left;
+        public bool d_up;
+        public bool d_down;
+        public bool d_right;
+        public bool d_left;
 
         bool p_d_up;
         bool p_d_down;
@@ -56,16 +56,14 @@ namespace rei
         float delta;
 
 
-        //用于win平台方向键
-        private const float threshold = 0.5f;  // 阈值，用于判断DPad和扳机键是否按下
-        private bool isLTPressed = false;  // LT按键状态
-        private bool isRTPressed = false;  // RT按键状态
-
-        // DPad按键状态（仅适用于Windows平台）
-        private bool isDPadUpPressed = false;
-        private bool isDPadDownPressed = false;
-        private bool isDPadLeftPressed = false;
-        private bool isDPadRightPressed = false;
+        // //用于方向键
+        // private const float threshold = 0.5f;  // 阈值，用于判断DPad和扳机键是否按下
+        //
+        // // DPad按键状态（仅适用于Windows平台）
+        // private bool isDPadUpPressed = false;
+        // private bool isDPadDownPressed = false;
+        // private bool isDPadLeftPressed = false;
+        // private bool isDPadRightPressed = false;
 
         //-----------------------------------------------------------------------
 
@@ -120,51 +118,52 @@ namespace rei
             // Debug.Log(delta);
             states.Tick(delta);
             
-            // if (!dialogueManager.dialogueActive)
-            // {
-            //     if (states.pickManager.itemCandidate != null || states.pickManager.interactionCandidate != null)
-            //     {
-            //         if (states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
-            //         {
-            //             if (preferItem)
-            //             {
-            //                 PickupItem();
-            //             }
-            //             else
-            //                 Interact();
-            //         }
-            //
-            //         if (states.pickManager.itemCandidate && !states.pickManager.interactionCandidate)
-            //         {
-            //             PickupItem();
-            //         }
-            //
-            //         if (!states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
-            //         {
-            //             Interact();
-            //         }
-            //     }
-            //     else
-            //     {
-            //         uiManager.CloseInteractCanvas();
-            //         if (uiManager.ItemCards[0].gameObject.activeSelf == true
-            //             || uiManager.ItemCards[1].gameObject.activeSelf == true
-            //             || uiManager.ItemCards[2].gameObject.activeSelf == true
-            //             || uiManager.ItemCards[3].gameObject.activeSelf == true
-            //             || uiManager.ItemCards[4].gameObject.activeSelf == true)
-            //             close_timer += 1;
-            //         if (close_timer > 190)
-            //         {
-            //             close_timer = 0;
-            //             uiManager.CloseItemCards();
-            //             a_input = false;
-            //         }
-            //     }
-            // }
-            // else
-            // {
-            //     uiManager.CloseInteractCanvas();
-            // }
+            if (!dialogueManager.dialogueActive)
+            {
+                if (states.pickManager.itemCandidate != null || states.pickManager.interactionCandidate != null)
+                {
+                    if (states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+                    {
+                        if (preferItem)
+                        {
+                            PickupItem();
+                        }
+                        else
+                            Interact();
+                    }
+            
+                    if (states.pickManager.itemCandidate && !states.pickManager.interactionCandidate)
+                    {
+                        // Debug.Log("picking item");
+                        PickupItem();
+                    }
+            
+                    if (!states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+                    {
+                        Interact();
+                    }
+                }
+                else
+                {
+                    uiManager.CloseInteractCanvas();
+                    if (uiManager.ItemCards[0].gameObject.activeSelf == true
+                        || uiManager.ItemCards[1].gameObject.activeSelf == true
+                        || uiManager.ItemCards[2].gameObject.activeSelf == true
+                        || uiManager.ItemCards[3].gameObject.activeSelf == true
+                        || uiManager.ItemCards[4].gameObject.activeSelf == true)
+                        close_timer += 1;
+                    if (close_timer > 190)
+                    {
+                        close_timer = 0;
+                        uiManager.CloseItemCards();
+                        a_input = false;
+                    }
+                }
+            }
+            else
+            {
+                uiManager.CloseInteractCanvas();
+            }
         
             if (a_input_count > 1f)
             {
@@ -185,6 +184,7 @@ namespace rei
             uiManager.OpenInteractCanvas(UIActionType.pickup);
             if (a_input)
             {
+                Debug.Log("pickup!");
                 Vector3 targetDir = states.pickManager.itemCandidate.transform.position - transform.position;
                 states.SnapToRotation(targetDir);
                 states.pickManager.PickCandidate(states);
@@ -218,177 +218,25 @@ namespace rei
             rb_input = Input.GetButton(GlobalStrings.RB);
             lb_input = Input.GetButton(GlobalStrings.LB);
 
-            // rt_input = Input.GetButton(GlobalStrings.RT);
-            // rt_axis = Input.GetAxis(GlobalStrings.RT);
-            //
-            // if (rt_axis != 0)
-            //     rt_input = true;
-            //
-            // lt_input = Input.GetButton(GlobalStrings.LT);
-            // lt_axis = Input.GetAxis(GlobalStrings.LT);
-            // if (lt_axis != 0)
-            //     lt_input = true;
             
-            // 检查LT和RT是否“按下”
-            float ltValue = Input.GetAxis(GlobalStrings.LT);
-            float rtValue = Input.GetAxis(GlobalStrings.RT);
-
-            // LT按键处理：按下时显示一次"LT Pressed"
-            if (ltValue > threshold && !isLTPressed)
-            {
-                lt_input = true;
-                isLTPressed = true;
-                
-            }
-            else if (ltValue <= threshold && isLTPressed)
-            {
-                
-                isLTPressed = false;  // 重置状态
-                lt_input = false;
-                
-            }
-            else
-            {
-                lt_input = false;
-            }
-
-            // RT按键处理：按下时显示一次"RT Pressed"
-            if (rtValue > threshold && !isRTPressed)
-            {
-                rt_input = true;
-                
-                isRTPressed = true;
-            }
-            else if (rtValue <= threshold && isRTPressed)
-            {
-                rt_input = false;
-                
-                isRTPressed = false;  // 重置状态
-                
-            }
-            else
-            {
-                rt_input = false;
-            }
-
-            rightAxis_down = Input.GetButtonUp(GlobalStrings.L);
-
+            rt_input = Input.GetButton(GlobalStrings.RT);
+            lt_input = Input.GetButton(GlobalStrings.LT);
+            
+            rightAxis_down = Input.GetButtonUp(GlobalStrings.R);
+            
             if (b_input)
                 b_timer += delta;
-#if UNITY_STANDALONE_WIN
-            // d_x = Input.GetAxis(GlobalStrings.DadHorizontal);
-            // d_y = Input.GetAxis(GlobalStrings.DadVertical);
-            //
-            // d_up = Input.GetKeyUp(KeyCode.Alpha1) || d_y > 0;
-            // d_down = Input.GetKeyUp(KeyCode.Alpha2) || d_y < 0;
-            // d_left = Input.GetKeyUp(KeyCode.Alpha3) || d_x < 0;
-            // d_right = Input.GetKeyUp(KeyCode.Alpha4) || d_x > 0;
             
             
             
-       // 获取DPad的轴值
-        d_x = Input.GetAxis(GlobalStrings.DPadHorizontal);
-        d_y = Input.GetAxis(GlobalStrings.DPadVertical);
+            d_x = Input.GetAxis(GlobalStrings.DPadHorizontal);
+            d_y = Input.GetAxis(GlobalStrings.DPadVertical);
 
-        // 检查DPad上方向
-        if (d_y > threshold)
-        {
-            if (!wasDPadUpPressed)
-            {
-                wasDPadUpPressed = true;
-            }
-        }
-        else
-        {
-            if (wasDPadUpPressed)
-            {
-                p_d_up = true;  // 抬起时返回True
-                inputLog += "DPad Up Released\n";
-                wasDPadUpPressed = false;
-            }
-        }
+            d_up = Input.GetKeyUp(KeyCode.Alpha1) || d_y > 0;
+            d_down = Input.GetKeyUp(KeyCode.Alpha2) || d_y < 0;
+            d_left = Input.GetKeyUp(KeyCode.Alpha3) || d_x < 0;
+            d_right = Input.GetKeyUp(KeyCode.Alpha4) || d_x > 0;
 
-        // 检查DPad下方向
-        if (d_y < -threshold)
-        {
-            if (!wasDPadDownPressed)
-            {
-                wasDPadDownPressed = true;
-            }
-        }
-        else
-        {
-            if (wasDPadDownPressed)
-            {
-                p_d_down = true;  // 抬起时返回True
-                inputLog += "DPad Down Released\n";
-                wasDPadDownPressed = false;
-            }
-        }
-
-        // 检查DPad左方向
-        if (d_x < -threshold)
-        {
-            if (!wasDPadLeftPressed)
-            {
-                wasDPadLeftPressed = true;
-            }
-        }
-        else
-        {
-            if (wasDPadLeftPressed)
-            {
-                p_d_left = true;  // 抬起时返回True
-                inputLog += "DPad Left Released\n";
-                wasDPadLeftPressed = false;
-            }
-        }
-
-        // 检查DPad右方向
-        if (d_x > threshold)
-        {
-            if (!wasDPadRightPressed)
-            {
-                wasDPadRightPressed = true;
-            }
-        }
-        else
-        {
-            if (wasDPadRightPressed)
-            {
-                p_d_right = true;  // 抬起时返回True
-                inputLog += "DPad Right Released\n";
-                wasDPadRightPressed = false;
-            }
-        }
-
-        // 显示并输出到Console
-        if (!string.IsNullOrEmpty(inputLog))
-        {
-            displayText.text = inputLog;  // 显示到UI
-            Debug.Log(inputLog);  // 输出到Console
-        }
-
-        // 在下一帧重置抬起状态
-        ResetReleaseStates();
-    }
-
-    // 在下一帧重置抬起状态
-    private void ResetReleaseStates()
-    {
-        p_d_up = false;
-        p_d_down = false;
-        p_d_left = false;
-        p_d_right = false;
-    }
-
-
-#elif UNITY_STANDALONE_OSX
-            // d_up = Input.GetButton(GlobalStrings.DPadUp);
-            // d_down = Input.GetButton(GlobalStrings.DPadDown);
-            // d_left = Input.GetButton(GlobalStrings.DPadLeft);
-            // d_right = Input.GetButton(GlobalStrings.DPadRight);
-#endif
         }
 
         // passing values to StateManager variables and functions.
@@ -414,14 +262,12 @@ namespace rei
             states.moveAmount = Mathf.Clamp01(m);
 
             // B_input: 
-            if (b_input && b_timer > 0.3f)
+            if (b_input && b_timer > 0.5f)
             {
-                // run when holding down.
+                
                 states.run = (states.moveAmount > 0.8f) && states.characterStats._stamina > 0;
             }
-
-            /* roll when tap the button b_input, thus b_input must equal false at the following FixedFrame because b_input == false when not the button for it is released.
-             and the timer at that following FixedFrame still equals to the last calculated value before being set back to 0 in the next FixedFrame after this one. */
+            
             if (b_input == false && b_timer > 0 && b_timer < 0.5f)
                 states.rollInput = true;
 

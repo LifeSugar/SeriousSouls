@@ -96,7 +96,7 @@ namespace rei
         switch (type)
         {
             
-            //这里逻辑再仔细想想 存疑，主要是没有真正的“库存”
+            //这里逻辑再仔细想想，主要是没有真正的“库存”
             // 如果物品是武器类型
             case ItemType.weapon:
                 // 检查玩家是否已经拥有该武器
@@ -109,9 +109,10 @@ namespace rei
                         return;
                     }
                 }
-                // 如果玩家未拥有该武器，将武器添加到玩家库存中
+                // 如果玩家未拥有该武器，将武器添加到玩家右手slot中
+                Debug.Log("get" + id);
                 inv.WeaponToRuntimeWeapon(ResourceManager.instance.GetWeapon(id));
-                inv.WeaponToRuntimeWeapon(ResourceManager.instance.GetWeapon(id), true);
+                // inv.WeaponToRuntimeWeapon(ResourceManager.instance.GetWeapon(id), true);
                 break;
 
             // 如果物品是消耗品类型

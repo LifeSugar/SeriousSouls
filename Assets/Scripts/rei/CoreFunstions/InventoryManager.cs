@@ -20,15 +20,15 @@ namespace rei
         public List<RuntimeWeapon> runtime_l_weapons = new List<RuntimeWeapon>();
         public List<RuntimeSpell> runtime_spells = new List<RuntimeSpell>();
         public List<RuntimeConsumable> runtime_consumables = new List<RuntimeConsumable>();
-        
+
         public RuntimeConsumable curConsumable;
         public RuntimeSpell currentSpell;
         public RuntimeWeapon rightHandWeapon;
         public RuntimeWeapon leftHandWeapon;
         public bool hasLeftHandWeapon = false;
         public bool hasRightHandWeapon = false;
-        
-        
+
+
         public GameObject parryCollider;
         public GameObject breathCollider;
         public GameObject blockCollider;
@@ -39,13 +39,10 @@ namespace rei
         {
             states = st;
             UI.QuickSlot.instance.Init();
-            
-            
         }
 
         public void LoadInventory()
         {
-            
         }
 
         public Weapon GetCurrentWeapon(bool isLeftHand)
@@ -58,7 +55,6 @@ namespace rei
 
         public void ChangeToNextWeapon(bool isLeft)
         {
-            
             // 如果是左手武器
             if (isLeft)
             {
@@ -86,22 +82,30 @@ namespace rei
             // 更新动作管理器中的单手武器动作
             states.actionManager.UpdateActionsOneHanded();
         }
-        
+
         //用于将指定的 RuntimeWeapon 武器实例装备到角色的左手或右手。该方法处理了旧武器的隐藏、新武器的显示、动画状态的设置，以及更新 UI 中快捷槽的图标
-        public void EquipWeapon(RuntimeWeapon w, bool isLeft = false) {
+        public void EquipWeapon(RuntimeWeapon w, bool isLeft = false)
+        {
             // 如果是左手武器
-            if (isLeft) {
+            if (isLeft)
+            {
                 // 如果左手已装备武器，将其隐藏
-                if (leftHandWeapon != null) {
+                if (leftHandWeapon != null)
+                {
                     leftHandWeapon.weaponModel.SetActive(false);
                 }
+
                 // 设置左手武器为当前装备的武器
                 leftHandWeapon = w;
-            } else {
+            }
+            else
+            {
                 // 如果右手已装备武器，将其隐藏
-                if (rightHandWeapon != null) {
+                if (rightHandWeapon != null)
+                {
                     rightHandWeapon.weaponModel.SetActive(false);
                 }
+
                 // 设置右手武器为当前装备的武器
                 rightHandWeapon = w;
             }
@@ -111,8 +115,10 @@ namespace rei
             targetIdle += (isLeft) ? "_l" : "_r";
 
             // 如果是左手武器，设置动作镜像
-            if (isLeft == true) {
-                for (int i = 0; i < leftHandWeapon.instance.actions.Count; i++) {
+            if (isLeft == true)
+            {
+                for (int i = 0; i < leftHandWeapon.instance.actions.Count; i++)
+                {
                     leftHandWeapon.instance.actions[i].mirror = true; // 将每个动作设置为镜像
                 }
             }
@@ -130,8 +136,8 @@ namespace rei
             // 激活新武器的模型，使其在游戏中可见
             w.weaponModel.SetActive(true);
         }
-        
-        
+
+
         //将传入的 Weapon 对象转换为 RuntimeWeapon 对象。RuntimeWeapon 是武器在运行时的实例对象，包含实际的武器模型、碰撞器和与动画的绑定等。
         public RuntimeWeapon WeaponToRuntimeWeapon(Weapon w, bool isLeftHand = false)
         {
@@ -147,12 +153,17 @@ namespace rei
 
             // 实例化武器模型，并将其设置为手部的子对象
             ist.weaponModel = Instantiate(ist.instance.modelPrefab);
-            Transform p = states.anim.GetBoneTransform((isLeftHand) ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand); // 获取手部骨骼的 Transform
+            Transform p =
+                states.anim.GetBoneTransform((isLeftHand)
+                    ? HumanBodyBones.LeftHand
+                    : HumanBodyBones.RightHand); // 获取手部骨骼的 Transform
             ist.weaponModel.transform.parent = p; // 设置模型的父对象为手部骨骼
 
             // 设置模型的位置、旋转和缩放
-            ist.weaponModel.transform.localPosition = (isLeftHand) ? ist.instance.l_model_pos : ist.instance.r_model_pos;
-            ist.weaponModel.transform.localEulerAngles = (isLeftHand) ? ist.instance.l_model_eulers : ist.instance.r_model_eulers;
+            ist.weaponModel.transform.localPosition =
+                (isLeftHand) ? ist.instance.l_model_pos : ist.instance.r_model_pos;
+            ist.weaponModel.transform.localEulerAngles =
+                (isLeftHand) ? ist.instance.l_model_eulers : ist.instance.r_model_eulers;
             ist.weaponModel.transform.localScale = ist.instance.model_scale;
 
             // 获取武器模型中的 WeaponHook 组件，用于控制武器的碰撞器
@@ -167,11 +178,12 @@ namespace rei
 
             // 初始状态下将武器模型设为不可见，交由 EquipWeapon 方法处理显示和隐藏
             ist.weaponModel.SetActive(false);
-    
+
             return ist; // 返回生成的 RuntimeWeapon 实例
         }
-        
-         public void ChangeToNextSpell() {
+
+        public void ChangeToNextSpell()
+        {
             if (sp_idx < runtime_l_weapons.Count - 1)
                 sp_idx++;
             else
@@ -179,25 +191,25 @@ namespace rei
             EquipSpells(runtime_spells[sp_idx]);
         }
 
-         //将传入的 RuntimeSpell 实例设置为当前装备的法术，同时更新 UI 中的快捷槽图标
-         public void EquipSpells(RuntimeSpell spell)
-         {
-             // 将传入的法术实例设置为当前装备的法术
-             currentSpell = spell;
+        //将传入的 RuntimeSpell 实例设置为当前装备的法术，同时更新 UI 中的快捷槽图标
+        public void EquipSpells(RuntimeSpell spell)
+        {
+            // 将传入的法术实例设置为当前装备的法术
+            currentSpell = spell;
 
-             // 获取 UI 快捷槽单例
-             UI.QuickSlot uiSlot = UI.QuickSlot.instance;
+            // 获取 UI 快捷槽单例
+            UI.QuickSlot uiSlot = UI.QuickSlot.instance;
 
-             // 更新快捷槽的图标，UI.QSlotType.spell 表示法术槽
-             uiSlot.UpdateSlot(UI.QSlotType.spell, spell.instance.icon);
-         }
+            // 更新快捷槽的图标，UI.QSlotType.spell 表示法术槽
+            uiSlot.UpdateSlot(UI.QSlotType.spell, spell.instance.icon);
+        }
 
         //将一个 Spell 对象（静态数据）转换为 RuntimeSpell 对象（运行时实例）
         public RuntimeSpell SpellToRuntimeSpell(Spell s, bool isLeft = false)
         {
             // 创建一个新的空 GameObject，作为运行时法术实例的承载对象
             GameObject g0 = new GameObject();
-    
+
             // 添加 RuntimeSpell 组件到 GameObject
             RuntimeSpell inst = g0.AddComponent<RuntimeSpell>();
 
@@ -214,16 +226,17 @@ namespace rei
         }
 
         //用于创建一个法术的粒子效果，并将其附加到指定的位置
-        public void CreateSpellParticle(RuntimeSpell inst, bool isLeft, bool parentUnderRoot = false) {
+        public void CreateSpellParticle(RuntimeSpell inst, bool isLeft, bool parentUnderRoot = false)
+        {
             // 检查当前法术实例是否已有粒子效果，如果没有则实例化一个新的
             if (inst.currentParticle == null)
             {
                 // 实例化粒子效果预制体并赋值给 currentParticle
                 inst.currentParticle = Instantiate(inst.instance.particle_prefab) as GameObject;
-        
+
                 // 获取粒子效果中的 ParticleHook 组件，用于控制粒子的行为
                 inst.p_hook = inst.currentParticle.GetComponentInChildren<ParticleHook>();
-        
+
                 // 初始化
                 inst.p_hook.Init();
             }
@@ -232,35 +245,38 @@ namespace rei
             if (!parentUnderRoot)
             {
                 // 获取手部骨骼的 Transform，根据 isLeft 参数判断是左手还是右手
-                Transform p = states.anim.GetBoneTransform((isLeft) ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand);
-        
+                Transform p =
+                    states.anim.GetBoneTransform((isLeft) ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand);
+
                 // 将粒子效果挂载在手部骨骼上
                 inst.currentParticle.transform.parent = p;
-        
+
                 // 设置粒子效果的本地旋转为默认值（无旋转）
                 inst.currentParticle.transform.localRotation = Quaternion.identity;
-        
+
                 // 设置粒子效果的位置为手部骨骼的中心
                 inst.currentParticle.transform.localPosition = Vector3.zero;
             }
-            else {
+            else
+            {
                 // 将粒子效果挂载在角色的根 Transform 上
                 inst.currentParticle.transform.parent = transform;
-        
+
                 // 设置粒子效果的本地旋转为默认值（无旋转）
                 inst.currentParticle.transform.localRotation = Quaternion.identity;
-        
+
                 // 设置粒子效果的位置，使其位于角色根位置上方
                 inst.currentParticle.transform.localPosition = new Vector3(0, 1.5f, 0.65f);
             }
             // inst.currentParticle.SetActive(false);
         }
-        
-        
+
+
         //以下三个方法用于处理消耗品的转换，装备和切换（果粒橙和脉动）
-        
+
         //将消耗品（静态对象）转换为正在装备的消耗品（运行实例）
-        public RuntimeConsumable ConsumableToRuntimeConsumable(Consumable c) {
+        public RuntimeConsumable ConsumableToRuntimeConsumable(Consumable c)
+        {
             // 创建一个新的空 GameObject 作为消耗品的运行时实例
             GameObject g0 = new GameObject();
             RuntimeConsumable inst = g0.AddComponent<RuntimeConsumable>(); // 添加 RuntimeConsumable 组件
@@ -271,7 +287,8 @@ namespace rei
             GlobalFuntions.DeepCopyConsumable(inst.instance, c); // 使用 DeepCopyConsumable 方法复制数据
 
             // 如果消耗品有对应的模型预制体，则实例化该模型
-            if (inst.instance.itemPrefab != null) {
+            if (inst.instance.itemPrefab != null)
+            {
                 GameObject model = Instantiate(inst.instance.itemPrefab) as GameObject; // 实例化模型
                 Transform p = states.anim.GetBoneTransform(HumanBodyBones.RightHand); // 获取角色右手的 Transform
                 model.transform.parent = p; // 将模型作为右手的子对象
@@ -292,7 +309,7 @@ namespace rei
             runtime_consumables.Add(inst); // 将生成的 RuntimeConsumable 添加到运行时消耗品列表中
             return inst; // 返回生成的 RuntimeConsumable 实例
         }
-        
+
         //装备
         public void EquipConsumable(RuntimeConsumable consum)
         {
@@ -301,7 +318,7 @@ namespace rei
             UI.QuickSlot uiSlot = UI.QuickSlot.instance; // 获取 UI 快捷槽单例
             uiSlot.UpdateSlot(UI.QSlotType.item, consum.instance.icon); // 更新快捷槽的图标为消耗品的图标
         }
-        
+
         //切换
         public void ChangeToNextConsumable()
         {
@@ -314,7 +331,7 @@ namespace rei
             // 装备新的消耗品
             EquipConsumable(runtime_consumables[consumable_idx]);
         }
-        
+
         public void OpenAllDamageColliders()
         {
             // 如果右手武器的 WeaponHook 存在，打开其伤害碰撞器
@@ -372,7 +389,7 @@ namespace rei
         }
 
         //法术
-        
+
         // 打开法术碰撞器，用于持续施法的碰撞判定
         public void OpenBreathCollider()
         {
@@ -403,24 +420,8 @@ namespace rei
             currentSpell.p_hook.Emit(1);
         }
     }
-        
-        
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
     [System.Serializable]
     public class Weapon : Item
     {
@@ -451,19 +452,17 @@ namespace rei
             }
 
             Debug.Log(l.Count);
-                
+
 
             // 遍历动作列表，找到与输入匹配的动作
             for (int i = 0; i < l.Count; i++)
             {
-                Debug.Log(l[i].input.ToString());
                 if (l[i].input == inp) // 如果动作的输入与指定输入匹配，返回该动作
                 {
-                    Debug.Log("找到了");
                     return l[i];
                 }
             }
-            Debug.Log("没找到");
+
             return null; // 若未找到匹配的动作，返回null
         }
 
@@ -499,12 +498,14 @@ namespace rei
                     return l[i];
                 }
             }
+
             return null;
         }
     }
 
     [System.Serializable]
-    public class Consumable : Item {
+    public class Consumable : Item
+    {
         public string consumableEffect;
         public string audio_id;
         public string targetAnim;
@@ -516,7 +517,10 @@ namespace rei
         public Vector3 model_scale;
     }
 
-    public enum ItemType {
-        weapon, item, spell
+    public enum ItemType
+    {
+        weapon,
+        item,
+        spell
     }
 }
