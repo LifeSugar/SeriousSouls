@@ -105,12 +105,12 @@ namespace rei
             rigid.drag = 4;
             rigid.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             
-            Debug.Log("Start to set inventory");
+            // Debug.Log("Start to set inventory");
             inventoryManager = GetComponent<InventoryManager>();
             if (inventoryManager == null)
                 Debug.Log("No inventory manager");
             inventoryManager.Init(this);
-            Debug.Log("inventory manager initialized");
+            // Debug.Log("inventory manager initialized");
 
             actionManager = GetComponent<ActionManager>();
             if (actionManager == null)
@@ -170,12 +170,10 @@ namespace rei
         //--------------------runner------------------------
         public void FixedTick(float d)
         {
-            
-            
             // 如果正在计时
             if (isTiming)
             {
-                actionTimer += Time.fixedDeltaTime; // 累加计时器
+                actionTimer += d; // 累加计时器
 
                 // 如果超过两秒未调用 DetectAction，则重置 actionIndex
                 if (actionTimer >= resetTime)
@@ -513,7 +511,7 @@ namespace rei
         void AttackAction(Action slot)
         {
             // 如果角色体力不足，则无法执行攻击，直接返回
-            if (characterStats._stamina < 5)
+            if (characterStats._stamina < slot.staminaCost)
                 return;
 
             // 检查是否可以执行格挡反击（Parry），如果成功触发，则直接返回

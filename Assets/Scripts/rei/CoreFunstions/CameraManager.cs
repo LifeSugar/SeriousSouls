@@ -23,7 +23,7 @@ namespace rei
         public float minAngle = -35; // 垂直旋转的最小角度
         public float maxAngle = 35; // 垂直旋转的最大角度
         public float defaultDistance;
-        public Vector3 yOffset = new Vector3(0, 1.3f, 0);
+        public Vector3 offset = new Vector3(0, 1.3f, 0);
         
         
 
@@ -53,7 +53,8 @@ namespace rei
             followTarget = st.transform; // 将目标设置为StateManager的Transform
             camTrans = Camera.main.transform; // 获取主相机的Transform
             pivot = camTrans.parent; // 设置pivot为相机的父对象
-            defaultDistance = Vector3.Distance(camTrans.position, followTarget.position + yOffset);
+            defaultDistance = new Vector3(0, offset.y, 0).magnitude;
+            pivot.localPosition = offset;
         }
 
 
@@ -72,6 +73,11 @@ namespace rei
 
             FollowTarget(d); // 调用跟随目标方法
             HandleRotations(d, v, h, targetSpeed); // 调用旋转处理方法
+            
+        }
+
+        public void FixedTick(float d)
+        {
             HandleCameraCollision(d);
         }
 
@@ -80,8 +86,8 @@ namespace rei
         {
             float speed = d * followSpeed;
             //delay follow
-            Vector3 camPosition = Vector3.Lerp(transform.position, followTarget.position + yOffset, speed);
-            transform.position = camPosition;
+            Vector3 camPosition = Vector3.Lerp(transform.position, followTarget.position, speed);
+            transform.position = followTarget.position;
         }
 
         void HandleRotations(float d, float v, float h, float targetSpeed)
@@ -115,7 +121,7 @@ namespace rei
         
         void HandleCameraCollision(float d)
         { 
-            Vector3 follow = followTarget.position + yOffset;
+            Vector3 follow = followTarget.position + new Vector3(0, offset.y, 0);
             // 定义摄像机与目标之间的最大距离
             Vector3 rayDir = (camTrans.position - follow).normalized;
             
@@ -135,13 +141,15 @@ namespace rei
             if (Physics.Raycast(follow, rayDir, out hit, defaultDistance, layerMask))
             {
                 float distance = hit.distance;
+                distance = Mathf.Clamp(distance, minDistance, defaultDistance);
                 camTrans.position = Vector3.Lerp(camTrans.position, follow + rayDir * distance, d * followSpeed);
                 
             }
             else
             {
                 // 如果没有检测到碰撞，恢复到最大距离
-                camTrans.position = follow + rayDir * defaultDistance;
+                pivot.localPosition = offset;
+                camTrans.localPosition = Vector3.zero;
             }
             
         }
