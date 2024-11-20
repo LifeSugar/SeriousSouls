@@ -61,6 +61,16 @@ namespace rei
         {
             EmptyAllSlots(); // 清空所有现有动作
 
+            if (states.inventoryManager.rightHandWeapon != null)
+                states.inventoryManager.hasRightHandWeapon = true;
+            else
+                states.inventoryManager.hasRightHandWeapon = false;
+
+            if (states.inventoryManager.leftHandWeapon != null)
+                states.inventoryManager.hasLeftHandWeapon = true;
+            else
+                states.inventoryManager.hasLeftHandWeapon = false;
+
              
            
             

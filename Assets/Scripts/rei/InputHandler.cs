@@ -110,7 +110,7 @@ namespace rei
             
             states.FixedTick(delta);
             camManager.Tick(delta);
-            // states.MonitorStats();
+            states.MonitorStats();
         }
 
         bool preferItem;
@@ -183,7 +183,7 @@ namespace rei
         
             // dialogueManager.Tick(a_input);
             
-            states.MonitorStats();
+            
             ResetInputNState();
             uiManager.Tick(states.characterStats, delta, states);
             camManager.FixedTick(delta);
@@ -332,16 +332,17 @@ namespace rei
 
             HandleQuickSlotChanges();
         }
+        
+        private bool runMaker = true;
 
         void FixedUpstaeStates()
         {
             // B_input: 
             if (b_input && b_timer > 0.5f)
             {
-                
-                if ((states.moveAmount > 0.8f) && states.characterStats._stamina > 0)
+                if ((states.moveAmount > 0.8f) && states.characterStats._stamina > 1 && runMaker)
                 {
-                    Debug.Log("running");
+                    
                     states.run = true;
                 }
                 // states.run = (states.moveAmount > 0.8f) && states.characterStats._stamina > 0;
@@ -350,7 +351,12 @@ namespace rei
             if (b_input == false && b_timer > 0 && b_timer < 0.5f)
             {
                 states.rollInput = true;
-                Debug.Log("roll input!");
+                
+            }
+
+            if (states.characterStats._stamina <= 1)
+            {
+                runMaker = false;
             }
                 
             
@@ -422,7 +428,11 @@ namespace rei
         {
             // reset b_timer when b_input is released from keyboard
             if (b_input == false)
+            {
                 b_timer = 0;
+                runMaker = true;
+            }
+                
         }
 
         void ResetInputNState()

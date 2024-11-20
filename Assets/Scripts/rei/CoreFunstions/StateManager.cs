@@ -175,13 +175,15 @@ namespace rei
             {
                 actionTimer += d; // 累加计时器
 
-                // 如果超过两秒未调用 DetectAction，则重置 actionIndex
+                // 如果超过（）秒未调用 DetectAction，则重置 actionIndex
                 if (actionTimer >= resetTime)
                 {
                     actionManager.actionIndex = 0; // 重置动作索引
                     isTiming = false;             // 停止计时
                 }
             }
+            
+            // onGround = OnGround();
             
             delta = d;
             isBlocking = false;
@@ -461,7 +463,7 @@ namespace rei
         
         private float actionTimer = 0f; // 计时器
         private bool isTiming = false; // 是否正在计时
-        private float resetTime = 1.1f;  // 1.1秒后重置时间
+        private float resetTime = 0.9f;  // 1.1秒后重置时间
         public void DetectAction()
         {
             // if cannot move, exit the function
