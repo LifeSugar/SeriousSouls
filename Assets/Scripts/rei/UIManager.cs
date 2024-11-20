@@ -75,6 +75,7 @@ namespace rei
 
         public void Tick(CharacterStats stats, float deltaTime, StateManager states)
         {
+            
             //这个方法还有可以优化的地方
             health.value = Mathf.Lerp(health.value, stats._health, deltaTime * lerpSpeed * 2);
             focus.value = Mathf.Lerp(focus.value, stats._focus, deltaTime * lerpSpeed * 2);
@@ -83,12 +84,16 @@ namespace rei
             //平滑更新灵魂数的显示，转换为整数
             currentSouls =
                 Mathf.RoundToInt(Mathf.Lerp(currentSouls, stats._souls,
-                    deltaTime * lerpSpeed * 10)); // curSouls = 0 at Init but changes overtime.
+                    deltaTime * lerpSpeed * 10));
             souls.text = currentSouls.ToString();
-            itemCount.text = states.inventoryManager.curConsumable.itemCount.ToString();
+            if (states.inventoryManager.curConsumable != null)
+            {
+                itemCount.text = states.inventoryManager.curConsumable.itemCount.ToString();
+            }
+           
 
-            health_vis.value = Mathf.Lerp(health.value, stats._health, deltaTime * lerpSpeed);
-            focus.value = Mathf.Lerp(focus.value, stats._focus, deltaTime * lerpSpeed);
+            health_vis.value = Mathf.Lerp(health_vis.value, stats._health, deltaTime * lerpSpeed);
+            focus_vis.value = Mathf.Lerp(focus_vis.value, stats._focus, deltaTime * lerpSpeed);
             stamina_vis.value = Mathf.Lerp(stamina_vis.value, stats._stamina, deltaTime * lerpSpeed);
         }
 
@@ -131,10 +136,14 @@ namespace rei
         //捡到东西的UI
         public void AddItemCard(Item i)
         {
+            Debug.Log(i.itemName);
+            Debug.Log(i.icon != null);
+            
             ItemCards[item_idx].itemName.text = i.itemName;
             ItemCards[item_idx].icon.sprite = i.icon;
             ItemCards[item_idx].gameObject.SetActive(true);
             item_idx++;
+            Debug.Log("AddItemCard");
         }
 
         public void CloseItemCards()
