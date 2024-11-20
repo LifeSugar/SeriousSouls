@@ -225,8 +225,15 @@ namespace rei
             x_input = Input.GetButton(GlobalStrings.X);
             y_input = Input.GetButton(GlobalStrings.Y);
 
-            rb_input = Input.GetButton(GlobalStrings.RB);
-            lb_input = Input.GetButton(GlobalStrings.LB);
+            // rb_input = Input.GetButton(GlobalStrings.RB);
+            if (Input.GetButtonDown(GlobalStrings.RB))
+                states.rb = true;
+            if (Input.GetButtonDown(GlobalStrings.LB))
+                states.lb = true;
+            if (Input.GetButtonDown(GlobalStrings.RT))
+                states.rt = true;
+            if (Input.GetButtonDown(GlobalStrings.LT))
+                states.lt = true;
 
             
             rt_input = Input.GetButton(GlobalStrings.RT);
@@ -256,10 +263,10 @@ namespace rei
             states.horizontal = horizontal;
 
             states.itemInput = x_input;
-            states.rt = rt_input;
-            states.lt = lt_input;
-            states.rb = rb_input;
-            states.lb = lb_input;
+            // states.rt = rt_input;
+            // states.lt = lt_input;
+            // states.rb = rb_input;
+            // states.lb = lb_input;
 
 
             // moveDir

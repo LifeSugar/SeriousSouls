@@ -577,6 +577,12 @@ namespace rei
             characterStats._stamina -= slot.staminaCost;
             //战技会耗蓝
             characterStats._focus -= slot.fpCost;
+            
+            //重置输入状态
+            rb = false;
+            rt = false;
+            lb = false;
+            lt = false;
 
             // 注释：没有直接将角色的速度清零（如 `rigid.velocity = Vector3.zero`），
             // 而是在 AnimatorHook 中通过根运动（Root Motion）处理角色的运动速度。
