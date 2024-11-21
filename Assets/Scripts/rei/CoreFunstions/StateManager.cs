@@ -101,16 +101,14 @@ namespace rei
             Debug.Log("StateManager init");
             SetUpAnimator();
             rigid = GetComponent<Rigidbody>();
-            rigid.angularDrag = 999;
+            rigid.angularDrag = 9999;
             rigid.drag = 4;
             rigid.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             
-            // Debug.Log("Start to set inventory");
             inventoryManager = GetComponent<InventoryManager>();
             if (inventoryManager == null)
                 Debug.Log("No inventory manager");
             inventoryManager.Init(this);
-            // Debug.Log("inventory manager initialized");
 
             actionManager = GetComponent<ActionManager>();
             if (actionManager == null)
@@ -123,14 +121,13 @@ namespace rei
 
             a_hook = activeModel.GetComponent<AnimatorHook>();
             if (a_hook == null)
-                // add AnimatorHook component to the active model.
                 a_hook = activeModel.AddComponent<AnimatorHook>();
 
             a_hook.Init(this); //Es: null
 
             audio_source = activeModel.GetComponent<AudioSource>();
 
-            // ignore the damage collider LayerMask when in contact.
+            //敌人的layer是9，地形的layer是28
             gameObject.layer = 8;
             ignoreLayers = ~(1 << 9);
 
