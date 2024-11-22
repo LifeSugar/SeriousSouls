@@ -410,7 +410,7 @@ namespace rei
         {
             if (pickManager.interactionCandidate.actionType == UIActionType.talk)
             {
-                audio_source.PlayOneShot(ResourceManager.instance.GetAudio("hello").audio_clip);
+                // audio_source.PlayOneShot(ResourceManager.instance.GetAudio("hello").audio_clip);
                 pickManager.interactionCandidate.InteractActual();
                 return;
             }
@@ -469,8 +469,10 @@ namespace rei
 
             if (rb == false && rt == false && lt == false && lb == false)
                 return;
+            
+            
 
-            if (characterStats._stamina <= 8)
+            if (characterStats._stamina <= actionManager.GetActionFromInput(storePreviousAction).staminaCost)
                 return;
 
             ActionInput targetInput = actionManager.GetActionInput(this);
@@ -487,6 +489,7 @@ namespace rei
 
             if (slot == null)
                 return;
+                
             switch (slot.type)
             {
                 case ActionType.attack:

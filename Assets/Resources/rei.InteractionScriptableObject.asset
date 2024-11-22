@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4723f1d28b3224ca0843d559c01e7134, type: 3}
   m_Name: rei.InteractionScriptableObject
   m_EditorClassIdentifier: 
-  interactions: []
+  interactions:
+  - interactionId: talk
+    anim: 
+    oneShot: 0
+    specialEvent: 

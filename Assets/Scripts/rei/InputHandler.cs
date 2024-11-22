@@ -143,7 +143,6 @@ namespace rei
             
                     if (states.pickManager.itemCandidate && !states.pickManager.interactionCandidate)
                     {
-                        // Debug.Log("picking item");
                         PickupItem();
                     }
             
@@ -179,9 +178,13 @@ namespace rei
                 a_input = false;
                 a_input_count = 0;
             }
-        
-        
-            // dialogueManager.Tick(a_input);
+
+
+            if (dialogueManager.dialogueActive)
+            {
+                dialogueManager.Tick(ref a_input);
+            }
+            
             
             
             ResetInputNState();
@@ -192,7 +195,7 @@ namespace rei
         void PickupItem()
         {
             uiManager.OpenInteractCanvas(UIActionType.pickup);
-            if (a_input)
+            if (Input.GetButton(GlobalStrings.A))
             {
                 Debug.Log("pickup!");
                 Vector3 targetDir = states.pickManager.itemCandidate.transform.position - transform.position;
@@ -206,9 +209,9 @@ namespace rei
         void Interact()
         {
             uiManager.OpenInteractCanvas(states.pickManager.interactionCandidate.actionType);
-            if (a_input)
+            if (Input.GetButton(GlobalStrings.A) && !dialogueManager.dialogueActive)
             {
-                states.audio_source.PlayOneShot(ResourceManager.instance.GetAudio("interact").audio_clip);
+                // states.audio_source.PlayOneShot(ResourceManager.instance.GetAudio("interact").audio_clip);
                 states.InteractLogic();
                 a_input = false;
             }
@@ -220,8 +223,17 @@ namespace rei
             vertical = Input.GetAxis(GlobalStrings.Vertical);
             horizontal = Input.GetAxis(GlobalStrings.Horizontal);
 
+            if (Input.GetKey(KeyCode.W))
+                vertical = 1;
+            if (Input.GetKey(KeyCode.S))
+                vertical = -1;
+            if (Input.GetKey(KeyCode.D))
+                horizontal = 1;
+            if (Input.GetKey(KeyCode.A))
+                horizontal = -1;
+
             b_input = Input.GetButton(GlobalStrings.B); //连击问题可以使用counter解决
-            a_input = Input.GetButton(GlobalStrings.A);
+            a_input = Input.GetButtonDown(GlobalStrings.A);
             x_input = Input.GetButton(GlobalStrings.X);
             y_input = Input.GetButton(GlobalStrings.Y);
 

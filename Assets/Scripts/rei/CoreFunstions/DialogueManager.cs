@@ -16,7 +16,8 @@ namespace rei
         int textIndex;
         public Transform playerObject;
 
-        public void Init(Transform po) {
+        public void Init(Transform po)
+        {
             playerObject = po;
         }
 
@@ -25,7 +26,8 @@ namespace rei
         Dictionary<string, int> npc_ids = new Dictionary<string, int>();
         NPCStates npc_state;
 
-        public void InitDialogue(Transform o, string id) {
+        public void InitDialogue(Transform o, string id)
+        {
             origin = o;
             npc_dialogue = ResourceManager.instance.GetNPCDialogue(id);
             npc_state = GetNPCStates(id);
@@ -36,50 +38,62 @@ namespace rei
         }
 
 
-        public void Tick(bool a_input) {
+        public void Tick(ref bool a_input)
+        {
             if (!dialogueActive)
                 return;
             if (origin == null)
                 return;
 
             float distance = Vector3.Distance(playerObject.transform.position, origin.transform.position);
-            if (distance > 3.5) {
+            if (distance > 3.5)
+            {
                 CloseDialogue();
             }
 
-            if (!updateDialog) {
+            if (!updateDialog)
+            {
                 updateDialog = true;
-                
+
                 dialogueText.text = npc_dialogue.dialogue[npc_state.dialogueIndex].dialogueText[textIndex];
             }
 
-            if (a_input)
+            if (Input.GetButtonDown(GlobalStrings.A))
             {
                 updateDialog = false;
                 textIndex++;
-                
+
                 if (textIndex > npc_dialogue.dialogue[npc_state.dialogueIndex].dialogueText.Length - 1)
                 {
-                    if (npc_dialogue.dialogue[npc_state.dialogueIndex].increaseIndex) {
+                    if (npc_dialogue.dialogue[npc_state.dialogueIndex].increaseIndex)
+                    {
                         npc_state.dialogueIndex++;
 
-                        if (npc_state.dialogueIndex > npc_dialogue.dialogue.Length - 1) {
+                        if (npc_state.dialogueIndex > npc_dialogue.dialogue.Length - 1)
+                        {
                             npc_state.dialogueIndex = npc_dialogue.dialogue.Length - 1;
                         }
                     }
+
                     CloseDialogue();
                 }
+                
+                
             }
-
+            
+            // if (a_input)
+            //     a_input = false;
         }
 
-        void CloseDialogue() {
+        void CloseDialogue()
+        {
             dialogueActive = false;
             textObj.SetActive(false);
         }
 
 
         public static DialogueManager instance;
+
         private void Awake()
         {
             instance = this;
@@ -107,6 +121,5 @@ namespace rei
     {
         public string npc_id;
         public int dialogueIndex;
-        
     }
 }

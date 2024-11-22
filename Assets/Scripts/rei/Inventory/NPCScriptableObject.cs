@@ -11,7 +11,7 @@ namespace rei {
     [System.Serializable]
     public class NPCDialogue {
         public string npc_id;
-        public Dialogue[] dialogue;
+        public Dialogue[] dialogue; //这里是为了处理外来可能存在的分支动画
 
     }
 

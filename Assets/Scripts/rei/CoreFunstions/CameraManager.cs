@@ -60,8 +60,8 @@ namespace rei
 
         public void Tick(float d)
         {
-            float h = Input.GetAxis(GlobalStrings.RightHorizontal); // 获取水平输入
-            float v = Input.GetAxis(GlobalStrings.RightVertical); // 获取垂直输入
+            float h = Input.GetAxis(GlobalStrings.RightHorizontal) + Input.GetAxis("mouseX"); // 获取水平输入
+            float v = Input.GetAxis(GlobalStrings.RightVertical) + Input.GetAxis("mouseY"); // 获取垂直输入
             float targetSpeed = mouseSpeed; // 设定相机移动速度
 
             changeTargetLeft = Input.GetKeyUp(KeyCode.V); // 检测左切换目标的按键
