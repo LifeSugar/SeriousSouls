@@ -12,4 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8677bac0d74a64b53a0df126db919633, type: 3}
   m_Name: rei.NPCScriptableObject
   m_EditorClassIdentifier: 
-  npcs: []
+  npcs:
+  - npc_id: TestNPC
+    dialogue:
+    - dialogueText:
+      - '"Testing"'
+      - '"Can you hear me?"'
+      - '"I am here waiting for you for 1000years"'
+      increaseIndex: 1
+    - dialogueText:
+      - 1
+      - 2
+      - 3
+      increaseIndex: 0
