@@ -101,16 +101,14 @@ namespace rei
             Debug.Log("StateManager init");
             SetUpAnimator();
             rigid = GetComponent<Rigidbody>();
-            rigid.angularDrag = 999;
+            rigid.angularDrag = 9999;
             rigid.drag = 4;
             rigid.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             
-            Debug.Log("Start to set inventory");
             inventoryManager = GetComponent<InventoryManager>();
             if (inventoryManager == null)
                 Debug.Log("No inventory manager");
             inventoryManager.Init(this);
-            Debug.Log("inventory manager initialized");
 
             actionManager = GetComponent<ActionManager>();
             if (actionManager == null)
@@ -123,14 +121,13 @@ namespace rei
 
             a_hook = activeModel.GetComponent<AnimatorHook>();
             if (a_hook == null)
-                // add AnimatorHook component to the active model.
                 a_hook = activeModel.AddComponent<AnimatorHook>();
 
             a_hook.Init(this); //Es: null
 
             audio_source = activeModel.GetComponent<AudioSource>();
 
-            // ignore the damage collider LayerMask when in contact.
+            //敌人的layer是9，地形的layer是28
             gameObject.layer = 8;
             ignoreLayers = ~(1 << 9);
 
@@ -170,20 +167,20 @@ namespace rei
         //--------------------runner------------------------
         public void FixedTick(float d)
         {
-            
-            
             // 如果正在计时
             if (isTiming)
             {
-                actionTimer += Time.fixedDeltaTime; // 累加计时器
+                actionTimer += d; // 累加计时器
 
-                // 如果超过两秒未调用 DetectAction，则重置 actionIndex
+                // 如果超过（）秒未调用 DetectAction，则重置 actionIndex
                 if (actionTimer >= resetTime)
                 {
                     actionManager.actionIndex = 0; // 重置动作索引
                     isTiming = false;             // 停止计时
                 }
             }
+            
+            // onGround = OnGround();
             
             delta = d;
             isBlocking = false;
@@ -463,7 +460,7 @@ namespace rei
         
         private float actionTimer = 0f; // 计时器
         private bool isTiming = false; // 是否正在计时
-        private float resetTime = 1.1f;  // 1.1秒后重置时间
+        private float resetTime = 0.9f;  // 1.1秒后重置时间
         public void DetectAction()
         {
             // if cannot move, exit the function
@@ -513,7 +510,7 @@ namespace rei
         void AttackAction(Action slot)
         {
             // 如果角色体力不足，则无法执行攻击，直接返回
-            if (characterStats._stamina < 5)
+            if (characterStats._stamina < slot.staminaCost)
                 return;
 
             // 检查是否可以执行格挡反击（Parry），如果成功触发，则直接返回
@@ -579,6 +576,12 @@ namespace rei
             characterStats._stamina -= slot.staminaCost;
             //战技会耗蓝
             characterStats._focus -= slot.fpCost;
+            
+            //重置输入状态
+            rb = false;
+            rt = false;
+            lb = false;
+            lt = false;
 
             // 注释：没有直接将角色的速度清零（如 `rigid.velocity = Vector3.zero`），
             // 而是在 AnimatorHook 中通过根运动（Root Motion）处理角色的运动速度。

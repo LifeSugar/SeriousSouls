@@ -22,6 +22,10 @@ namespace rei
         public float turnSmoothing = .1f; // 相机平滑旋转的系数
         public float minAngle = -35; // 垂直旋转的最小角度
         public float maxAngle = 35; // 垂直旋转的最大角度
+        public float defaultDistance;
+        public Vector3 offset = new Vector3(0, 1.3f, 0);
+        
+        
 
         [Header("MoveStat")] public Vector3 targetDir; // 目标方向向量
         public float lookAngle; // 水平旋转角度
@@ -46,16 +50,11 @@ namespace rei
         public void Init(StateManager st)
         {
             states = st;
-            if (states == null)
-                Debug.Log("No state manager in Camera Manager");
-            else
-            {
-                Debug.Log(states.name + " state manager in Camera Manager");
-            }
             followTarget = st.transform; // 将目标设置为StateManager的Transform
-
             camTrans = Camera.main.transform; // 获取主相机的Transform
             pivot = camTrans.parent; // 设置pivot为相机的父对象
+            defaultDistance = new Vector3(0, offset.y, 0).magnitude;
+            pivot.localPosition = offset;
         }
 
 
@@ -74,6 +73,12 @@ namespace rei
 
             FollowTarget(d); // 调用跟随目标方法
             HandleRotations(d, v, h, targetSpeed); // 调用旋转处理方法
+            
+        }
+
+        public void FixedTick(float d)
+        {
+            HandleCameraCollision(d);
         }
 
         //使用线性插值来平滑跟随目标位置。
@@ -82,7 +87,7 @@ namespace rei
             float speed = d * followSpeed;
             //delay follow
             Vector3 camPosition = Vector3.Lerp(transform.position, followTarget.position, speed);
-            transform.position = camPosition;
+            transform.position = followTarget.position;
         }
 
         void HandleRotations(float d, float v, float h, float targetSpeed)
@@ -113,6 +118,42 @@ namespace rei
             lookAngle += smoothX * targetSpeed;
             transform.rotation = Quaternion.Euler(0, lookAngle, 0);
         }
+        
+        void HandleCameraCollision(float d)
+        { 
+            Vector3 follow = followTarget.position + new Vector3(0, offset.y, 0);
+            // 定义摄像机与目标之间的最大距离
+            Vector3 rayDir = (camTrans.position - follow).normalized;
+            
+            Debug.DrawRay(follow, rayDir * defaultDistance, Color.red);
+            
+            // 定义摄像机与目标之间的最小距离
+            float minDistance = 0.5f;
+            
+            // 定义用于忽略的层（Layer 28）
+            int layerMask = 1 << 28;
+
+            
+            RaycastHit hit;
+            
+
+            // 从pivot位置向camTrans方向进行射线检测
+            if (Physics.Raycast(follow, rayDir, out hit, defaultDistance, layerMask))
+            {
+                float distance = hit.distance;
+                distance = Mathf.Clamp(distance, minDistance, defaultDistance);
+                camTrans.position = Vector3.Lerp(camTrans.position, follow + rayDir * distance, d * followSpeed);
+                
+            }
+            else
+            {
+                // 如果没有检测到碰撞，恢复到最大距离
+                pivot.localPosition = offset;
+                camTrans.localPosition = Vector3.zero;
+            }
+            
+        }
+
         
         //单例
         public static CameraManager instance;

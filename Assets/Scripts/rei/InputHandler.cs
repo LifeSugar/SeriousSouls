@@ -41,7 +41,7 @@ namespace rei
         bool leftAxis_down;
         bool rightAxis_down;
 
-        float b_timer;
+        public float b_timer;
         float rt_timer;
         float lt_timer;
         float close_timer = 0;
@@ -100,8 +100,14 @@ namespace rei
         void FixedUpdate()
         {
             delta = Time.fixedDeltaTime;
-            GetInput();
-            UpdateStates();
+            // GetInput();
+            // UpdateStates();
+            
+            if (b_input)
+                b_timer += delta;
+            FixedUpstaeStates();
+            FixedResetInputNState();
+            
             states.FixedTick(delta);
             camManager.Tick(delta);
             states.MonitorStats();
@@ -111,12 +117,15 @@ namespace rei
 
         void Update()
         {
+            GetInput();
+            UpdateStates();
             
             delta = Time.deltaTime;
             if (a_input)
                 a_input_count++;
             // Debug.Log(delta);
             states.Tick(delta);
+            
             
             if (!dialogueManager.dialogueActive)
             {
@@ -174,9 +183,10 @@ namespace rei
         
             // dialogueManager.Tick(a_input);
             
-            // states.MonitorStats();
+            
             ResetInputNState();
             uiManager.Tick(states.characterStats, delta, states);
+            camManager.FixedTick(delta);
         }
         
         void PickupItem()
@@ -210,22 +220,29 @@ namespace rei
             vertical = Input.GetAxis(GlobalStrings.Vertical);
             horizontal = Input.GetAxis(GlobalStrings.Horizontal);
 
-            b_input = Input.GetButton(GlobalStrings.B);
+            b_input = Input.GetButton(GlobalStrings.B); //连击问题可以使用counter解决
             a_input = Input.GetButton(GlobalStrings.A);
             x_input = Input.GetButton(GlobalStrings.X);
-            y_input = Input.GetButtonUp(GlobalStrings.Y);
+            y_input = Input.GetButton(GlobalStrings.Y);
 
-            rb_input = Input.GetButton(GlobalStrings.RB);
-            lb_input = Input.GetButton(GlobalStrings.LB);
+            // rb_input = Input.GetButton(GlobalStrings.RB);
+            if (Input.GetButtonDown(GlobalStrings.RB))
+                states.rb = true;
+            if (Input.GetButtonDown(GlobalStrings.LB))
+                states.lb = true;
+            if (Input.GetButtonDown(GlobalStrings.RT))
+                states.rt = true;
+            if (Input.GetButtonDown(GlobalStrings.LT))
+                states.lt = true;
 
             
             rt_input = Input.GetButton(GlobalStrings.RT);
             lt_input = Input.GetButton(GlobalStrings.LT);
             
-            rightAxis_down = Input.GetButtonUp(GlobalStrings.R);
+            rightAxis_down = Input.GetButton(GlobalStrings.R);
             
-            if (b_input)
-                b_timer += delta;
+            // if (b_input)
+            //     b_timer += delta;
             
             
             
@@ -246,10 +263,10 @@ namespace rei
             states.horizontal = horizontal;
 
             states.itemInput = x_input;
-            states.rt = rt_input;
-            states.lt = lt_input;
-            states.rb = rb_input;
-            states.lb = lb_input;
+            // states.rt = rt_input;
+            // states.lt = lt_input;
+            // states.rb = rb_input;
+            // states.lb = lb_input;
 
 
             // moveDir
@@ -261,15 +278,15 @@ namespace rei
             float m = Mathf.Abs(states.horizontal) + Mathf.Abs(states.vertical);
             states.moveAmount = Mathf.Clamp01(m);
 
-            // B_input: 
-            if (b_input && b_timer > 0.5f)
-            {
-                
-                states.run = (states.moveAmount > 0.8f) && states.characterStats._stamina > 0;
-            }
-            
-            if (b_input == false && b_timer > 0 && b_timer < 0.5f)
-                states.rollInput = true;
+            // // B_input: 
+            // if (b_input && b_timer > 0.5f)
+            // {
+            //     
+            //     states.run = (states.moveAmount > 0.8f) && states.characterStats._stamina > 0;
+            // }
+            //
+            // if (b_input == false && b_timer > 0 && b_timer < 0.5f)
+            //     states.rollInput = true;
 
             if (y_input)
             {
@@ -314,6 +331,35 @@ namespace rei
                 b_input = false;
 
             HandleQuickSlotChanges();
+        }
+        
+        private bool runMaker = true;
+
+        void FixedUpstaeStates()
+        {
+            // B_input: 
+            if (b_input && b_timer > 0.5f)
+            {
+                if ((states.moveAmount > 0.8f) && states.characterStats._stamina > 1 && runMaker)
+                {
+                    
+                    states.run = true;
+                }
+                // states.run = (states.moveAmount > 0.8f) && states.characterStats._stamina > 0;
+            }
+
+            if (b_input == false && b_timer > 0 && b_timer < 0.5f)
+            {
+                states.rollInput = true;
+                
+            }
+
+            if (states.characterStats._stamina <= 1)
+            {
+                runMaker = false;
+            }
+                
+            
         }
 
         void HandleQuickSlotChanges()
@@ -378,11 +424,19 @@ namespace rei
                 p_d_right = false;
         }
 
-        void ResetInputNState()
+        void FixedResetInputNState()
         {
             // reset b_timer when b_input is released from keyboard
             if (b_input == false)
+            {
                 b_timer = 0;
+                runMaker = true;
+            }
+                
+        }
+
+        void ResetInputNState()
+        {
             // turn off rollInput and run state after being pressed.
             if (states.rollInput)
                 states.rollInput = false;
