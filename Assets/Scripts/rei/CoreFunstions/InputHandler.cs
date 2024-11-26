@@ -315,14 +315,14 @@ namespace rei
 
             if (states.lockOnTarget != null)
             {
-                // if (states.lockOnTarget.eStates.isDead)
-                // {
-                //     states.lockOn = false;
-                //     states.lockOnTarget = null;
-                //     states.lockOnTransform = null;
-                //     camManager.lockOn = false;
-                //     camManager.lockOnTarget = null;
-                // }
+                if (states.lockOnTarget.eStates.isDead)
+                {
+                    states.lockOn = false;
+                    states.lockOnTarget = null;
+                    states.lockOnTransform = null;
+                    camManager.lockOn = false;
+                    camManager.lockOnTarget = null;
+                }
             }
             else
             {
@@ -334,8 +334,19 @@ namespace rei
             }
 
 
-            if (rightAxis_down)
+            if (Input.GetButtonDown(GlobalStrings.R))
             {
+                states.lockOn = !states.lockOn;
+                states.lockOnTarget = EnemyManager.instance.GetEnemy(transform.position);
+                if (states.lockOnTarget == null)
+                    states.lockOn = false;
+
+                camManager.lockOnTarget = states.lockOnTarget;
+                // 单个目标有多个锁定点的处理
+                states.lockOnTransform = states.lockOnTarget.GetTarget();
+                camManager.lockOnTransform = states.lockOnTransform ;
+                // 保证相机/角色的锁定状态一致
+                camManager.lockOn = states.lockOn;
             }
 
 
@@ -452,7 +463,7 @@ namespace rei
             // turn off rollInput and run state after being pressed.
             if (states.rollInput)
                 states.rollInput = false;
-            if (states.run)
+            if (Input.GetButtonUp(GlobalStrings.B))
                 states.run = false;
         }
     }

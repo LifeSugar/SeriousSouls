@@ -113,8 +113,9 @@ namespace rei
             anim.SetLookAtPosition(bodyHelper.position);   // 设置目标位置为 bodyHelper 的位置
         }
 
-
-        public void OnAnimatorMoveTick(bool isLeft)
+        
+        
+        public void OnAnimatorMoveTick(bool isLeft)//将shoulderhelper对齐到需要的一侧
         {
             // 获取左或右肩的骨骼变换，基于参数 isLeft 决定使用哪一侧的肩膀
             Transform shoulder = anim.GetBoneTransform(

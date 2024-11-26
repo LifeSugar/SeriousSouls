@@ -24,6 +24,8 @@ namespace rei
         public bool rt, rb, lt, lb;
         public bool rollInput;
         public bool itemInput;
+        
+        public Vector3 rollDir;
 
 
         [Header("Stats")]
@@ -60,6 +62,11 @@ namespace rei
         public EnemyTarget lockOnTarget;
         public Transform lockOnTransform;
         public AnimationCurve roll_curve;
+        public float rollDuration = 0.6f;
+
+        [Header("Debug")] 
+        public float rbvz;
+        public float rbvx;
 
         [HideInInspector]
         public Animator anim;
@@ -123,7 +130,7 @@ namespace rei
             if (a_hook == null)
                 a_hook = activeModel.AddComponent<AnimatorHook>();
 
-            a_hook.Init(this); //Es: null
+            a_hook.Init(this, null); //Es: null
 
             audio_source = activeModel.GetComponent<AudioSource>();
 
@@ -167,6 +174,8 @@ namespace rei
         //--------------------runner------------------------
         public void FixedTick(float d)
         {
+            rbvz = rigid.velocity.z;
+            rbvx = rigid.velocity.x;
             // 如果正在计时
             if (isTiming)
             {
@@ -408,6 +417,7 @@ namespace rei
 
         public void InteractLogic()
         {
+            //如果是NPC
             if (pickManager.interactionCandidate.actionType == UIActionType.talk)
             {
                 // audio_source.PlayOneShot(ResourceManager.instance.GetAudio("hello").audio_clip);
@@ -418,7 +428,7 @@ namespace rei
 
             Interactions interaction = ResourceManager.instance.GetInteraction(pickManager.interactionCandidate.interactionId);
 
-            if (interaction.oneShot)
+            if (interaction.oneShot) //如果是一次性交互
             {
                 if (pickManager.interactions.Contains(pickManager.interactionCandidate))
                 {
@@ -770,27 +780,47 @@ namespace rei
             if (!rollInput || usingItem || characterStats._stamina < 10)
                 return;
             // will roll instantly, no delay.
+            
             float v = vertical;
             float h = horizontal;
-            v = (moveAmount > 0.3f) ? 1 : 0;
-            h = 0;
-
-            // Direction.
-            // rotate the target to the rolling direction to match the animation at the end
-            //, thus when the animation is ended, the target is set to rotate to the matching direction.
-            if (v != 0)
+            
+            if (!lockOn)
             {
-                if (moveDir == Vector3.zero)
-                    moveDir = transform.forward;
+                v = (moveAmount > 0.3f) ? 1 : 0;
+                h = 0;
+            
+                if (v != 0)
+                {
+                    if (moveDir == Vector3.zero) //不太可能发生
+                        moveDir = transform.forward;
 
-                transform.rotation = Quaternion.LookRotation(moveDir);
+                    transform.rotation = Quaternion.LookRotation(moveDir);
 
-                a_hook.InitForRoll();
-                a_hook.rm_multi = rollSpeed;
+                    a_hook.InitForRoll();
+                    a_hook.rm_multi = rollSpeed;
+                }
+                else
+                {
+                    a_hook.rm_multi = 1.3f;
+                }
             }
             else
             {
-                a_hook.rm_multi = 1.3f;
+                v = (moveAmount > 0.3f) ? v : 0;
+                h = (moveAmount > 0.3f) ? h : 0;
+
+                if (v != 0 || h != 0)
+                {
+                    if (moveDir == Vector3.zero) 
+                        moveDir = transform.forward;
+                    
+                    a_hook.InitForRoll();
+                    a_hook.rm_multi = rollSpeed;
+                }
+                else
+                {
+                    a_hook.rm_multi = 1.3f;
+                }
             }
 
             // setting input values.
@@ -967,31 +997,31 @@ namespace rei
             isBlocking = false;
         }
 
-        // public void DoDamage(AIAttacks a)
-        // {
-        //     if (isInvincible)
-        //         return;
-        //     damaged = true;
-        //
-        //     int damage = 20;
-        //
-        //     characterStats._health -= damage;
-        //     if (canMove)
-        //     {
-        //         int ran = Random.Range(0, 100);
-        //         string tA = (ran > 50) ? "damage_1" : "damage_2";
-        //         audio_clip = ResourceManager.instance.GetAudio("hurt").audio_clip;
-        //         anim.Play(tA);
-        //     }
-        //     anim.SetBool("OnEmpty", false);
-        //     onEmpty = false;
-        //     isInvincible = true;
-        //     anim.applyRootMotion = true;
-        //     anim.SetBool("canMove", false);
-        //     if (characterStats._health <= 0 && !isDead) {
-        //         Die();
-        //     }
-        // }
+        public void DoDamage(AIAttacks a)
+        {
+            if (isInvincible)
+                return;
+            damaged = true;
+        
+            int damage = 20;
+        
+            characterStats._health -= damage;
+            if (canMove)
+            {
+                int ran = Random.Range(0, 100);
+                string tA = (ran > 50) ? "damage_1" : "damage_2";
+                audio_clip = ResourceManager.instance.GetAudio("hurt").audio_clip;
+                anim.Play(tA);
+            }
+            anim.SetBool("OnEmpty", false);
+            onEmpty = false;
+            isInvincible = true;
+            anim.applyRootMotion = true;
+            anim.SetBool("canMove", false);
+            if (characterStats._health <= 0 && !isDead) {
+                Die();
+            }
+        }
 
         public void Die() {
             isDead = true;
