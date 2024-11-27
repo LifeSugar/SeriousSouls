@@ -58,7 +58,7 @@ namespace rei
             }
         }
 
-        public enum AIState //四种状态
+        public enum AIState //状态
         {
             far, //远
             close, //进
