@@ -192,7 +192,7 @@ namespace rei
             if (Physics.Raycast(follow, rayDir, out hit, defaultDistance, layerMask))
             {
                 float distance = hit.distance;
-                distance = Mathf.Clamp(distance, minDistance, defaultDistance);
+                distance = Mathf.Clamp(distance, minDistance, defaultDistance); //有问题这里
                 camTrans.position = Vector3.Lerp(camTrans.position, follow + rayDir * distance, d * followSpeed);
             }
             else

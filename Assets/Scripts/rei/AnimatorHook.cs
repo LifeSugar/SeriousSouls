@@ -132,7 +132,6 @@ namespace rei
             }
             else
             {
-                Debug.Log("RollAnime");
                 roll_t += delta / states.rollDuration; //每帧增加的时间进度
                 if (roll_t > 1)
                 {

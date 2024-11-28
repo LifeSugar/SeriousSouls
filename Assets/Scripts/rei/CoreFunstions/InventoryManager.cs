@@ -126,7 +126,7 @@ namespace rei
             // 设置动画控制器中的 "mirror" 参数，以适应左手或右手武器的动画
             states.anim.SetBool("mirror", isLeft);
             // 播放换武器动画，然后切换到目标idle动画
-            states.anim.Play("changeWeapon");
+            states.anim.Play("change weapon");
             states.anim.Play(targetIdle);
 
             // 更新UI快捷槽中的图标

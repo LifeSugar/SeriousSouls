@@ -463,7 +463,7 @@ namespace rei
             // turn off rollInput and run state after being pressed.
             if (states.rollInput)
                 states.rollInput = false;
-            if (Input.GetButtonUp(GlobalStrings.B))
+            if (Input.GetButtonUp(GlobalStrings.B) || states.characterStats._stamina <= 1)
                 states.run = false;
         }
     }
