@@ -47,7 +47,7 @@ namespace rei
         float close_timer = 0;
         float a_input_count = 1.5f;
 
-        StateManager states;
+        PlayerState _playerStates;
         CameraManager camManager;
         UIManager uiManager;
         DialogueManager dialogueManager;
@@ -70,12 +70,12 @@ namespace rei
         void Start()
         {
             Debug.Log("start!");
-            states = GetComponent<StateManager>();
-            if (states == null)
+            _playerStates = GetComponent<PlayerState>();
+            if (_playerStates == null)
                 Debug.LogWarning("No StateManager component found!");
             else
                 Debug.Log("StateManager component found!");
-            states.Init();
+            _playerStates.Init();
             
             
 
@@ -85,7 +85,7 @@ namespace rei
                 Debug.Log("No camera found!!!!!!!!!");
             else
                 Debug.Log(camManager.name);
-            camManager.Init(states);
+            camManager.Init(_playerStates);
             
             uiManager = UIManager.instance;
 
@@ -108,9 +108,9 @@ namespace rei
             FixedUpstaeStates();
             FixedResetInputNState();
             
-            states.FixedTick(delta);
+            _playerStates.FixedTick(delta);
             camManager.Tick(delta);
-            states.MonitorStats();
+            _playerStates.MonitorStats();
         }
 
         bool preferItem;
@@ -121,17 +121,35 @@ namespace rei
             UpdateStates();
             
             delta = Time.deltaTime;
+            
+            _playerStates.Tick(delta);
+            
+            HandlePickAndInteract();
+
+
+            if (dialogueManager.dialogueActive)
+            {
+                dialogueManager.Tick(ref a_input);
+            }
+            
+            
+            
+            ResetInputNState();
+            uiManager.Tick(_playerStates.characterStats, delta, _playerStates);
+            camManager.FixedTick(delta);
+        }
+
+        void HandlePickAndInteract()
+        {
             if (a_input)
                 a_input_count++;
-            // Debug.Log(delta);
-            states.Tick(delta);
             
             
             if (!dialogueManager.dialogueActive)
             {
-                if (states.pickManager.itemCandidate != null || states.pickManager.interactionCandidate != null)
+                if (_playerStates.pickManager.itemCandidate != null || _playerStates.pickManager.interactionCandidate != null)
                 {
-                    if (states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+                    if (_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
                     {
                         if (preferItem)
                         {
@@ -141,12 +159,12 @@ namespace rei
                             Interact();
                     }
             
-                    if (states.pickManager.itemCandidate && !states.pickManager.interactionCandidate)
+                    if (_playerStates.pickManager.itemCandidate && !_playerStates.pickManager.interactionCandidate)
                     {
                         PickupItem();
                     }
             
-                    if (!states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+                    if (!_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
                     {
                         Interact();
                     }
@@ -178,18 +196,6 @@ namespace rei
                 a_input = false;
                 a_input_count = 0;
             }
-
-
-            if (dialogueManager.dialogueActive)
-            {
-                dialogueManager.Tick(ref a_input);
-            }
-            
-            
-            
-            ResetInputNState();
-            uiManager.Tick(states.characterStats, delta, states);
-            camManager.FixedTick(delta);
         }
         
         void PickupItem()
@@ -198,21 +204,21 @@ namespace rei
             if (Input.GetButton(GlobalStrings.A))
             {
                 Debug.Log("pickup!");
-                Vector3 targetDir = states.pickManager.itemCandidate.transform.position - transform.position;
-                states.SnapToRotation(targetDir);
-                states.pickManager.PickCandidate(states);
-                states.PlayAnimation("pick_up");
+                Vector3 targetDir = _playerStates.pickManager.itemCandidate.transform.position - transform.position;
+                _playerStates.SnapToRotation(targetDir);
+                _playerStates.pickManager.PickCandidate(_playerStates);
+                _playerStates.PlayAnimation("pick_up");
                 a_input = false;
             }
         }
 
         void Interact()
         {
-            uiManager.OpenInteractCanvas(states.pickManager.interactionCandidate.actionType);
+            uiManager.OpenInteractCanvas(_playerStates.pickManager.interactionCandidate.actionType);
             if (Input.GetButton(GlobalStrings.A) && !dialogueManager.dialogueActive)
             {
                 // states.audio_source.PlayOneShot(ResourceManager.instance.GetAudio("interact").audio_clip);
-                states.InteractLogic();
+                _playerStates.InteractLogic();
                 a_input = false;
             }
         }
@@ -220,8 +226,10 @@ namespace rei
 
         void GetInput()
         {
+            
             vertical = Input.GetAxis(GlobalStrings.Vertical);
             horizontal = Input.GetAxis(GlobalStrings.Horizontal);
+            
 
             if (Input.GetKey(KeyCode.W))
                 vertical = 1;
@@ -239,13 +247,13 @@ namespace rei
 
             // rb_input = Input.GetButton(GlobalStrings.RB);
             if (Input.GetButtonDown(GlobalStrings.RB))
-                states.rb = true;
+                _playerStates.rb = true;
             if (Input.GetButtonDown(GlobalStrings.LB))
-                states.lb = true;
+                _playerStates.lb = true;
             if (Input.GetButtonDown(GlobalStrings.RT))
-                states.rt = true;
+                _playerStates.rt = true;
             if (Input.GetButtonDown(GlobalStrings.LT))
-                states.lt = true;
+                _playerStates.lt = true;
 
             
             rt_input = Input.GetButton(GlobalStrings.RT);
@@ -271,10 +279,10 @@ namespace rei
         // passing values to StateManager variables and functions.
         void UpdateStates()
         {
-            states.vertical = vertical;
-            states.horizontal = horizontal;
+            _playerStates.vertical = vertical;
+            _playerStates.horizontal = horizontal;
 
-            states.itemInput = x_input;
+            _playerStates.itemInput = x_input;
             // states.rt = rt_input;
             // states.lt = lt_input;
             // states.rb = rb_input;
@@ -282,13 +290,13 @@ namespace rei
 
 
             // moveDir
-            Vector3 v = states.vertical * camManager.transform.forward;
-            Vector3 h = states.horizontal * camManager.transform.right;
-            states.moveDir = (v + h).normalized;
+            Vector3 v = _playerStates.vertical * camManager.transform.forward;
+            Vector3 h = _playerStates.horizontal * camManager.transform.right;
+            _playerStates.moveDir = (v + h).normalized;
 
             // moveAmount
-            float m = Mathf.Abs(states.horizontal) + Mathf.Abs(states.vertical);
-            states.moveAmount = Mathf.Clamp01(m);
+            float m = Mathf.Abs(_playerStates.horizontal) + Mathf.Abs(_playerStates.vertical);
+            _playerStates.moveAmount = Mathf.Clamp01(m);
 
             // // B_input: 
             // if (b_input && b_timer > 0.5f)
@@ -302,33 +310,33 @@ namespace rei
 
             if (y_input)
             {
-                if (states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+                if (_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
                 {
                     preferItem = !preferItem;
                 }
                 else
                 {
-                    states.isTwoHanded = !states.isTwoHanded;
-                    states.HandleTwoHanded();
+                    _playerStates.isTwoHanded = !_playerStates.isTwoHanded;
+                    _playerStates.HandleTwoHanded();
                 }
             }
 
-            if (states.lockOnTarget != null)
+            if (_playerStates.lockOnTarget != null)
             {
-                if (states.lockOnTarget.eStates.isDead)
+                if (_playerStates.lockOnTarget.eStates.isDead)
                 {
-                    states.lockOn = false;
-                    states.lockOnTarget = null;
-                    states.lockOnTransform = null;
+                    _playerStates.lockOn = false;
+                    _playerStates.lockOnTarget = null;
+                    _playerStates.lockOnTransform = null;
                     camManager.lockOn = false;
                     camManager.lockOnTarget = null;
                 }
             }
             else
             {
-                states.lockOn = false;
-                states.lockOnTarget = null;
-                states.lockOnTransform = null;
+                _playerStates.lockOn = false;
+                _playerStates.lockOnTarget = null;
+                _playerStates.lockOnTransform = null;
                 camManager.lockOn = false;
                 camManager.lockOnTarget = null;
             }
@@ -336,17 +344,17 @@ namespace rei
 
             if (Input.GetButtonDown(GlobalStrings.R))
             {
-                states.lockOn = !states.lockOn;
-                states.lockOnTarget = EnemyManager.instance.GetEnemy(transform.position);
-                if (states.lockOnTarget == null)
-                    states.lockOn = false;
+                _playerStates.lockOn = !_playerStates.lockOn;
+                _playerStates.lockOnTarget = EnemyManager.instance.GetEnemy(transform.position);
+                if (_playerStates.lockOnTarget == null)
+                    _playerStates.lockOn = false;
 
-                camManager.lockOnTarget = states.lockOnTarget;
+                camManager.lockOnTarget = _playerStates.lockOnTarget;
                 // 单个目标有多个锁定点的处理
-                states.lockOnTransform = states.lockOnTarget.GetTarget();
-                camManager.lockOnTransform = states.lockOnTransform ;
+                _playerStates.lockOnTransform = _playerStates.lockOnTarget.GetTarget();
+                camManager.lockOnTransform = _playerStates.lockOnTransform ;
                 // 保证相机/角色的锁定状态一致
-                camManager.lockOn = states.lockOn;
+                camManager.lockOn = _playerStates.lockOn;
             }
 
 
@@ -363,21 +371,21 @@ namespace rei
             // B_input: 
             if (b_input && b_timer > 0.5f)
             {
-                if ((states.moveAmount > 0.8f) && states.characterStats._stamina > 1 && runMaker)
+                if ((_playerStates.moveAmount > 0.8f) && _playerStates.characterStats._stamina > 1 && runMaker)
                 {
                     
-                    states.run = true;
+                    _playerStates.run = true;
                 }
                 // states.run = (states.moveAmount > 0.8f) && states.characterStats._stamina > 0;
             }
 
             if (b_input == false && b_timer > 0 && b_timer < 0.5f)
             {
-                states.rollInput = true;
+                _playerStates.rollInput = true;
                 
             }
 
-            if (states.characterStats._stamina <= 1)
+            if (_playerStates.characterStats._stamina <= 1)
             {
                 runMaker = false;
             }
@@ -387,7 +395,7 @@ namespace rei
 
         void HandleQuickSlotChanges()
         {
-            if (states.isSpellCasting || states.usingItem)
+            if (_playerStates.isSpellCasting || _playerStates.usingItem)
                 return;
 
             if (d_up)
@@ -395,7 +403,7 @@ namespace rei
                 if (!p_d_up)
                 {
                     p_d_up = true;
-                    states.inventoryManager.ChangeToNextSpell();
+                    _playerStates.inventoryManager.ChangeToNextSpell();
                 }
             }
 
@@ -407,24 +415,24 @@ namespace rei
                 if (!p_d_down)
                 {
                     p_d_down = true;
-                    states.inventoryManager.ChangeToNextConsumable();
+                    _playerStates.inventoryManager.ChangeToNextConsumable();
                 }
             }
 
             if (!d_up)
                 p_d_down = false;
 
-            if (states.onEmpty == false)
+            if (_playerStates.onEmpty == false)
                 return;
 
-            if (states.isTwoHanded)
+            if (_playerStates.isTwoHanded)
                 return;
 
             if (d_left)
             {
                 if (!p_d_left)
                 {
-                    states.inventoryManager.ChangeToNextWeapon(true);
+                    _playerStates.inventoryManager.ChangeToNextWeapon(true);
                     p_d_left = true;
                 }
             }
@@ -433,7 +441,7 @@ namespace rei
             {
                 if (!p_d_right)
                 {
-                    states.inventoryManager.ChangeToNextWeapon(false);
+                    _playerStates.inventoryManager.ChangeToNextWeapon(false);
                     p_d_right = true;
                 }
             }
@@ -461,10 +469,10 @@ namespace rei
         void ResetInputNState()
         {
             // turn off rollInput and run state after being pressed.
-            if (states.rollInput)
-                states.rollInput = false;
-            if (Input.GetButtonUp(GlobalStrings.B) || states.characterStats._stamina <= 1)
-                states.run = false;
+            if (_playerStates.rollInput)
+                _playerStates.rollInput = false;
+            if (Input.GetButtonUp(GlobalStrings.B) || _playerStates.characterStats._stamina <= 1)
+                _playerStates.run = false;
         }
     }
 }

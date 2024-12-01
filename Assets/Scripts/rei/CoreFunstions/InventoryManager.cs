@@ -33,11 +33,11 @@ namespace rei
         public GameObject breathCollider;
         public GameObject blockCollider;
 
-        StateManager states;
+        PlayerState _playerStates;
 
-        public void Init(StateManager st)
+        public void Init(PlayerState st)
         {
-            states = st;
+            _playerStates = st;
             UI.QuickSlot.instance.Init();
         }
 
@@ -80,7 +80,7 @@ namespace rei
             }
 
             // 更新动作管理器中的单手武器动作
-            states.actionManager.UpdateActionsOneHanded();
+            _playerStates.actionManager.UpdateActionsOneHanded();
         }
 
         //用于将指定的 RuntimeWeapon 武器实例装备到角色的左手或右手。该方法处理了旧武器的隐藏、新武器的显示、动画状态的设置，以及更新 UI 中快捷槽的图标
@@ -124,10 +124,10 @@ namespace rei
             }
 
             // 设置动画控制器中的 "mirror" 参数，以适应左手或右手武器的动画
-            states.anim.SetBool("mirror", isLeft);
+            _playerStates.anim.SetBool("mirror", isLeft);
             // 播放换武器动画，然后切换到目标idle动画
-            states.anim.Play("change weapon");
-            states.anim.Play(targetIdle);
+            _playerStates.anim.Play("change weapon");
+            _playerStates.anim.Play(targetIdle);
 
             // 更新UI快捷槽中的图标
             UI.QuickSlot uiSlot = UI.QuickSlot.instance;
@@ -154,7 +154,7 @@ namespace rei
             // 实例化武器模型，并将其设置为手部的子对象
             ist.weaponModel = Instantiate(ist.instance.modelPrefab);
             Transform p =
-                states.anim.GetBoneTransform((isLeftHand)
+                _playerStates.anim.GetBoneTransform((isLeftHand)
                     ? HumanBodyBones.LeftHand
                     : HumanBodyBones.RightHand); // 获取手部骨骼的 Transform
             ist.weaponModel.transform.parent = p; // 设置模型的父对象为手部骨骼
@@ -168,7 +168,7 @@ namespace rei
 
             // 获取武器模型中的 WeaponHook 组件，用于控制武器的碰撞器
             ist.w_hook = ist.weaponModel.GetComponentInChildren<WeaponHook>();
-            ist.w_hook.InitDamageColliders(states); // 初始化碰撞器
+            ist.w_hook.InitDamageColliders(_playerStates); // 初始化碰撞器
 
             // 根据武器是否是左手装备，将 RuntimeWeapon 添加到相应的列表中
             if (isLeftHand)
@@ -246,7 +246,7 @@ namespace rei
             {
                 // 获取手部骨骼的 Transform，根据 isLeft 参数判断是左手还是右手
                 Transform p =
-                    states.anim.GetBoneTransform((isLeft) ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand);
+                    _playerStates.anim.GetBoneTransform((isLeft) ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand);
 
                 // 将粒子效果挂载在手部骨骼上
                 inst.currentParticle.transform.parent = p;
@@ -290,7 +290,7 @@ namespace rei
             if (inst.instance.itemPrefab != null)
             {
                 GameObject model = Instantiate(inst.instance.itemPrefab) as GameObject; // 实例化模型
-                Transform p = states.anim.GetBoneTransform(HumanBodyBones.RightHand); // 获取角色右手的 Transform
+                Transform p = _playerStates.anim.GetBoneTransform(HumanBodyBones.RightHand); // 获取角色右手的 Transform
                 model.transform.parent = p; // 将模型作为右手的子对象
 
                 // 设置模型的位置、旋转和缩放
@@ -360,17 +360,17 @@ namespace rei
             }
         }
 
-        public void InitAllDamageColliders(StateManager states)
+        public void InitAllDamageColliders(PlayerState playerStates)
         {
             // 初始化右手武器的碰撞器，将 StateManager 传入以提供角色的状态信息
             if (rightHandWeapon.w_hook != null)
-                rightHandWeapon.w_hook.InitDamageColliders(states);
+                rightHandWeapon.w_hook.InitDamageColliders(playerStates);
 
             // 如果左手装备了武器，初始化左手武器的碰撞器
             if (hasLeftHandWeapon)
             {
                 if (leftHandWeapon.w_hook != null)
-                    leftHandWeapon.w_hook.InitDamageColliders(states);
+                    leftHandWeapon.w_hook.InitDamageColliders(playerStates);
             }
         }
 
@@ -511,11 +511,15 @@ namespace rei
         public string targetAnim;
         public ItemType itemType;
 
+        public ConsumbleEffect Effect;
+
         public GameObject itemPrefab;
         public Vector3 r_model_pos;
         public Vector3 r_model_eulers;
         public Vector3 model_scale;
     }
+
+    public delegate void ConsumbleEffect(PlayerState playerStates);
 
     public enum ItemType
     {

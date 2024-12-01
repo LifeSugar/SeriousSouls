@@ -24,10 +24,10 @@ namespace rei
 
         }
 
-        public void InitDamageColliders(StateManager states) {
+        public void InitDamageColliders(PlayerState playerStates) {
             for (int i = 0; i < damageCollider.Length; i++)
             {
-                damageCollider[i].GetComponent<DamageCollider>().InitPlayer(states);
+                damageCollider[i].GetComponent<DamageCollider>().InitPlayer(playerStates);
             }
         }
     }

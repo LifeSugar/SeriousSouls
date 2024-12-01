@@ -28,7 +28,7 @@ namespace rei
 
         [HideInInspector] public Transform pivot; // 相机的旋转轴
         [HideInInspector] public Transform camTrans; // 相机的Transform
-        StateManager states; // 管理相机状态的对象
+        PlayerState _playerStates; // 管理相机状态的对象
 
 
         float smoothX;
@@ -46,13 +46,13 @@ namespace rei
         private float savedTiltAngle; // 保存的垂直角度
         private bool wasLockedOn = false; // 跟踪上一帧是否处于锁定状态
 
-        public void Init(StateManager st)
+        public void Init(PlayerState st)
         {
-            states = st;
+            _playerStates = st;
             followTarget = st.transform; // 将目标设置为StateManager的Transform
             camTrans = Camera.main.transform; // 获取主相机的Transform
             pivot = camTrans.parent; // 设置pivot为相机的父对象
-            defaultDistance = new Vector3(0, offset.y, 0).magnitude;
+            defaultDistance = new Vector3(0, offset.z, 0).magnitude;
             pivot.localPosition = offset;
         }
 
@@ -88,13 +88,13 @@ namespace rei
                 if (lockOnTransform == null)
                 {
                     lockOnTransform = lockOnTarget.GetTarget();
-                    states.lockOnTransform = lockOnTransform;
+                    _playerStates.lockOnTransform = lockOnTransform;
                 }
 
                 if (changeTargetLeft || changeTargetRight)
                 {
                     lockOnTransform = lockOnTarget.GetTarget(changeTargetLeft);
-                    states.lockOnTransform = lockOnTransform;
+                    _playerStates.lockOnTransform = lockOnTransform;
                 }
 
                 // 计算从 followTarget 到 lockOnTransform 的方向向量，并加上y轴的偏移
@@ -109,7 +109,7 @@ namespace rei
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetYawRotation, d * followSpeed);
 
                 // 计算垂直旋转角度
-                Vector3 localDirection = lockOnTransform.position - camTrans.position; // 相机与目标的相对方向
+                Vector3 localDirection = lockOnTransform.position - follow; // 相机与目标的相对方向
                 float targetPitch =
                     Mathf.Atan2(localDirection.y, new Vector3(localDirection.x, 0, localDirection.z).magnitude) *
                     Mathf.Rad2Deg; // 计算垂直角度

@@ -67,7 +67,7 @@ namespace rei
     }
 
     // 拾取当前 itemCandidate 的方法
-    public void PickCandidate(StateManager states) {
+    public void PickCandidate(PlayerState playerStates) {
         // 如果没有 itemCandidate，直接返回
         if (itemCandidate == null)
             return;
@@ -77,7 +77,7 @@ namespace rei
         {
             // 获取物品容器中的每一个物品并调用 AddItem 添加至玩家库存
             PickItemContainer c = itemCandidate.items[i];
-            AddItem(c.itemId, c.itemType, states);
+            AddItem(c.itemId, c.itemType, playerStates);
         }
 
         // 从 pick_items 列表中移除 itemCandidate
@@ -90,9 +90,9 @@ namespace rei
     }
 
     // 根据物品ID、类型和状态管理器添加物品到玩家库存
-    void AddItem(string id, ItemType type, StateManager states) {
+    void AddItem(string id, ItemType type, PlayerState playerStates) {
         // 获取玩家的 InventoryManager
-        InventoryManager inv = states.inventoryManager;
+        InventoryManager inv = playerStates.inventoryManager;
         switch (type)
         {
             

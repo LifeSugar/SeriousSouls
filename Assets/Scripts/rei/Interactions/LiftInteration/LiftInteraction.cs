@@ -10,7 +10,7 @@ namespace rei
         public bool isUpper;
         void OnTriggerEnter(Collider other)
         {
-            var player = other.transform.GetComponent<StateManager>();
+            var player = other.transform.GetComponent<PlayerState>();
             if (player != null && !isRunning)
             {
                 var distance = isUpper ? -10f : 10f;

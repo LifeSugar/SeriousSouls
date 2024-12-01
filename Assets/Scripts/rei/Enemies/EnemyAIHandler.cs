@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 namespace rei
@@ -11,7 +12,7 @@ namespace rei
 
         public EnemyStates estates;
 
-        public StateManager player_states; //角色
+        [FormerlySerializedAs("player_states")] public PlayerState playerPlayerStates; //角色
         public Transform target;
 
         //管理可视范围
@@ -137,7 +138,7 @@ namespace rei
             AIAttacks a = WillAttack(); //得到将要进行攻击的攻击动作
             estates.SetCurrentAttack(a); //设置estates的攻击动作，为后续伤害计算做准备
 
-            if (a != null && player_states.isDead == false) //获取了攻击动作而且玩家还活着
+            if (a != null && playerPlayerStates.isDead == false) //获取了攻击动作而且玩家还活着
             {
                 aiState = AIState.attacking; //切换状态
                 estates.anim.Play(a.targetAnim); //播放攻击动作动画
@@ -254,7 +255,7 @@ namespace rei
             Debug.DrawRay(origin, dir, Color.red);
             if (Physics.Raycast(origin, dir, out hit, sight, estates.ignoreLayers))
             {
-                StateManager st = hit.transform.GetComponentInParent<StateManager>();
+                PlayerState st = hit.transform.GetComponentInParent<PlayerState>();
                 if (st != null) //如果不存在遮挡 那么开始接敌动作
                 {
                     estates.rotateToTarget = true; 

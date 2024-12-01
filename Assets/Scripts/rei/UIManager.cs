@@ -73,7 +73,7 @@ namespace rei
             r_vis.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, value_actual);
         }
 
-        public void Tick(CharacterStats stats, float deltaTime, StateManager states)
+        public void Tick(CharacterStats stats, float deltaTime, PlayerState playerStates)
         {
             
             //这个方法还有可以优化的地方
@@ -86,9 +86,9 @@ namespace rei
                 Mathf.RoundToInt(Mathf.Lerp(currentSouls, stats._souls,
                     deltaTime * lerpSpeed * 10));
             souls.text = currentSouls.ToString();
-            if (states.inventoryManager.curConsumable != null)
+            if (playerStates.inventoryManager.curConsumable != null)
             {
-                itemCount.text = states.inventoryManager.curConsumable.itemCount.ToString();
+                itemCount.text = playerStates.inventoryManager.curConsumable.itemCount.ToString();
             }
            
 
@@ -136,8 +136,6 @@ namespace rei
         //捡到东西的UI
         public void AddItemCard(Item i)
         {
-            Debug.Log(i.itemName);
-            Debug.Log(i.icon != null);
             
             ItemCards[item_idx].itemName.text = i.itemName;
             ItemCards[item_idx].icon.sprite = i.icon;

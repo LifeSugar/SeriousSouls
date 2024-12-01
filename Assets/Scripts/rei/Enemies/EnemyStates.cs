@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
+
 namespace rei
 {
     public class EnemyStates : MonoBehaviour
@@ -40,10 +41,10 @@ namespace rei
         public Rigidbody rigid;
         EnemyTarget enTarget;
         AnimatorHook a_hook;
-        public StateManager parriedBy;
+        public PlayerState parriedBy;
         public LayerMask ignoreLayers;
         public NavMeshAgent agent;
-        public StateManager player;
+        public PlayerState player;
         public GameObject lockOnGameObject;//被锁定的标记
         public Canvas enemyCanvas;
         public GameObject dropGameObject;
@@ -131,26 +132,38 @@ namespace rei
         //开启布娃娃方法，同时在这一帧结束时关闭动画，和此组件，即角色死亡
         public void EnableRagdoll()
         {
-            for (int i = 0; i < ragdollRigids.Count; i++)//历遍所有布娃娃组件，开启他们的碰撞和物理交互
-            {
-                ragdollRigids[i].isKinematic = false;
-                ragdollColliders[i].isTrigger = false;
-                ragdollRigids[i].detectCollisions = false;
-            }
+            
             //关闭主碰撞和rb的物理交互
             Collider controllerCollider = rigid.gameObject.GetComponent<Collider>(); 
             controllerCollider.enabled = false;
             rigid.isKinematic = true;
-            //执行“shut down”
+            rigid.velocity = Vector3.zero;
+            
+            agent.isStopped = true;
+            agent.enabled = false;
             StartCoroutine("CloseAnimator");
+            for (int i = 0; i < ragdollRigids.Count; i++)//历遍所有布娃娃组件，开启他们的碰撞和物理交互
+            {
+                ragdollRigids[i].velocity = Vector3.zero;
+                ragdollRigids[i].isKinematic = false;
+                ragdollColliders[i].isTrigger = false;
+                ragdollRigids[i].detectCollisions = true;
+            }
+            
+            
+            //执行“shut down”
+
         }
         
         //关掉这个组件和动画
         IEnumerator CloseAnimator()
         {
-            yield return new WaitForEndOfFrame();
+            this.GetComponentInChildren<AnimatorHook>().enabled = false;
             anim.enabled = false;
-            this.enabled = false;
+            var ai = this.GetComponent<EnemyAIHandler>();
+            ai.enabled = false;
+            yield return new WaitForEndOfFrame();
+            // this.enabled = false;
         }
 
         public void Tick(float d)
@@ -212,7 +225,7 @@ namespace rei
                 {
                     isDead = true;
                     enemyCanvas.gameObject.SetActive(false);//关血条
-                    audioSource.PlayOneShot(ResourceManager.instance.GetAudio("die").audio_clip);
+                    // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("die").audio_clip);
                     EnableRagdoll(); //开启布娃娃效果
                     StartCoroutine(StartSinking());//沉入地下
                 }
@@ -296,11 +309,11 @@ namespace rei
             //int damage = StatsCalculations.CalculateBaseDamage(curWeapon.weaponStats, characterStats); 一些复杂的伤害计算方法还没写
             int damage = 20; //凑合用先
             health -= damage;
-            audioSource.PlayOneShot(ResourceManager.instance.GetAudio("slash_impact").audio_clip);//被砍音效
+            // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("slash_impact").audio_clip);//被砍音效
             if (canMove) //在没动作的情况下随机播放受伤动画
             {
                 int ran = Random.Range(0, 100);
-                string tA = (ran > 50) ? "damage_1" : "damage_2";
+                string tA = (ran > 50) ? "damage1" : "damage2";
                 anim.Play(tA);
             }
 
@@ -331,7 +344,7 @@ namespace rei
             CloseDamageCollider();
         }
 
-        public void CheckForParry(Transform target, StateManager states) //检查是否被弹反到了，如果被弹反到了，那么就被处决
+        public void CheckForParry(Transform target, PlayerState playerStates) //检查是否被弹反到了，如果被弹反到了，那么就被处决
         {
             if (canBeParried == false || parryIsOn == false || isInvincible)
                 return;
@@ -349,7 +362,7 @@ namespace rei
             anim.applyRootMotion = true;
             anim.SetBool("canMove", false);
             			// states.parryTarget = this;
-            parriedBy = states;
+            parriedBy = playerStates;
             return;
         }
 
@@ -368,7 +381,7 @@ namespace rei
         {
             dontDoAnything = true;
             anim.SetBool("canMove", false);
-            anim.Play("backstab_received");
+            anim.Play("getting_backstabbed");
             StartCoroutine(PlaySlashImpact());
             StartCoroutine(SetHealth());
         }
@@ -382,7 +395,7 @@ namespace rei
         IEnumerator PlaySlashImpact()
         {
             yield return new WaitForSeconds(0.5f);
-            audioSource.PlayOneShot(ResourceManager.instance.GetAudio("slash_impact").audio_clip);
+            // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("slash_impact").audio_clip);
         }
 
         // public ParticleSystem fireParticle;
@@ -445,11 +458,13 @@ namespace rei
 
         IEnumerator StartSinking()
         {
+            Debug.Log("Starting sinking");
             this.GetComponent<CapsuleCollider>().enabled = false;
             player.lockOnTarget = null;
             EnemyManager.instance.enemyTargets.Remove(enTarget);
-            yield return new WaitForSeconds(0.8f);
-            HandleDropItem();
+            // transform.DOMoveY(transform.position.y + 10, 10).SetEase(Ease.InOutQuad);
+            yield return new WaitForSeconds(2.8f);
+            // HandleDropItem();
             Destroy(this.gameObject);
         }
 
@@ -465,7 +480,7 @@ namespace rei
         //更新血条
         void UpdateEnemyHealthUI(int curHealth, int maxHealth)
         {
-            healthBar.fillAmount = (float)curHealth / (float)maxHealth;
+            healthBar.rectTransform.sizeDelta = new Vector2((float)curHealth / (float)maxHealth , 0.05f);
         }
     }
 }

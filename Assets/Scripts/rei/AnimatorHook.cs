@@ -10,7 +10,7 @@ namespace rei
 
         Animator anim; // 用于角色动画控制的Animator对象
 
-        StateManager states; // 管理角色状态的StateManager
+        PlayerState _playerStates; // 管理角色状态的StateManager
 
         EnemyStates eStates;           // 管理敌人状态的EnemyStates
         Rigidbody rigid; // 用于物理控制的Rigidbody
@@ -32,9 +32,9 @@ namespace rei
         //-----------------------------------------------------------------------
 
         // 初始化方法，传入StateManager和EnemyStates
-        public void Init(StateManager st , EnemyStates eSt)
+        public void Init(PlayerState st , EnemyStates eSt)
         {
-            states = st;
+            _playerStates = st;
             eStates = eSt;
 
             // player/enemy二选一
@@ -42,8 +42,8 @@ namespace rei
             {
                 anim = st.anim;
                 rigid = st.rigid;
-                roll_curve = states.roll_curve;
-                delta = states.delta;
+                roll_curve = _playerStates.roll_curve;
+                delta = _playerStates.delta;
             }
             
             if (eSt != null) {
@@ -85,18 +85,18 @@ namespace rei
             }
 
             // 没有角色(或敌人)状态时直接返回
-            if (states == null && eStates == null)
+            if (_playerStates == null && eStates == null)
                 return;
 
             if (rigid == null)//总体思路还是靠控制rigidbody来进行运动（所以使用animation physic方法）
                 return;
 
             // 检查动作状态（onEmpty等），如果满足条件则退出
-            if (states != null)
+            if (_playerStates != null)
             {
-                if (states.onEmpty)
+                if (_playerStates.onEmpty)
                     return;
-                delta = states.delta; //animator采用的updateMode是Animate Physics,这里的delta是fixeddeltatime
+                delta = _playerStates.delta; //animator采用的updateMode是Animate Physics,这里的delta是fixeddeltatime
             }
             if (eStates != null) 
             {
@@ -132,22 +132,22 @@ namespace rei
             }
             else
             {
-                roll_t += delta / states.rollDuration; //每帧增加的时间进度
+                roll_t += delta / _playerStates.rollDuration; //每帧增加的时间进度
                 if (roll_t > 1)
                 {
                     roll_t = 1;
                 }
 
-                if (states == null)
+                if (_playerStates == null)
                     return;
 
-                float zValue = states.roll_curve.Evaluate(roll_t);
-                Vector3 v1 = (states.lockOn) ? states.moveDir : Vector3.forward;
-                Vector3 relative = (states.lockOn) ? states.moveDir * zValue : transform.TransformDirection(v1 * zValue);
+                float zValue = _playerStates.roll_curve.Evaluate(roll_t);
+                Vector3 v1 = (_playerStates.lockOn) ? _playerStates.moveDir : Vector3.forward;
+                Vector3 relative = (_playerStates.lockOn) ? _playerStates.moveDir * zValue : transform.TransformDirection(v1 * zValue);
                 Vector3 v2 = (relative * rm_multi);
                 v2.y = rigid.velocity.y;
                 rigid.constraints |= RigidbodyConstraints.FreezePositionY;
-                rigid.velocity =(states.lockOn) ? anim.deltaPosition * 0.5f * zValue / delta : v2 * 3.2f; //自行理解
+                rigid.velocity =(_playerStates.lockOn) ? anim.deltaPosition * 0.8f * zValue / delta : v2 * 3.2f; //自行理解
             }
         }
 
@@ -184,24 +184,24 @@ namespace rei
         // 开启攻击状态
         public void OpenAttack()
         {
-            if (states)
-                states.canAttack = true;
+            if (_playerStates)
+                _playerStates.canAttack = true;
         }
 
         // 开启移动状态
         public void OpenCanMove()
         {
-            if (states)
+            if (_playerStates)
             {
-                states.canMove = true;
+                _playerStates.canMove = true;
             }
         }
 
         // 开启伤害碰撞体
         public void OpenDamageColliders()
         {
-            if (states)
-                states.inventoryManager.OpenAllDamageColliders();
+            if (_playerStates)
+                _playerStates.inventoryManager.OpenAllDamageColliders();
             if (eStates)
                 eStates.OpenDamageCollier();
 
@@ -211,8 +211,8 @@ namespace rei
         // 关闭伤害碰撞体
         public void CloseDamageColliders()
         {
-            if (states)
-                states.inventoryManager.CloseAllDamageColliders();
+            if (_playerStates)
+                _playerStates.inventoryManager.CloseAllDamageColliders();
             if (eStates)
                 eStates.CloseDamageCollider();
 
@@ -222,9 +222,9 @@ namespace rei
         // 开启格挡标志
         public void OpenParryFlag()
         {
-            if (states)
+            if (_playerStates)
             {
-                states.parryIsOn = true;
+                _playerStates.parryIsOn = true;
             }
 
             if (eStates) 
@@ -236,9 +236,9 @@ namespace rei
         // 关闭格挡标志
         public void CloseParryFlag()
         {
-            if (states)
+            if (_playerStates)
             {
-                states.parryIsOn = false;
+                _playerStates.parryIsOn = false;
             }
 
             if (eStates) 
@@ -250,37 +250,37 @@ namespace rei
         // 开启格挡碰撞体
         public void OpenParryCollider()
         {
-            if (states == null)
+            if (_playerStates == null)
                 return;
 
-            states.inventoryManager.OpenParryCollider();
+            _playerStates.inventoryManager.OpenParryCollider();
         }
 
         // 关闭格挡碰撞体
         public void CloseParryCollider()
         {
-            if (states == null)
+            if (_playerStates == null)
                 return;
 
-            states.inventoryManager.CloseParryCollider();
+            _playerStates.inventoryManager.CloseParryCollider();
         }
 
         // 关闭法术粒子效果
         public void CloseParticle()
         {
-            if (states)
+            if (_playerStates)
             {
-                if (states.inventoryManager.currentSpell.currentParticle != null)
-                    states.inventoryManager.currentSpell.currentParticle.SetActive(false);
+                if (_playerStates.inventoryManager.currentSpell.currentParticle != null)
+                    _playerStates.inventoryManager.currentSpell.currentParticle.SetActive(false);
             }
         }
 
         // 发射法术弹道
         public void InitiateThrowForProjectile()
         {
-            if (states)
+            if (_playerStates)
             {
-                states.ThrowProjectile();
+                _playerStates.ThrowProjectile();
             }
         }
 
@@ -299,38 +299,38 @@ namespace rei
         // 开启旋转控制
         public void OpenRotationControl()
         {
-            if (states)
-                states.canRotate = true;
-            // if (eStates)
-            //     eStates.rotateToTarget = true;
+            if (_playerStates)
+                _playerStates.canRotate = true;
+            if (eStates)
+                eStates.rotateToTarget = true;
         }
 
         // 关闭旋转控制
         public void CloseRotationControl()
         {
-            if (states)
-                states.canRotate = false;
-            // if (eStates)
-            //     eStates.rotateToTarget = false;
+            if (_playerStates)
+                _playerStates.canRotate = false;
+            if (eStates)
+                eStates.rotateToTarget = false;
         }
 
         // 消耗当前物品
         public void ConsumeCurrentItem()
         {
-            if (states && states.inventoryManager.curConsumable)
+            if (_playerStates && _playerStates.inventoryManager.curConsumable)
             {
-                states.inventoryManager.curConsumable.itemCount--;
-                ItemEffectManager.singleton.CastEffect(states.inventoryManager.curConsumable.instance.consumableEffect,
-                    states);
+                _playerStates.inventoryManager.curConsumable.itemCount--;
+                ItemEffectManager.singleton.CastEffect(_playerStates.inventoryManager.curConsumable.instance.consumableEffect,
+                    _playerStates);
             }
         }
 
         // 播放音效
         public void PlaySoundEffect()
         {
-            if (states)
+            if (_playerStates)
             {
-                states.audio_source.PlayOneShot(states.audio_clip);
+                _playerStates.audio_source.PlayOneShot(_playerStates.audio_clip);
             }
         }
     }

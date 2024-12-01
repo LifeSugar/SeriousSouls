@@ -174,8 +174,8 @@ namespace rei
             bool isLeftHand = false)
         {
             Action a = GetAction(assign, actionList);
-            Debug.Log(a.input.ToString());
-            Debug.Log(w.itemName + "114");
+            // Debug.Log(a.input.ToString());
+            // Debug.Log(w.itemName + "114");
             Action w_a = w.GetAction(w.actions, inp);
             if (w_a == null)
             {
