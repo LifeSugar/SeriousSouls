@@ -254,6 +254,7 @@ MonoBehaviour:
   maxAngle: 35
   defaultDistance: 0
   offset: {x: 0, y: 1.54, z: -1.84}
+  lockOffset: 0.5
   targetDir: {x: 0, y: 0, z: 0}
   lookAngle: 0
   tiltAngle: 0
@@ -5257,6 +5258,7 @@ MonoBehaviour:
   lb: 0
   rollInput: 0
   itemInput: 0
+  rollDir: {x: 0, y: 0, z: 0}
   moveSpeed: 3
   rotateSpeed: 5
   toGround: 0.5
@@ -5308,6 +5310,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  rollDuration: 0.6
+  rbvz: 0
+  rbvx: 0
   anim: {fileID: 0}
   rigid: {fileID: 0}
   a_hook: {fileID: 0}
