@@ -97,7 +97,7 @@ namespace rei
             stamina_vis.value = Mathf.Lerp(stamina_vis.value, stats._stamina, deltaTime * lerpSpeed);
         }
 
-        public void AffectAll(int h, int f, int s)
+        public void InitBars(int h, int f, int s)
         {
             InitSlider(StatSliderType.health, h);
             InitSlider(StatSliderType.focus, f);

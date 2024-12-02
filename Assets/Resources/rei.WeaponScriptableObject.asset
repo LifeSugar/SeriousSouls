@@ -64,6 +64,28 @@ MonoBehaviour:
       backstabMultiplier: 0
       overrideDamageAnim: 0
       damageAnim: 
+    - input: 3
+      type: 0
+      spellClass: 0
+      targetAnim: 
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 3
+          targetAnim: kick 1
+          audio_ids: 
+      mirror: 0
+      canBeParried: 0
+      changeSpeed: 1
+      animSpeed: 1.3
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 40
+      fpCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
     two_handedActions: []
     parryMultiplier: 0
     backstabMultiplier: 0
