@@ -16,7 +16,7 @@ namespace rei
 
         IEnumerator LitFire()
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(2.1f);
             light.SetActive(true);
             campfire.SetActive(true);
             
