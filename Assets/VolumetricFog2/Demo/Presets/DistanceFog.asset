@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 612e70f49e5124da0a95111a57250300, type: 3}
+  m_Name: DistanceFog
+  m_EditorClassIdentifier: 
+  raymarchQuality: 6
+  dithering: 1
+  jittering: 1
+  renderQueue: 3100
+  sortingLayerID: 0
+  sortingOrder: 0
+  noiseTexture: {fileID: 2800000, guid: 9c79340e1a1054275ba04070a27de306, type: 3}
+  noiseStrength: 1.09
+  noiseScale: 15
+  noiseFinalMultiplier: 1
+  density: 0.18
+  border: 0.061
+  distance: 0
+  distanceFallOff: 0.866
+  albedo: {r: 0.8901961, g: 0.8901961, b: 0.8901961, a: 1}
+  brightness: 1
+  deepObscurance: 1
+  specularColor: {r: 1, g: 1, b: 0.8, a: 1}
+  specularThreshold: 0.637
+  specularIntensity: 0.428
+  turbulence: 0.73
+  windDirection: {x: -0.02, y: 0, z: 0}
+  lightDiffusionPower: 32
+  lightDiffusionIntensity: 0.4
+  receiveShadows: 1
+  shadowIntensity: 0.5
