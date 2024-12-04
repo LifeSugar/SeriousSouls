@@ -100,75 +100,84 @@ namespace rei
         }
 
         // 根据物品ID、类型和状态管理器添加物品到玩家库存
-        void AddItem(string id, ItemType type, PlayerState playerStates)
+        /// <summary>
+        /// 将拾取的物品添加到玩家的库存中，并在 UI 中显示物品卡片。
+        /// 根据物品类型（武器、消耗品、法术）分别处理逻辑，避免重复添加相同物品。
+        /// </summary>
+        /// <param name="id">物品的唯一标识符。</param>
+        /// <param name="type">物品的类型（武器、消耗品、法术）。</param>
+        /// <param name="playerStates">当前玩家状态对象，包含库存管理器。</param>
+        public void AddItem(string id, ItemType type, PlayerState playerStates)
         {
-            // 获取玩家的 InventoryManager
-            InventoryManager inv = playerStates.inventoryManager;
+            // 1. 获取玩家的库存对象
+            Inventory inventory = playerStates.inventoryManager.inventory;
+
+            // 2. 根据物品类型分别处理
             switch (type)
             {
-                //这里逻辑再仔细想想，主要是没有真正的“库存”
-                // 如果物品是武器类型
+                // 处理武器类型的物品
                 case ItemType.weapon:
-                    // 检查玩家是否已经装备
-                    // 该武器
-                    for (int k = 0; k < inv.runtime_r_weapons.Count; k++)
-                    {
-                        if (id == inv.runtime_r_weapons[k].name)
-                        {
-                            // 如果拥有该武器，则显示通知卡片并返回
-                            Item b = ResourceManager.instance.GetItem(id);
-                            UIManager.instance.AddItemCard(b);
-                            return;
-                        }
-                    }
+                    // 从资源管理器中获取武器对象
+                    Weapon weapon = ResourceManager.instance.GetWeapon(id);
 
-                    // 如果玩家未装备该武器，将武器添加到玩家右手slot中
-                    Debug.Log("get" + id);
-                    inv.WeaponToRuntimeWeapon(ResourceManager.instance.GetWeapon(id));
-                    // inv.WeaponToRuntimeWeapon(ResourceManager.instance.GetWeapon(id), true);
+                    // 检查库存中是否已经存在相同名称的武器
+                    // if (!inventory.weapons.Exists(w => w.itemName == weapon.itemName))
+                    // {
+                    //     // 如果不存在，则添加到武器列表中
+                    //     inventory.weapons.Add(weapon);
+                    //
+                    //     // 在 UI 中显示新增物品卡片
+                    //     UIManager.instance.AddItemCard(weapon);
+                    // }
+                    
+                    inventory.weapons.Add(weapon);
+
+                    // 在 UI 中显示新增物品卡片
+                    UIManager.instance.AddItemCard(weapon);
                     break;
 
-                // 如果物品是消耗品类型
+                // 处理消耗品类型的物品
                 case ItemType.item:
-                    // 检查玩家是否已经拥有该消耗品
-                    for (int j = 0; j < inv.runtime_consumables.Count; j++)
-                    {
-                        if (id == inv.runtime_consumables[j].name)
-                        {
-                            // 如果拥有该消耗品，则增加数量并显示通知卡片
-                            inv.runtime_consumables[j].itemCount++;
-                            Item b = ResourceManager.instance.GetItem(id);
-                            UIManager.instance.AddItemCard(b);
-                            return;
-                        }
-                    }
+                    // 从资源管理器中获取消耗品对象
+                    Consumable item = ResourceManager.instance.GetConsumable(id);
 
-                    // 如果玩家未拥有该消耗品，将消耗品添加到玩家库存中
-                    inv.ConsumableToRuntimeConsumable(ResourceManager.instance.GetConsumable(id));
+                    // 检查库存中是否已经存在相同名称的消耗品
+                    if (!inventory.consumables.Exists(c => c.itemName == item.itemName))
+                    {
+                        // 如果不存在，则添加到消耗品列表中
+                        inventory.consumables.Add(item);
+
+                        // 在 UI 中显示新增物品卡片
+                        UIManager.instance.AddItemCard(item);
+                    }
                     break;
 
-                // 如果物品是法术类型
+                // 处理法术类型的物品
                 case ItemType.spell:
-                    // 检查玩家是否已经拥有该法术
-                    for (int k = 0; k < inv.runtime_spells.Count; k++)
-                    {
-                        if (id == inv.runtime_spells[k].name)
-                        {
-                            // 如果拥有该法术，则显示通知卡片并返回
-                            Item b = ResourceManager.instance.GetItem(id);
-                            UIManager.instance.AddItemCard(b);
-                            return;
-                        }
-                    }
+                    // 从资源管理器中获取法术对象
+                    Spell spell = ResourceManager.instance.GetSpell(id);
 
-                    // 如果玩家未拥有该法术，将法术添加到玩家库存中
-                    inv.SpellToRuntimeSpell(ResourceManager.instance.GetSpell(id));
+                    // 检查库存中是否已经存在相同名称的法术
+                    if (!inventory.spells.Exists(s => s.itemName == spell.itemName))
+                    {
+                        // 如果不存在，则添加到法术列表中
+                        inventory.spells.Add(spell);
+
+                        // 在 UI 中显示新增物品卡片
+                        UIManager.instance.AddItemCard(spell);
+                    }
                     break;
             }
+            
+            //更新库存UI
+            InventoryUI.instance.UpdateInventoryUI(inventory);
+        }
 
-            // 显示拾取的物品通知卡片
-            Item i = ResourceManager.instance.GetItem(id);
-            UIManager.instance.AddItemCard(i);
+        public static PickableItemsManager instance;
+
+        void Awake()
+        {
+            instance = this;
         }
     }
 }

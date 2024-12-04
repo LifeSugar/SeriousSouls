@@ -121,6 +121,12 @@ namespace rei
                 case UIActionType.talk:
                     instruction.text = "Talk : key";
                     break;
+                case UIActionType.lit:
+                    instruction.text = "Lit the lamp : Press Space";
+                    break;
+                case UIActionType.sit:
+                    instruction.text = " Rest at the lamp: Press Space";
+                    break;
                 default:
                     break;
             }
@@ -180,6 +186,8 @@ namespace rei
         pickup,
         interact,
         open,
-        talk
+        talk,
+        lit,
+        sit
     }
 }

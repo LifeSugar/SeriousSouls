@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,14 +7,25 @@ namespace rei
 {
     public class InputHandler : MonoBehaviour
     {
+        [Header("Menu")]
+        public bool inMenu = false;
+        public GameObject menu;
+        
+        [Header("OnCampFire")]
+        public bool onCampFire = false;
+        public GameObject CampFireCanvas;
+        
+        [Header("BlackScreen")]
+        public ScreenFadeController screenFadeController;
+        private bool isFading = false;
+        
+        [Header("Inputs")] 
         float vertical;
         float horizontal;
         public bool b_input;
         public bool a_input;
         public bool x_input;
         public bool y_input;
-        
-        
 
 
         bool rb_input;
@@ -66,6 +78,13 @@ namespace rei
         // private bool isDPadRightPressed = false;
 
         //-----------------------------------------------------------------------
+        
+        public static InputHandler instance;
+
+        private void Awake()
+        {
+            instance = this;
+        }
 
         void Start()
         {
@@ -117,14 +136,28 @@ namespace rei
 
         void Update()
         {
-            GetInput();
+            if (!inMenu && !onCampFire)
+            {
+                GetInput();
+                HandlePickAndInteract();
+            }
+
+            if (onCampFire)
+            {
+                if (Input.GetButtonDown(GlobalStrings.Menu) || Input.GetKeyDown(KeyCode.Escape))
+                    HandleCampFireCanvas();
+            }
+                
+            
+            if ((Input.GetKeyDown(KeyCode.Escape) || Input.GetButtonDown(GlobalStrings.Menu)) && !onCampFire)
+                HandleMenu();
             UpdateStates();
             
             delta = Time.deltaTime;
             
             _playerStates.Tick(delta);
             
-            HandlePickAndInteract();
+            
 
 
             if (dialogueManager.dialogueActive)
@@ -137,6 +170,65 @@ namespace rei
             ResetInputNState();
             uiManager.Tick(_playerStates.characterStats, delta, _playerStates);
             camManager.FixedTick(delta);
+        }
+
+        void HandleMenu()
+        {
+            if (inMenu == false)
+            {
+                inMenu = true;
+                menu.SetActive(true);
+                InventoryUI.instance.UpdateInventoryUI(_playerStates.inventoryManager.inventory);
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+                ResetInputs();
+            }
+            else
+            {
+                inMenu = false;
+                menu.SetActive(false);
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
+
+        public void HandleCampFireCanvas()
+        {
+            if (!isFading)
+            {
+                StartCoroutine(HandleCampFireCanvasCoroutine());
+            }
+        }
+        
+        private IEnumerator HandleCampFireCanvasCoroutine()
+        {
+            isFading = true;
+
+            // 淡入黑屏
+            yield return StartCoroutine(screenFadeController.FadeIn());
+
+            // 切换 Canvas 的激活状态
+            if (onCampFire == false)
+            {
+                onCampFire = true;
+                CampFireCanvas.SetActive(true);
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+                ResetInputs();
+            }
+            else
+            {
+                onCampFire = false;
+                CampFireCanvas.SetActive(false);
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+                _playerStates.Recover();
+            }
+
+            // 淡出黑屏
+            yield return StartCoroutine(screenFadeController.FadeOut());
+
+            isFading = false;
         }
 
         void HandlePickAndInteract()
@@ -473,6 +565,37 @@ namespace rei
                 _playerStates.rollInput = false;
             if (Input.GetButtonUp(GlobalStrings.B) || _playerStates.characterStats._stamina <= 1)
                 _playerStates.run = false;
+        }
+        
+        public void ResetInputs()
+        {
+            // Reset float parameters to 0
+            vertical = 0f;
+            horizontal = 0f;
+            rt_axis = 0f;
+            lt_axis = 0f;
+            d_y = 0f;
+            d_x = 0f;
+
+            // Reset boolean parameters to false
+            b_input = false;
+            a_input = false;
+            x_input = false;
+            y_input = false;
+            rb_input = false;
+            lb_input = false;
+            rt_input = false;
+            lt_input = false;
+            d_up = false;
+            d_down = false;
+            d_right = false;
+            d_left = false;
+            p_d_up = false;
+            p_d_down = false;
+            p_d_left = false;
+            p_d_right = false;
+            leftAxis_down = false;
+            rightAxis_down = false;
         }
     }
 }

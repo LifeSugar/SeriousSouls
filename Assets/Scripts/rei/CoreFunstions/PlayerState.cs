@@ -1281,6 +1281,12 @@ namespace rei
             characterStats.fp++;
         }
 
+        public void Recover()
+        {
+            characterStats._health = characterStats.hp;
+            characterStats._focus = characterStats.fp;
+        }
+
         public void MonitorStats()
         {
             if (run & moveAmount > 0)

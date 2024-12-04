@@ -77,31 +77,54 @@ namespace rei
             //如果装备了右手武器，则将右手武器动作映射rb，rt，否则映射空手rb，rt
              if (_playerStates.inventoryManager.hasRightHandWeapon)
              {
-                 GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance, ActionInput.rb,
-                     ActionInput.rb, actionSlots);
-                 GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance, ActionInput.rt,
-                     ActionInput.rt, actionSlots);
-                 GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance, ActionInput.lt, ActionInput.lt,actionSlots);
+                 if (!_playerStates.inventoryManager.hasLeftHandWeapon)
+                 {
+                     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance, ActionInput.rb,
+                         ActionInput.rb, actionSlots);
+                     GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.lb, actionSlots, true);
+                     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance, ActionInput.rt,
+                         ActionInput.rt, actionSlots);
+                     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance, ActionInput.lt, ActionInput.lt,actionSlots);
+                 }
+                 else
+                 {
+                     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance, ActionInput.rb,
+                         ActionInput.rb, actionSlots);
+                     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance, ActionInput.rt,
+                         ActionInput.rt, actionSlots);
+                     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance, ActionInput.rb, ActionInput.lb,actionSlots, true);
+                     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance, ActionInput.lt, ActionInput.lt,actionSlots, true);
+                 }
              }
              else
              {
                  Debug.Log("righthand unarmed");
                  GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.rb, actionSlots);
                  GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rt, ActionInput.rt, actionSlots);
+                 if (_playerStates.inventoryManager.hasLeftHandWeapon)
+                 {
+                     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance, ActionInput.rb, ActionInput.lb,actionSlots, true);
+                     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance, ActionInput.lt, ActionInput.lt,actionSlots, true);
+                 }
+                 else
+                 {
+                     GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.lb, actionSlots, true);
+                     GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rt, ActionInput.lt, actionSlots, true);
+                 }
              }
-             // 如果装备的是左手武器，则为左手输入映射相应动作；否则，将空手动作映射到左手输入
-             if (_playerStates.inventoryManager.hasLeftHandWeapon)
-             {
-                 GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance, ActionInput.rb,
-                     ActionInput.lb, actionSlots, true);
-                 // GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance, ActionInput.rt,
-                 //     ActionInput.lt, actionSlots, true);
-             }
-             else
-             {
-                 GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.lb, actionSlots, true);
-                 // GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rt, ActionInput.lt, actionSlots, true);
-             }
+             // // 如果装备的是左手武器，则为左手输入映射相应动作；否则，将空手动作映射到左手输入
+             // if (_playerStates.inventoryManager.hasLeftHandWeapon)
+             // {
+             //     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance, ActionInput.rb,
+             //         ActionInput.lb, actionSlots, true);
+             //     // GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance, ActionInput.rt,
+             //     //     ActionInput.lt, actionSlots, true);
+             // }
+             // else
+             // {
+             //     GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.lb, actionSlots, true);
+             //     // GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rt, ActionInput.lt, actionSlots, true);
+             // }
             
 
             
