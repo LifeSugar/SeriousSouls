@@ -290,16 +290,16 @@ namespace rei
         //以下三个方法用于处理消耗品的转换，装备和切换（果粒橙和脉动）
 
         //将消耗品（静态对象）转换为正在装备的消耗品（运行实例）
-        public RuntimeConsumable ConsumableToRuntimeConsumable(Consumable c, int index)
+        public RuntimeConsumable ConsumableToRuntimeConsumable(List<Consumable> c, int index)
         {
             // 创建一个新的空 GameObject 作为消耗品的运行时实例
             GameObject g0 = new GameObject();
             RuntimeConsumable inst = g0.AddComponent<RuntimeConsumable>(); // 添加 RuntimeConsumable 组件
-            g0.name = c.itemName; // 设置 GameObject 的名称为消耗品名称
+            g0.name = c[0].itemName; // 设置 GameObject 的名称为消耗品名称
 
             // 创建一个新的 Consumable 实例，并将原始数据完全复制到 inst.instance
             inst.instance = new Consumable();
-            GlobalFuntions.DeepCopyConsumable(inst.instance, c); // 使用 DeepCopyConsumable 方法复制数据
+            GlobalFuntions.DeepCopyConsumable(inst.instance, c[0]); // 使用 DeepCopyConsumable 方法复制数据
 
             // 如果消耗品有对应的模型预制体，则实例化该模型
             if (inst.instance.itemPrefab != null)
@@ -319,6 +319,7 @@ namespace rei
 
                 inst.itemModel = model; // 将模型赋值给 RuntimeConsumable 的 itemModel 属性
                 inst.itemModel.SetActive(false); // 初始状态下隐藏模型
+                inst.itemCount = c.Count;
             }
 
             runtime_consumables[index] = inst; // 将生成的 RuntimeConsumable 添加到运行时消耗品列表中
@@ -428,10 +429,10 @@ namespace rei
         }
         public void EquipConsumableUI(string itemName, int index)
         {
-            Consumable item = inventory.consumables.Find(c => c.itemName == itemName);
-            if (item != null)
+            List<Consumable> items = inventory.consumables.Find(c => c[0].itemName == itemName);
+            if (items != null)
             {
-                ConsumableToRuntimeConsumable(item, index); // 调用现有逻辑
+                ConsumableToRuntimeConsumable(items, index); // 调用现有逻辑
 
                 if (consumable_idx == index)
                 {
@@ -444,7 +445,7 @@ namespace rei
         {
             for (int i = 0; i < inventory.consumables.Count; i++)
             {
-                if (inventory.consumables[i].itemName == itemName)
+                if (inventory.consumables[i][0].itemName == itemName)
                 {
                     inventory.consumables.RemoveAt(i);
                     return;
@@ -484,9 +485,9 @@ namespace rei
             inventory.weapons.Add(weapon);
         }
 
-        public void AddItemToInventory(Consumable item)
+        public void AddItemToInventory(List<Consumable> items)
         {
-            inventory.consumables.Add(item);
+            inventory.consumables.Add(items);
         }
 
         public void AddSpellToInventory(Spell spell)
@@ -598,7 +599,7 @@ namespace rei
     public class Inventory
     {
         public List<Weapon> weapons = new List<Weapon>();
-        public List<Consumable> consumables = new List<Consumable>();
+        public List<List<Consumable>> consumables = new List<List<Consumable>>();
         public List<Spell> spells = new List<Spell>();
     }
 

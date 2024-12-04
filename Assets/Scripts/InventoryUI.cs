@@ -28,9 +28,9 @@ namespace rei
                 AddToGrid(weapon.icon, weaponGrid, weapon.itemName, ItemType.weapon);
             }
 
-            foreach (var item in inventory.consumables)
+            foreach (var items in inventory.consumables)
             {
-                AddToGrid(item.icon, itemGrid, item.itemName, ItemType.item);
+                AddToGrid(items[0].icon, itemGrid, items[0].itemName, items.Count, ItemType.item);
             }
 
             foreach (var spell in inventory.spells)
@@ -57,6 +57,17 @@ namespace rei
         {
             GameObject slot = Instantiate(slotPrefab, grid); // 实例化槽
             slot.GetComponent<Image>().sprite = icon; // 设置图标
+            slot.GetComponentInChildren<Text>().enabled = false;
+            DraggableItem draggable = slot.AddComponent<DraggableItem>(); // 添加拖拽功能
+            draggable.
+                Setup(itemName, itemType); // 配置拖拽数据
+        }
+        
+        private void AddToGrid(Sprite icon, Transform grid, string itemName, int count, ItemType itemType)
+        {
+            GameObject slot = Instantiate(slotPrefab, grid); // 实例化槽
+            slot.GetComponent<Image>().sprite = icon; // 设置图标
+            slot.GetComponentInChildren<Text>().text = count.ToString();
             DraggableItem draggable = slot.AddComponent<DraggableItem>(); // 添加拖拽功能
             draggable.
                 Setup(itemName, itemType); // 配置拖拽数据

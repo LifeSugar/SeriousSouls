@@ -27,7 +27,7 @@ namespace rei
         public GameObject interactCanvas;
         public Text instruction;
 
-        private int item_idx;
+        public int item_idx;
         public List<ItemCard> ItemCards; //捡到东西的时候现实的UI
 
 
@@ -142,12 +142,10 @@ namespace rei
         //捡到东西的UI
         public void AddItemCard(Item i)
         {
-            
             ItemCards[item_idx].itemName.text = i.itemName;
             ItemCards[item_idx].icon.sprite = i.icon;
             ItemCards[item_idx].gameObject.SetActive(true);
             item_idx++;
-            Debug.Log("AddItemCard");
         }
 
         public void CloseItemCards()

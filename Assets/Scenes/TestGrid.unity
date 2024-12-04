@@ -12377,7 +12377,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory:
     weapons: []
-    consumables: []
     spells: []
   r_idx: 0
   l_idx: 0
@@ -18413,6 +18412,7 @@ MonoBehaviour:
   itemCount: {fileID: 1799355706}
   interactCanvas: {fileID: 340032688}
   instruction: {fileID: 159827109}
+  item_idx: 0
   ItemCards:
   - {fileID: 1646020002}
   - {fileID: 886070442}
@@ -22760,7 +22760,7 @@ PrefabInstance:
     - target: {fileID: 6204372033354552729, guid: f8d4cdb36d08e462da218e1972d5356d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.94
+      value: 11.25
       objectReference: {fileID: 0}
     - target: {fileID: 6204372033354552729, guid: f8d4cdb36d08e462da218e1972d5356d,
         type: 3}

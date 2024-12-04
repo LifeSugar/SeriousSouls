@@ -44,7 +44,7 @@ namespace rei
                 float distance = Vector3.Distance(pick_items[i].transform.position, transform.position);
 
                 // 如果物品在拾取范围内（小于2个单位），将其设置为 itemCandidate
-                if (distance < 2)
+                if (distance < 1.2f)
                 {
                     itemCandidate = pick_items[i];
                 }
@@ -109,6 +109,7 @@ namespace rei
         /// <param name="playerStates">当前玩家状态对象，包含库存管理器。</param>
         public void AddItem(string id, ItemType type, PlayerState playerStates)
         {
+            UIManager.instance.item_idx = 0;
             // 1. 获取玩家的库存对象
             Inventory inventory = playerStates.inventoryManager.inventory;
 
@@ -142,12 +143,19 @@ namespace rei
                     Consumable item = ResourceManager.instance.GetConsumable(id);
 
                     // 检查库存中是否已经存在相同名称的消耗品
-                    if (!inventory.consumables.Exists(c => c.itemName == item.itemName))
+                    if (!inventory.consumables.Exists(c => c[0].itemName == item.itemName))
                     {
                         // 如果不存在，则添加到消耗品列表中
-                        inventory.consumables.Add(item);
+                        List<Consumable> items = new List<Consumable>();
+                        items.Add(item);
+                        inventory.consumables.Add(items);
 
                         // 在 UI 中显示新增物品卡片
+                        UIManager.instance.AddItemCard(item);
+                    }
+                    else
+                    {
+                        inventory.consumables.Find(c => c[0].itemName == item.itemName).Add(item);
                         UIManager.instance.AddItemCard(item);
                     }
                     break;

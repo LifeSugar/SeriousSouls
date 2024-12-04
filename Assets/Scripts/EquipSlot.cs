@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -26,6 +27,7 @@ namespace rei
             {
                 defaultOutlineColor = outline.effectColor; // 保存初始边框颜色
             }
+
             UpdateSlotIcon(); // 初始化时更新图标
         }
 
@@ -49,70 +51,87 @@ namespace rei
         /// 装备物品到指定槽
         /// </summary>
         private void EquipItem(string itemName, ItemType itemType)
-{
-    switch (itemType)
-    {
-        case ItemType.weapon:
+        {
+            switch (itemType)
             {
-                // 获取当前槽位上的武器
-                var runtimeWeaponList = isLeft
-                    ? playerState.inventoryManager.runtime_l_weapons
-                    : playerState.inventoryManager.runtime_r_weapons;
-
-                if (index >= 0 && index < runtimeWeaponList.Count && runtimeWeaponList[index] != null)
+                case ItemType.weapon:
                 {
-                    // 如果槽位已装备武器，将其放回库存
-                    var currentWeapon = runtimeWeaponList[index].instance;
-                    playerState.inventoryManager.AddWeaponToInventory(currentWeapon);
+                    // 获取当前槽位上的武器
+                    var runtimeWeaponList = isLeft
+                        ? playerState.inventoryManager.runtime_l_weapons
+                        : playerState.inventoryManager.runtime_r_weapons;
+
+                    if (index >= 0 && index < runtimeWeaponList.Count && runtimeWeaponList[index] != null)
+                    {
+                        // 如果槽位已装备武器，将其放回库存
+                        var currentWeapon = runtimeWeaponList[index].instance;
+                        playerState.inventoryManager.AddWeaponToInventory(currentWeapon);
+                    }
+
+                    // 装备新武器
+                    playerState.inventoryManager.EquipWeaponUI(itemName, isLeft, index);
+                    playerState.inventoryManager.RemoveWeaponFromInventory(itemName);
                 }
+                    break;
 
-                // 装备新武器
-                playerState.inventoryManager.EquipWeaponUI(itemName, isLeft, index);
-                playerState.inventoryManager.RemoveWeaponFromInventory(itemName);
-            }
-            break;
-
-        case ItemType.item:
-            {
-                var runtimeItemList = playerState.inventoryManager.runtime_consumables;
-
-                if (index >= 0 && index < runtimeItemList.Count && runtimeItemList[index] != null)
+                case ItemType.item:
                 {
-                    // 如果槽位已装备消耗品，将其放回库存
-                    var currentItem = runtimeItemList[index].instance;
-                    playerState.inventoryManager.AddItemToInventory(currentItem);
+                    var runtimeItemList = playerState.inventoryManager.runtime_consumables;
+
+                    if (index >= 0 && index < runtimeItemList.Count && runtimeItemList[index] != null)
+                    {
+                        var currentItem = runtimeItemList[index].instance;
+                        if (itemName != currentItem.itemName)// 如果槽位已装备别的消耗品，将其放回库存
+                        {
+                            var currentItems = new List<Consumable>();
+                            for (int i = 0; i < runtimeItemList[index].itemCount; i++)
+                            {
+                                currentItems.Add(runtimeItemList[index].instance);
+                            }
+                            playerState.inventoryManager.AddItemToInventory(currentItems);
+                            playerState.inventoryManager.EquipConsumableUI(itemName, index);
+                            playerState.inventoryManager.RemoveItemFromInventory(itemName);
+                            break;
+                        }
+                        else
+                        {
+                            int adds = playerState.inventoryManager.inventory.consumables.Find(c => c[0].itemName == itemName).Count;
+                            playerState.inventoryManager.RemoveItemFromInventory(itemName);
+                            runtimeItemList[index].itemCount += adds;
+                            break;
+                        }
+                    }
+
+                    // 装备新消耗品
+                    playerState.inventoryManager.EquipConsumableUI(itemName, index);
+                    playerState.inventoryManager.RemoveItemFromInventory(itemName);
                 }
+                    break;
 
-                // 装备新消耗品
-                playerState.inventoryManager.EquipConsumableUI(itemName, index);
-                playerState.inventoryManager.RemoveItemFromInventory(itemName);
-            }
-            break;
-
-        case ItemType.spell:
-            {
-                var runtimeSpellList = playerState.inventoryManager.runtime_spells;
-
-                if (index >= 0 && index < runtimeSpellList.Count && runtimeSpellList[index] != null)
+                case ItemType.spell:
                 {
-                    // 如果槽位已装备法术，将其放回库存
-                    var currentSpell = runtimeSpellList[index].instance;
-                    playerState.inventoryManager.AddSpellToInventory(currentSpell);
+                    var runtimeSpellList = playerState.inventoryManager.runtime_spells;
+
+                    if (index >= 0 && index < runtimeSpellList.Count && runtimeSpellList[index] != null)
+                    {
+                        // 如果槽位已装备法术，将其放回库存
+                        var currentSpell = runtimeSpellList[index].instance;
+                        playerState.inventoryManager.AddSpellToInventory(currentSpell);
+                    }
+
+                    // 装备新法术
+                    playerState.inventoryManager.EquipSpellUI(itemName, index);
+                    playerState.inventoryManager.RemoveSpellFromInventory(itemName);
                 }
-
-                // 装备新法术
-                playerState.inventoryManager.EquipSpellUI(itemName, index);
-                playerState.inventoryManager.RemoveSpellFromInventory(itemName);
+                    break;
             }
-            break;
-    }
 
-    // 更新槽位图标
-    UpdateSlotIcon();
+            // 更新槽位图标
+            UpdateSlotIcon();
 
-    // 更新库存 UI
-    InventoryUI.instance.UpdateInventoryUI(playerState.inventoryManager.inventory);
-}
+            // 更新库存 UI
+            InventoryUI.instance.UpdateInventoryUI(playerState.inventoryManager.inventory);
+        }
 
         /// <summary>
         /// 更新装备槽的图标
@@ -128,9 +147,9 @@ namespace rei
                         ? playerState.inventoryManager.runtime_l_weapons
                         : playerState.inventoryManager.runtime_r_weapons;
 
-                    if (index >= 0 && index < weaponList.Count && weaponList[index] != null && weaponList[index].instance != null)
+                    if (index >= 0 && index < weaponList.Count && weaponList[index] != null &&
+                        weaponList[index].instance != null)
                     {
-                        
                         icon.sprite = weaponList[index].instance.icon; // 更新图标
                         icon.enabled = true; // 确保图标可见
                     }
@@ -139,11 +158,13 @@ namespace rei
                         icon.sprite = defaultIcon; // 设置为默认灰色图标
                         icon.enabled = true;
                     }
+
                     break;
 
                 case ItemType.item:
                     var itemList = playerState.inventoryManager.runtime_consumables;
-                    if (index >= 0 && index < itemList.Count && itemList[index] != null && itemList[index].instance != null )
+                    if (index >= 0 && index < itemList.Count && itemList[index] != null &&
+                        itemList[index].instance != null)
                     {
                         icon.sprite = itemList[index].instance.icon; // 更新图标
                         icon.enabled = true;
@@ -153,11 +174,13 @@ namespace rei
                         icon.sprite = defaultIcon; // 设置为默认灰色图标
                         icon.enabled = true;
                     }
+
                     break;
 
                 case ItemType.spell:
                     var spellList = playerState.inventoryManager.runtime_spells;
-                    if (index >= 0 && index < spellList.Count && spellList[index] != null && spellList[index].instance != null )
+                    if (index >= 0 && index < spellList.Count && spellList[index] != null &&
+                        spellList[index].instance != null)
                     {
                         icon.sprite = spellList[index].instance.icon; // 更新图标
                         icon.enabled = true;
@@ -167,6 +190,7 @@ namespace rei
                         icon.sprite = defaultIcon; // 设置为默认灰色图标
                         icon.enabled = true;
                     }
+
                     break;
             }
         }
@@ -175,20 +199,22 @@ namespace rei
         {
             switch (slotType)
             {
-                case(ItemType.item):
+                case (ItemType.item):
                     indexMarker.enabled = playerState.inventoryManager.consumable_idx == index;
                     break;
                 case (ItemType.spell):
                     indexMarker.enabled = playerState.inventoryManager.sp_idx == index;
                     break;
                 case (ItemType.weapon):
-                    indexMarker.enabled = isLeft? playerState.inventoryManager.l_idx == index : playerState.inventoryManager.r_idx == index;
+                    indexMarker.enabled =
+                        isLeft
+                            ? playerState.inventoryManager.l_idx == index
+                            : playerState.inventoryManager.r_idx == index;
                     break;
                 default:
                     indexMarker.enabled = false;
                     break;
             }
-            
         }
 
         private void Update()
