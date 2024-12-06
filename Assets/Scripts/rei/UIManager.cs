@@ -27,7 +27,7 @@ namespace rei
         public GameObject interactCanvas;
         public Text instruction;
 
-        private int item_idx;
+        public int item_idx;
         public List<ItemCard> ItemCards; //捡到东西的时候现实的UI
 
 
@@ -73,7 +73,7 @@ namespace rei
             r_vis.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, value_actual);
         }
 
-        public void Tick(CharacterStats stats, float deltaTime, StateManager states)
+        public void Tick(CharacterStats stats, float deltaTime, PlayerState playerStates)
         {
             
             //这个方法还有可以优化的地方
@@ -86,9 +86,9 @@ namespace rei
                 Mathf.RoundToInt(Mathf.Lerp(currentSouls, stats._souls,
                     deltaTime * lerpSpeed * 10));
             souls.text = currentSouls.ToString();
-            if (states.inventoryManager.curConsumable != null)
+            if (playerStates.inventoryManager.curConsumable != null)
             {
-                itemCount.text = states.inventoryManager.curConsumable.itemCount.ToString();
+                itemCount.text = playerStates.inventoryManager.curConsumable.itemCount.ToString();
             }
            
 
@@ -97,7 +97,7 @@ namespace rei
             stamina_vis.value = Mathf.Lerp(stamina_vis.value, stats._stamina, deltaTime * lerpSpeed);
         }
 
-        public void AffectAll(int h, int f, int s)
+        public void InitBars(int h, int f, int s)
         {
             InitSlider(StatSliderType.health, h);
             InitSlider(StatSliderType.focus, f);
@@ -121,6 +121,12 @@ namespace rei
                 case UIActionType.talk:
                     instruction.text = "Talk : key";
                     break;
+                case UIActionType.lit:
+                    instruction.text = "Lit the lamp : Press Space";
+                    break;
+                case UIActionType.sit:
+                    instruction.text = " Rest at the lamp: Press Space";
+                    break;
                 default:
                     break;
             }
@@ -136,14 +142,10 @@ namespace rei
         //捡到东西的UI
         public void AddItemCard(Item i)
         {
-            Debug.Log(i.itemName);
-            Debug.Log(i.icon != null);
-            
             ItemCards[item_idx].itemName.text = i.itemName;
             ItemCards[item_idx].icon.sprite = i.icon;
             ItemCards[item_idx].gameObject.SetActive(true);
             item_idx++;
-            Debug.Log("AddItemCard");
         }
 
         public void CloseItemCards()
@@ -182,6 +184,8 @@ namespace rei
         pickup,
         interact,
         open,
-        talk
+        talk,
+        lit,
+        sit
     }
 }

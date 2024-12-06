@@ -6,12 +6,12 @@ namespace rei
 {
     public class DamageCollider : MonoBehaviour //这个类类似AnimatorHook，由Player和Enemy共享
     {
-        StateManager states;
+        PlayerState _playerStates;
         EnemyStates eStates;
 
-        public void InitPlayer(StateManager st)
+        public void InitPlayer(PlayerState st)
         {
-            states = st;
+            _playerStates = st;
             gameObject.layer = 9;
             gameObject.SetActive(false);
         }
@@ -25,7 +25,7 @@ namespace rei
 
         void OnTriggerEnter(Collider other)//超绝简单的伤害判断方法
         {
-            if (states)
+            if (_playerStates)
             {
                 EnemyStates es = other.transform.GetComponentInParent<EnemyStates>();//找到有没有砍到敌人
 
@@ -34,19 +34,19 @@ namespace rei
                     es.DoDamage();
                 }
 
-                return;
+                this.gameObject.SetActive(false);
             }
 
             if (eStates)
             {
-                StateManager st = other.transform.GetComponentInParent<StateManager>();//找到有没有砍到玩家
+                PlayerState st = other.transform.GetComponentInParent<PlayerState>();//找到有没有砍到玩家
 
                 if (st != null)
                 {
                     st.DoDamage(eStates.GetCurrentAttack());
                 }
 
-                return;
+                this.gameObject.SetActive(false);
             }
         }
     }

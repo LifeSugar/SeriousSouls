@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,14 +7,25 @@ namespace rei
 {
     public class InputHandler : MonoBehaviour
     {
+        [Header("Menu")]
+        public bool inMenu = false;
+        public GameObject menu;
+        
+        [Header("OnCampFire")]
+        public bool onCampFire = false;
+        public GameObject CampFireCanvas;
+        
+        [Header("BlackScreen")]
+        public ScreenFadeController screenFadeController;
+        private bool isFading = false;
+        
+        [Header("Inputs")] 
         float vertical;
         float horizontal;
         public bool b_input;
         public bool a_input;
         public bool x_input;
         public bool y_input;
-        
-        
 
 
         bool rb_input;
@@ -47,7 +59,7 @@ namespace rei
         float close_timer = 0;
         float a_input_count = 1.5f;
 
-        StateManager states;
+        PlayerState _playerStates;
         CameraManager camManager;
         UIManager uiManager;
         DialogueManager dialogueManager;
@@ -66,16 +78,23 @@ namespace rei
         // private bool isDPadRightPressed = false;
 
         //-----------------------------------------------------------------------
+        
+        public static InputHandler instance;
+
+        private void Awake()
+        {
+            instance = this;
+        }
 
         void Start()
         {
             Debug.Log("start!");
-            states = GetComponent<StateManager>();
-            if (states == null)
+            _playerStates = GetComponent<PlayerState>();
+            if (_playerStates == null)
                 Debug.LogWarning("No StateManager component found!");
             else
                 Debug.Log("StateManager component found!");
-            states.Init();
+            _playerStates.Init();
             
             
 
@@ -85,7 +104,7 @@ namespace rei
                 Debug.Log("No camera found!!!!!!!!!");
             else
                 Debug.Log(camManager.name);
-            camManager.Init(states);
+            camManager.Init(_playerStates);
             
             uiManager = UIManager.instance;
 
@@ -108,30 +127,125 @@ namespace rei
             FixedUpstaeStates();
             FixedResetInputNState();
             
-            states.FixedTick(delta);
+            _playerStates.FixedTick(delta);
             camManager.Tick(delta);
-            states.MonitorStats();
+            _playerStates.MonitorStats();
         }
 
         bool preferItem;
 
         void Update()
         {
-            GetInput();
+            if (!inMenu && !onCampFire)
+            {
+                GetInput();
+                HandlePickAndInteract();
+            }
+
+            if (onCampFire)
+            {
+                if (Input.GetButtonDown(GlobalStrings.Menu) || Input.GetKeyDown(KeyCode.Escape))
+                    HandleCampFireCanvas();
+            }
+                
+            
+            if ((Input.GetKeyDown(KeyCode.Escape) || Input.GetButtonDown(GlobalStrings.Menu)) && !onCampFire)
+                HandleMenu();
             UpdateStates();
             
             delta = Time.deltaTime;
+            
+            _playerStates.Tick(delta);
+            
+            
+
+
+            if (dialogueManager.dialogueActive)
+            {
+                dialogueManager.Tick(ref a_input);
+            }
+            
+            
+            
+            ResetInputNState();
+            uiManager.Tick(_playerStates.characterStats, delta, _playerStates);
+            camManager.FixedTick(delta);
+        }
+
+        void HandleMenu()
+        {
+            if (inMenu == false)
+            {
+                inMenu = true;
+                menu.SetActive(true);
+                InventoryUI.instance.UpdateInventoryUI(_playerStates.inventoryManager.inventory);
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+                ResetInputs();
+            }
+            else
+            {
+                inMenu = false;
+                menu.SetActive(false);
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
+
+        public void HandleCampFireCanvas()
+        {
+            if (!isFading)
+            {
+                StartCoroutine(HandleCampFireCanvasCoroutine());
+            }
+        }
+        
+        private IEnumerator HandleCampFireCanvasCoroutine()
+        {
+            isFading = true;
+
+            // 淡入黑屏
+            yield return StartCoroutine(screenFadeController.FadeIn());
+
+            // 切换 Canvas 的激活状态
+            if (onCampFire == false)
+            {
+                onCampFire = true;
+                CampFireCanvas.SetActive(true);
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+                ResetInputs();
+            }
+            else
+            {
+                CampFire currentCampFire = CampFireManager.instance.GetSittingCampFire();
+                currentCampFire.sitting = false;
+                currentCampFire.GetComponentInChildren<Camera>().gameObject.SetActive(false);
+                onCampFire = false;
+                CampFireCanvas.SetActive(false);
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+                _playerStates.Recover();
+                EnemyManager.instance.ResetAllEnemies();
+            }
+
+            // 淡出黑屏
+            yield return StartCoroutine(screenFadeController.FadeOut());
+
+            isFading = false;
+        }
+
+        void HandlePickAndInteract()
+        {
             if (a_input)
                 a_input_count++;
-            // Debug.Log(delta);
-            states.Tick(delta);
             
             
             if (!dialogueManager.dialogueActive)
             {
-                if (states.pickManager.itemCandidate != null || states.pickManager.interactionCandidate != null)
+                if (_playerStates.pickManager.itemCandidate != null || _playerStates.pickManager.interactionCandidate != null)
                 {
-                    if (states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+                    if (_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
                     {
                         if (preferItem)
                         {
@@ -141,12 +255,12 @@ namespace rei
                             Interact();
                     }
             
-                    if (states.pickManager.itemCandidate && !states.pickManager.interactionCandidate)
+                    if (_playerStates.pickManager.itemCandidate && !_playerStates.pickManager.interactionCandidate)
                     {
                         PickupItem();
                     }
             
-                    if (!states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+                    if (!_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
                     {
                         Interact();
                     }
@@ -178,18 +292,6 @@ namespace rei
                 a_input = false;
                 a_input_count = 0;
             }
-
-
-            if (dialogueManager.dialogueActive)
-            {
-                dialogueManager.Tick(ref a_input);
-            }
-            
-            
-            
-            ResetInputNState();
-            uiManager.Tick(states.characterStats, delta, states);
-            camManager.FixedTick(delta);
         }
         
         void PickupItem()
@@ -198,21 +300,21 @@ namespace rei
             if (Input.GetButton(GlobalStrings.A))
             {
                 Debug.Log("pickup!");
-                Vector3 targetDir = states.pickManager.itemCandidate.transform.position - transform.position;
-                states.SnapToRotation(targetDir);
-                states.pickManager.PickCandidate(states);
-                states.PlayAnimation("pick_up");
+                Vector3 targetDir = _playerStates.pickManager.itemCandidate.transform.position - transform.position;
+                _playerStates.SnapToRotation(targetDir);
+                _playerStates.pickManager.PickCandidate(_playerStates);
+                _playerStates.PlayAnimation("pick_up");
                 a_input = false;
             }
         }
 
         void Interact()
         {
-            uiManager.OpenInteractCanvas(states.pickManager.interactionCandidate.actionType);
-            if (Input.GetButton(GlobalStrings.A) && !dialogueManager.dialogueActive)
+            uiManager.OpenInteractCanvas(_playerStates.pickManager.interactionCandidate.actionType);
+            if (Input.GetButtonDown(GlobalStrings.A) && !dialogueManager.dialogueActive)
             {
                 // states.audio_source.PlayOneShot(ResourceManager.instance.GetAudio("interact").audio_clip);
-                states.InteractLogic();
+                _playerStates.InteractLogic();
                 a_input = false;
             }
         }
@@ -220,8 +322,10 @@ namespace rei
 
         void GetInput()
         {
+            
             vertical = Input.GetAxis(GlobalStrings.Vertical);
             horizontal = Input.GetAxis(GlobalStrings.Horizontal);
+            
 
             if (Input.GetKey(KeyCode.W))
                 vertical = 1;
@@ -239,13 +343,13 @@ namespace rei
 
             // rb_input = Input.GetButton(GlobalStrings.RB);
             if (Input.GetButtonDown(GlobalStrings.RB))
-                states.rb = true;
+                _playerStates.rb = true;
             if (Input.GetButtonDown(GlobalStrings.LB))
-                states.lb = true;
+                _playerStates.lb = true;
             if (Input.GetButtonDown(GlobalStrings.RT))
-                states.rt = true;
+                _playerStates.rt = true;
             if (Input.GetButtonDown(GlobalStrings.LT))
-                states.lt = true;
+                _playerStates.lt = true;
 
             
             rt_input = Input.GetButton(GlobalStrings.RT);
@@ -271,10 +375,10 @@ namespace rei
         // passing values to StateManager variables and functions.
         void UpdateStates()
         {
-            states.vertical = vertical;
-            states.horizontal = horizontal;
+            _playerStates.vertical = vertical;
+            _playerStates.horizontal = horizontal;
 
-            states.itemInput = x_input;
+            _playerStates.itemInput = x_input;
             // states.rt = rt_input;
             // states.lt = lt_input;
             // states.rb = rb_input;
@@ -282,13 +386,13 @@ namespace rei
 
 
             // moveDir
-            Vector3 v = states.vertical * camManager.transform.forward;
-            Vector3 h = states.horizontal * camManager.transform.right;
-            states.moveDir = (v + h).normalized;
+            Vector3 v = _playerStates.vertical * camManager.transform.forward;
+            Vector3 h = _playerStates.horizontal * camManager.transform.right;
+            _playerStates.moveDir = (v + h).normalized;
 
             // moveAmount
-            float m = Mathf.Abs(states.horizontal) + Mathf.Abs(states.vertical);
-            states.moveAmount = Mathf.Clamp01(m);
+            float m = Mathf.Abs(_playerStates.horizontal) + Mathf.Abs(_playerStates.vertical);
+            _playerStates.moveAmount = Mathf.Clamp01(m);
 
             // // B_input: 
             // if (b_input && b_timer > 0.5f)
@@ -302,33 +406,33 @@ namespace rei
 
             if (y_input)
             {
-                if (states.pickManager.itemCandidate && states.pickManager.interactionCandidate)
+                if (_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
                 {
                     preferItem = !preferItem;
                 }
                 else
                 {
-                    states.isTwoHanded = !states.isTwoHanded;
-                    states.HandleTwoHanded();
+                    _playerStates.isTwoHanded = !_playerStates.isTwoHanded;
+                    _playerStates.HandleTwoHanded();
                 }
             }
 
-            if (states.lockOnTarget != null)
+            if (_playerStates.lockOnTarget != null)
             {
-                if (states.lockOnTarget.eStates.isDead)
+                if (_playerStates.lockOnTarget.eStates.isDead)
                 {
-                    states.lockOn = false;
-                    states.lockOnTarget = null;
-                    states.lockOnTransform = null;
+                    _playerStates.lockOn = false;
+                    _playerStates.lockOnTarget = null;
+                    _playerStates.lockOnTransform = null;
                     camManager.lockOn = false;
                     camManager.lockOnTarget = null;
                 }
             }
             else
             {
-                states.lockOn = false;
-                states.lockOnTarget = null;
-                states.lockOnTransform = null;
+                _playerStates.lockOn = false;
+                _playerStates.lockOnTarget = null;
+                _playerStates.lockOnTransform = null;
                 camManager.lockOn = false;
                 camManager.lockOnTarget = null;
             }
@@ -336,17 +440,17 @@ namespace rei
 
             if (Input.GetButtonDown(GlobalStrings.R))
             {
-                states.lockOn = !states.lockOn;
-                states.lockOnTarget = EnemyManager.instance.GetEnemy(transform.position);
-                if (states.lockOnTarget == null)
-                    states.lockOn = false;
+                _playerStates.lockOn = !_playerStates.lockOn;
+                _playerStates.lockOnTarget = EnemyManager.instance.GetEnemy(transform.position);
+                if (_playerStates.lockOnTarget == null)
+                    _playerStates.lockOn = false;
 
-                camManager.lockOnTarget = states.lockOnTarget;
+                camManager.lockOnTarget = _playerStates.lockOnTarget;
                 // 单个目标有多个锁定点的处理
-                states.lockOnTransform = states.lockOnTarget.GetTarget();
-                camManager.lockOnTransform = states.lockOnTransform ;
+                _playerStates.lockOnTransform = _playerStates.lockOnTarget.GetTarget();
+                camManager.lockOnTransform = _playerStates.lockOnTransform ;
                 // 保证相机/角色的锁定状态一致
-                camManager.lockOn = states.lockOn;
+                camManager.lockOn = _playerStates.lockOn;
             }
 
 
@@ -363,21 +467,21 @@ namespace rei
             // B_input: 
             if (b_input && b_timer > 0.5f)
             {
-                if ((states.moveAmount > 0.8f) && states.characterStats._stamina > 1 && runMaker)
+                if ((_playerStates.moveAmount > 0.8f) && _playerStates.characterStats._stamina > 1 && runMaker)
                 {
                     
-                    states.run = true;
+                    _playerStates.run = true;
                 }
                 // states.run = (states.moveAmount > 0.8f) && states.characterStats._stamina > 0;
             }
 
             if (b_input == false && b_timer > 0 && b_timer < 0.5f)
             {
-                states.rollInput = true;
+                _playerStates.rollInput = true;
                 
             }
 
-            if (states.characterStats._stamina <= 1)
+            if (_playerStates.characterStats._stamina <= 1)
             {
                 runMaker = false;
             }
@@ -387,64 +491,99 @@ namespace rei
 
         void HandleQuickSlotChanges()
         {
-            if (states.isSpellCasting || states.usingItem)
+            // if (_playerStates.isSpellCasting || _playerStates.usingItem)
+            //     return;
+            //
+            // if (d_up)
+            // {
+            //     if (!p_d_up)
+            //     {
+            //         p_d_up = true;
+            //         _playerStates.inventoryManager.ChangeToNextSpell();
+            //     }
+            // }
+            //
+            // if (!d_up)
+            //     p_d_up = false;
+            //
+            // if (d_down)
+            // {
+            //     if (!p_d_down)
+            //     {
+            //         p_d_down = true;
+            //         _playerStates.inventoryManager.ChangeToNextConsumable();
+            //     }
+            // }
+            //
+            // if (!d_up)
+            //     p_d_down = false;
+            //
+            // if (_playerStates.onEmpty == false)
+            //     return;
+            //
+            // if (_playerStates.isTwoHanded)
+            //     return;
+            //
+            // if (d_left)
+            // {
+            //     if (!p_d_left)
+            //     {
+            //         _playerStates.inventoryManager.ChangeToNextWeapon(true);
+            //         p_d_left = true;
+            //     }
+            // }
+            //
+            // if (d_right)
+            // {
+            //     if (!p_d_right)
+            //     {
+            //         _playerStates.inventoryManager.ChangeToNextWeapon(false);
+            //         p_d_right = true;
+            //     }
+            // }
+            //
+            //
+            // if (!d_down)
+            //     p_d_down = false;
+            // if (!d_left)
+            //     p_d_left = false;
+            // if (!d_right)
+            //     p_d_right = false;
+            
+            if (_playerStates.isSpellCasting || _playerStates.usingItem)
                 return;
 
-            if (d_up)
-            {
-                if (!p_d_up)
-                {
-                    p_d_up = true;
-                    states.inventoryManager.ChangeToNextSpell();
-                }
-            }
+            // 检测当前帧是否为刚按下，而不是一直按住
+            bool newlyUp = d_up && !p_d_up;
+            bool newlyDown = d_down && !p_d_down;
+            bool newlyLeft = d_left && !p_d_left;
+            bool newlyRight = d_right && !p_d_right;
 
-            if (!d_up)
-                p_d_up = false;
+            // 更新上一次的状态
+            p_d_up = d_up;
+            p_d_down = d_down;
+            p_d_left = d_left;
+            p_d_right = d_right;
 
-            if (d_down)
-            {
-                if (!p_d_down)
-                {
-                    p_d_down = true;
-                    states.inventoryManager.ChangeToNextConsumable();
-                }
-            }
+            // 如果刚刚按下了上键/1键，切换法术
+            if (newlyUp)
+                _playerStates.inventoryManager.ChangeToNextSpell();
 
-            if (!d_up)
-                p_d_down = false;
+            // 如果刚刚按下了下键/2键，切换消耗品
+            if (newlyDown)
+                _playerStates.inventoryManager.ChangeToNextConsumable();
 
-            if (states.onEmpty == false)
+            // 如果不为空手或者是双持状态，就不进行武器切换
+            if (!_playerStates.onEmpty || _playerStates.isTwoHanded)
                 return;
 
-            if (states.isTwoHanded)
-                return;
+            // 刚刚按下了左键/3键，切换左手武器
+            if (newlyLeft)
+                _playerStates.inventoryManager.ChangeToNextWeapon(true);
 
-            if (d_left)
-            {
-                if (!p_d_left)
-                {
-                    states.inventoryManager.ChangeToNextWeapon(true);
-                    p_d_left = true;
-                }
-            }
-
-            if (d_right)
-            {
-                if (!p_d_right)
-                {
-                    states.inventoryManager.ChangeToNextWeapon(false);
-                    p_d_right = true;
-                }
-            }
-
-
-            if (!d_down)
-                p_d_down = false;
-            if (!d_left)
-                p_d_left = false;
-            if (!d_right)
-                p_d_right = false;
+            // 刚刚按下了右键/4键，切换右手武器
+            if (newlyRight)
+                _playerStates.inventoryManager.ChangeToNextWeapon(false);
         }
 
         void FixedResetInputNState()
@@ -461,10 +600,41 @@ namespace rei
         void ResetInputNState()
         {
             // turn off rollInput and run state after being pressed.
-            if (states.rollInput)
-                states.rollInput = false;
-            if (Input.GetButtonUp(GlobalStrings.B))
-                states.run = false;
+            if (_playerStates.rollInput)
+                _playerStates.rollInput = false;
+            if (Input.GetButtonUp(GlobalStrings.B) || _playerStates.characterStats._stamina <= 1)
+                _playerStates.run = false;
+        }
+        
+        public void ResetInputs()
+        {
+            // Reset float parameters to 0
+            vertical = 0f;
+            horizontal = 0f;
+            rt_axis = 0f;
+            lt_axis = 0f;
+            d_y = 0f;
+            d_x = 0f;
+
+            // Reset boolean parameters to false
+            b_input = false;
+            a_input = false;
+            x_input = false;
+            y_input = false;
+            rb_input = false;
+            lb_input = false;
+            rt_input = false;
+            lt_input = false;
+            d_up = false;
+            d_down = false;
+            d_right = false;
+            d_left = false;
+            p_d_up = false;
+            p_d_down = false;
+            p_d_left = false;
+            p_d_right = false;
+            leftAxis_down = false;
+            rightAxis_down = false;
         }
     }
 }
