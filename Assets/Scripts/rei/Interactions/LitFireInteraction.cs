@@ -8,7 +8,7 @@ namespace rei
     public class LitFireInteraction : WorldInteraction
     {
         public GameObject light;
-        public GameObject campfire;
+        public GameObject campfireInteraction;
         public override void InteractActual()
         {
             StartCoroutine(LitFire());
@@ -18,8 +18,8 @@ namespace rei
         {
             yield return new WaitForSeconds(2.1f);
             light.SetActive(true);
-            campfire.SetActive(true);
-            
+            campfireInteraction.SetActive(true);
+            gameObject.GetComponent<CampFire>().active = true;
         }
 
         private void Start()

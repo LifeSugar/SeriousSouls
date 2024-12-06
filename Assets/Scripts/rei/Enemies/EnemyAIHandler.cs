@@ -34,10 +34,17 @@ namespace rei
         Vector3 dirToTarget;//指向目标的方向
         void Start()
         {
+            Init();
+        }
+
+        public void Init()
+        {
             if (estates == null)
                 estates = GetComponent<EnemyStates>();
 
             estates.Init(); //初始化自身
+            playerPlayerStates = estates.player;
+            target = playerPlayerStates.transform;
             InitDamageColliders();//初始化伤害盒
         }
 

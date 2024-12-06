@@ -95,8 +95,9 @@ namespace rei
         public float flashSpeed = 2f; // 受伤特效的淡出速度
         public Color flashColour = new Color(1f, 0f, 0f, 0.1f); // 受伤 UI 特效颜色
 
-        #endregion
+        [HideInInspector] public bool inSkill;
 
+        #endregion
 
         #region Initialization
 
@@ -211,7 +212,7 @@ namespace rei
 
                 // 根据当前持有的武器或道具更新显示状态
                 if (inventoryManager.rightHandWeapon != null)
-                    inventoryManager.rightHandWeapon.weaponModel.SetActive(!usingItem); // 如果正在使用道具，隐藏武器
+                    inventoryManager.rightHandWeapon.weaponModel.SetActive(!usingItem && !inSkill); // 如果正在使用道具，隐藏武器
                 if (inventoryManager.curConsumable != null && inventoryManager.curConsumable.itemModel != null)
                     inventoryManager.curConsumable.itemModel.SetActive(usingItem); // 如果有当前道具，显示道具模型
 
@@ -594,7 +595,7 @@ namespace rei
 
             // 6. 如果体力不足以延续前一个动作，退出
             if (characterStats._stamina <= 
-                actionManager.GetActionFromInput(storePreviousAction).staminaCost)
+                actionManager.GetActionFromInput(storePreviousAction).staminaCost || characterStats._focus <= actionManager.GetActionFromInput(storePreviousAction).fpCost)
             {
                 Debug.Log("actionquit"); // 输出调试信息
                 return; // 直接退出动作检测

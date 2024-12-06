@@ -13,6 +13,10 @@ namespace rei
         public int health; //当前生命
         public int maxHealth; //生命上限
         public CharacterStats characterStats;//属性
+        
+        private Vector3 initialPosition;
+        private Quaternion initialRotation;
+        private int initialHealth;
 
         [Header("Value")] 
         public float delta;
@@ -85,9 +89,10 @@ namespace rei
             rigid = GetComponent<Rigidbody>();//获取rb
             agent = GetComponent<NavMeshAgent>();
             rigid.isKinematic = true; //设置为运动学物体，完全由脚本控制物体的运动和旋转
+            player = InputHandler.instance.gameObject.GetComponent<PlayerState>();
             
-            //获取血条UI
-            enemyCanvas = GetComponentInChildren<Canvas>();
+            // //获取血条UI
+            // enemyCanvas = GetComponentInChildren<Canvas>();
 
             //添加（获取）AnimatorHook 用于调整角色根运动
             a_hook = anim.GetComponent<AnimatorHook>();
@@ -110,6 +115,9 @@ namespace rei
             healthBar = enemyCanvas.transform.Find("HealthBG").Find("Health").GetComponent<Image>();
             enemyCanvas.gameObject.SetActive(false);
             health = maxHealth;
+            
+            //保存初始状态
+            SaveInitialState();
         }
 
         void InitRagDoll()
@@ -481,6 +489,51 @@ namespace rei
         void UpdateEnemyHealthUI(int curHealth, int maxHealth)
         {
             healthBar.rectTransform.sizeDelta = new Vector2((float)curHealth / (float)maxHealth , 0.05f);
+        }
+        
+        
+        /// <summary>
+        /// 保存初始状态
+        /// </summary>
+        public void SaveInitialState()
+        {
+            initialPosition = transform.position;
+            initialRotation = transform.rotation;
+            initialHealth = maxHealth;
+        }
+
+        /// <summary>
+        /// 重置敌人状态
+        /// </summary>
+        public void ResetState()
+        {
+            transform.position = initialPosition;
+            transform.rotation = initialRotation;
+
+            health = initialHealth;
+            isDead = false;
+            damaged = false;
+
+            // 重置动画
+            if (anim != null)
+            {
+                anim.Rebind();
+                anim.Update(0f);
+            }
+
+            // 重置导航代理
+            if (agent != null)
+            {
+                agent.enabled = false; // 临时禁用
+                agent.enabled = true;
+            }
+
+            // 重置布娃娃
+            if (rigid != null)
+            {
+                rigid.isKinematic = true;
+                rigid.velocity = Vector3.zero;
+            }
         }
     }
 }

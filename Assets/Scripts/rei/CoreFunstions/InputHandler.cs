@@ -218,11 +218,15 @@ namespace rei
             }
             else
             {
+                CampFire currentCampFire = CampFireManager.instance.GetSittingCampFire();
+                currentCampFire.sitting = false;
+                currentCampFire.GetComponentInChildren<Camera>().gameObject.SetActive(false);
                 onCampFire = false;
                 CampFireCanvas.SetActive(false);
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
                 _playerStates.Recover();
+                EnemyManager.instance.ResetAllEnemies();
             }
 
             // 淡出黑屏
@@ -307,7 +311,7 @@ namespace rei
         void Interact()
         {
             uiManager.OpenInteractCanvas(_playerStates.pickManager.interactionCandidate.actionType);
-            if (Input.GetButton(GlobalStrings.A) && !dialogueManager.dialogueActive)
+            if (Input.GetButtonDown(GlobalStrings.A) && !dialogueManager.dialogueActive)
             {
                 // states.audio_source.PlayOneShot(ResourceManager.instance.GetAudio("interact").audio_clip);
                 _playerStates.InteractLogic();
@@ -487,64 +491,99 @@ namespace rei
 
         void HandleQuickSlotChanges()
         {
+            // if (_playerStates.isSpellCasting || _playerStates.usingItem)
+            //     return;
+            //
+            // if (d_up)
+            // {
+            //     if (!p_d_up)
+            //     {
+            //         p_d_up = true;
+            //         _playerStates.inventoryManager.ChangeToNextSpell();
+            //     }
+            // }
+            //
+            // if (!d_up)
+            //     p_d_up = false;
+            //
+            // if (d_down)
+            // {
+            //     if (!p_d_down)
+            //     {
+            //         p_d_down = true;
+            //         _playerStates.inventoryManager.ChangeToNextConsumable();
+            //     }
+            // }
+            //
+            // if (!d_up)
+            //     p_d_down = false;
+            //
+            // if (_playerStates.onEmpty == false)
+            //     return;
+            //
+            // if (_playerStates.isTwoHanded)
+            //     return;
+            //
+            // if (d_left)
+            // {
+            //     if (!p_d_left)
+            //     {
+            //         _playerStates.inventoryManager.ChangeToNextWeapon(true);
+            //         p_d_left = true;
+            //     }
+            // }
+            //
+            // if (d_right)
+            // {
+            //     if (!p_d_right)
+            //     {
+            //         _playerStates.inventoryManager.ChangeToNextWeapon(false);
+            //         p_d_right = true;
+            //     }
+            // }
+            //
+            //
+            // if (!d_down)
+            //     p_d_down = false;
+            // if (!d_left)
+            //     p_d_left = false;
+            // if (!d_right)
+            //     p_d_right = false;
+            
             if (_playerStates.isSpellCasting || _playerStates.usingItem)
                 return;
 
-            if (d_up)
-            {
-                if (!p_d_up)
-                {
-                    p_d_up = true;
-                    _playerStates.inventoryManager.ChangeToNextSpell();
-                }
-            }
+            // 检测当前帧是否为刚按下，而不是一直按住
+            bool newlyUp = d_up && !p_d_up;
+            bool newlyDown = d_down && !p_d_down;
+            bool newlyLeft = d_left && !p_d_left;
+            bool newlyRight = d_right && !p_d_right;
 
-            if (!d_up)
-                p_d_up = false;
+            // 更新上一次的状态
+            p_d_up = d_up;
+            p_d_down = d_down;
+            p_d_left = d_left;
+            p_d_right = d_right;
 
-            if (d_down)
-            {
-                if (!p_d_down)
-                {
-                    p_d_down = true;
-                    _playerStates.inventoryManager.ChangeToNextConsumable();
-                }
-            }
+            // 如果刚刚按下了上键/1键，切换法术
+            if (newlyUp)
+                _playerStates.inventoryManager.ChangeToNextSpell();
 
-            if (!d_up)
-                p_d_down = false;
+            // 如果刚刚按下了下键/2键，切换消耗品
+            if (newlyDown)
+                _playerStates.inventoryManager.ChangeToNextConsumable();
 
-            if (_playerStates.onEmpty == false)
+            // 如果不为空手或者是双持状态，就不进行武器切换
+            if (!_playerStates.onEmpty || _playerStates.isTwoHanded)
                 return;
 
-            if (_playerStates.isTwoHanded)
-                return;
+            // 刚刚按下了左键/3键，切换左手武器
+            if (newlyLeft)
+                _playerStates.inventoryManager.ChangeToNextWeapon(true);
 
-            if (d_left)
-            {
-                if (!p_d_left)
-                {
-                    _playerStates.inventoryManager.ChangeToNextWeapon(true);
-                    p_d_left = true;
-                }
-            }
-
-            if (d_right)
-            {
-                if (!p_d_right)
-                {
-                    _playerStates.inventoryManager.ChangeToNextWeapon(false);
-                    p_d_right = true;
-                }
-            }
-
-
-            if (!d_down)
-                p_d_down = false;
-            if (!d_left)
-                p_d_left = false;
-            if (!d_right)
-                p_d_right = false;
+            // 刚刚按下了右键/4键，切换右手武器
+            if (newlyRight)
+                _playerStates.inventoryManager.ChangeToNextWeapon(false);
         }
 
         void FixedResetInputNState()

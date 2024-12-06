@@ -69,9 +69,16 @@ namespace rei
                 if (runtime_l_weapons[l_idx] != null)
                     EquipWeapon(runtime_l_weapons[l_idx], true);
                 else
-                {
+                { 
+                    _playerStates.anim.SetBool("mirror", isLeft);
+                    _playerStates.anim.Play("change weapon");
+                    // var currentWeapon = gameObject.GetComponentInChildren<WeaponHook>()
+                    if (leftHandWeapon) leftHandWeapon.weaponModel.SetActive(false);
                     hasLeftHandWeapon = false;
                     leftHandWeapon = null;
+                    // 更新UI快捷槽中的图标
+                    UI.QuickSlot uiSlot = UI.QuickSlot.instance;
+                    uiSlot.UpdateSlot((isLeft) ? UI.QSlotType.lh : UI.QSlotType.rh,null);
                 }
                     
             }
@@ -88,8 +95,18 @@ namespace rei
                     EquipWeapon(runtime_r_weapons[r_idx], false);
                 else
                 {
+                    _playerStates.anim.SetBool("mirror", isLeft);
+                    _playerStates.anim.Play("change weapon");
+                    // Transform p = _playerStates.anim.GetBoneTransform(HumanBodyBones.RightHand);
+                    // var currentWeapon = p.GetComponentInChildren<WeaponHook>();
+                    // if (currentWeapon)
+                    //     currentWeapon.gameObject.SetActive(false);
+                    if (rightHandWeapon) rightHandWeapon.weaponModel.SetActive(false);
                     hasRightHandWeapon = false;
                     rightHandWeapon = null;
+                    // 更新UI快捷槽中的图标
+                    UI.QuickSlot uiSlot = UI.QuickSlot.instance;
+                    uiSlot.UpdateSlot((isLeft) ? UI.QSlotType.lh : UI.QSlotType.rh, null);
                 }
                     
             }
@@ -338,9 +355,21 @@ namespace rei
         //切换
         public void ChangeToNextConsumable()
         {
+            
             // 检查当前索引是否小于列表的最后一个索引
             if (consumable_idx < runtime_consumables.Count - 1)
+            {
                 consumable_idx++; // 如果是，增加索引，指向下一个消耗品
+                if (runtime_consumables[consumable_idx] == null)
+                {
+                    if (consumable_idx < runtime_consumables.Count - 1)
+                        consumable_idx++;
+                    else
+                    {
+                        consumable_idx = 0;
+                    }
+                }
+            }
             else
                 consumable_idx = 0; // 如果达到列表末尾，循环回到第一个消耗品
 
@@ -352,7 +381,7 @@ namespace rei
         public void OpenAllDamageColliders()
         {
             // 如果右手武器的 WeaponHook 存在，打开其伤害碰撞器
-            if (rightHandWeapon.w_hook != null)
+            if (rightHandWeapon != null && rightHandWeapon.w_hook != null)
                 rightHandWeapon.w_hook.OpenDamageColliders();
 
             // 如果左手装备了武器且 WeaponHook 存在，打开左手武器的伤害碰撞器
@@ -366,7 +395,7 @@ namespace rei
         public void CloseAllDamageColliders()
         {
             // 如果右手武器的 WeaponHook 存在，关闭其伤害碰撞器
-            if (rightHandWeapon.w_hook != null)
+            if (rightHandWeapon != null && rightHandWeapon.w_hook != null)
                 rightHandWeapon.w_hook.CloseDamageColliders();
 
             // 如果左手装备了武器且 WeaponHook 存在，关闭左手武器的伤害碰撞器

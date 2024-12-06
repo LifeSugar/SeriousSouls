@@ -333,5 +333,25 @@ namespace rei
                 _playerStates.audio_source.PlayOneShot(_playerStates.audio_clip);
             }
         }
+
+        public void HideRightHandWeapon()
+        {
+            if (_playerStates.inventoryManager.hasRightHandWeapon && _playerStates.inventoryManager.hasLeftHandWeapon)
+            {
+                Debug.Log("skill both handed");
+                _playerStates.inSkill = true;
+                _playerStates.inventoryManager.rightHandWeapon.weaponModel.SetActive(false);
+            }
+        }
+
+        public void UnhideRightHandWeapons()
+        {
+            if (_playerStates.inventoryManager.hasRightHandWeapon && _playerStates.inventoryManager.hasLeftHandWeapon)
+            {
+                Debug.Log("skill both handed close");
+                _playerStates.inSkill = false;
+                _playerStates.inventoryManager.rightHandWeapon.weaponModel.SetActive(true);
+            }
+        }
     }
 }
