@@ -12,10 +12,10 @@ namespace rei
         public Transform lockOnTransform; //锁定的目标
         public EnemyTarget lockOnTarget;
 
-        [Header("Stats")] public float followSpeed = 9; // 相机跟随目标的速度
+        [Header("Stats")] public float followSpeed = 20; // 相机跟随目标的速度
         public float mouseSpeed = 2; // 鼠标控制相机旋转的速度
         public float turnSmoothing = .1f; // 相机平滑旋转的系数
-        public float minAngle = -35; // 垂直旋转的最小角度
+        public float minAngle = -20; // 垂直旋转的最小角度
         public float maxAngle = 35; // 垂直旋转的最大角度
         public float defaultDistance;
         public Vector3 offset = new Vector3(0, 1.3f, 0);
@@ -45,6 +45,14 @@ namespace rei
         private float savedLookAngle; // 保存的水平角度
         private float savedTiltAngle; // 保存的垂直角度
         private bool wasLockedOn = false; // 跟踪上一帧是否处于锁定状态
+
+
+        // 用于调试的可视化数据
+        private Vector3 debugCandidatePos;
+        private float debugCameraCollisionRadius;
+        private Vector3 debugRayStart;
+        private Vector3 debugRayDir;
+        private float debugRayDistance;
 
         public void Init(PlayerState st)
         {
@@ -172,35 +180,118 @@ namespace rei
 
         void HandleCameraCollision(float d)
         {
+            // follow为跟随点，即玩家角色头部(或指定offset位置)
             Vector3 follow = followTarget.position + new Vector3(0, offset.y, 0);
-            // 定义摄像机与目标之间的最大距离
-            Vector3 rayDir = (camTrans.position - follow).normalized;
 
-            Debug.DrawRay(follow, rayDir * defaultDistance, Color.red);
+            // 计算期望的相机位置。默认距离defaultDistance表示相机应从follow点后退多少距离。
+            // desiredCamPos代表理想情况下摄像机应放置的位置（没有碰撞干扰的情况下）
+            Vector3 desiredCamPos = follow - transform.forward * defaultDistance;
 
-            // 定义摄像机与目标之间的最小距离
-            float minDistance = 0.5f;
+            // 根据期望位置与follow点的关系，计算出一条从follow点到期望相机位置的方向向量rayDir
+            Vector3 rayDir = (desiredCamPos - follow).normalized;
 
-            // 定义用于忽略的层（Layer 28）
+            // 定义相机的球体半径，用于球体碰撞检测
+            float cameraCollisionRadius = 0.3f;
+
+            // 定义相机最小距离，避免相机过于接近follow点，产生抖动或穿模感
+            float minDistance = 0.15f;
+
+            // layerMask用于指定检测哪些层级的碰撞体
+            // 这里是 int layerMask = 1 << 28; 
+            // 意思是只检测28层所在的物体(如摄像机可碰撞层)
             int layerMask = 1 << 28;
 
+            // 初始化最终距离finalDistance为默认距离
+            float finalDistance = defaultDistance;
 
             RaycastHit hit;
-
-
-            // 从pivot位置向camTrans方向进行射线检测
+            // 首先使用Raycast沿rayDir方向从follow点发射一条射线，最大距离为defaultDistance
+            // 如果射线检测到了碰撞物体，则说明期望的位置与之重叠或在其后方
+            // 我们将finalDistance缩短到hit.distance，这样相机不会穿过障碍物
             if (Physics.Raycast(follow, rayDir, out hit, defaultDistance, layerMask))
             {
-                float distance = hit.distance;
-                distance = Mathf.Clamp(distance, minDistance, defaultDistance); //有问题这里
-                camTrans.position = Vector3.Lerp(camTrans.position, follow + rayDir * distance, d * followSpeed);
+                finalDistance = hit.distance;
             }
-            else
+
+            // 基于最终计算出的距离finalDistance，确定相机候选位置candidatePos
+            Vector3 candidatePos = follow + rayDir * finalDistance;
+
+            // 保存调试数据（用于 OnDrawGizmos 可视化）
+            debugCandidatePos = candidatePos;
+            debugCameraCollisionRadius = cameraCollisionRadius;
+            debugRayStart = follow;
+            debugRayDir = rayDir;
+            debugRayDistance = finalDistance;
+
+            // 使用 CheckSphere 来检测candidatePos位置处，半径为cameraCollisionRadius的球体
+            // 是否与场景发生碰撞。如果有碰撞，说明即使距离缩短了，但考虑相机体积后仍在穿模
+            bool isColliding = Physics.CheckSphere(candidatePos, cameraCollisionRadius, layerMask);
+
+            // 如果球体检测仍有碰撞，则需要继续往回缩短距离，直到无碰撞或缩短到最小距离minDistance
+            while (isColliding && finalDistance > minDistance)
             {
-                // 如果没有检测到碰撞，恢复到最大距离
-                pivot.localPosition = offset;
-                camTrans.localPosition = Vector3.zero;
+                // 每次向内收缩0.05f的距离
+                finalDistance -= 0.05f;
+                finalDistance = Mathf.Max(finalDistance, minDistance);
+
+                // 根据新的距离重新计算candidatePos
+                candidatePos = follow + rayDir * finalDistance;
+
+                // 再次检测球体碰撞
+                isColliding = Physics.CheckSphere(candidatePos, cameraCollisionRadius, layerMask);
+
+                // 更新调试数据，以便在场景中查看最终结果
+                debugCandidatePos = candidatePos;
+                debugRayDistance = finalDistance;
             }
+
+            // 将相机的位置平滑插值到最终确定的candidatePos
+            // d为deltaTime，followSpeed为插值速度
+            camTrans.position = Vector3.Lerp(camTrans.position, candidatePos, d * followSpeed);
+        }
+
+        // void HandleCameraCollision(float d)
+        // {
+        //     Vector3 follow = followTarget.position + new Vector3(0, offset.y, 0);
+        //     // 定义摄像机与目标之间的最大距离
+        //     Vector3 rayDir = (camTrans.position - follow).normalized;
+        //
+        //     Debug.DrawRay(follow, rayDir * defaultDistance, Color.red);
+        //
+        //     // 定义摄像机与目标之间的最小距离
+        //     float minDistance = 0.5f;
+        //
+        //     // 定义用于忽略的层（Layer 28）
+        //     int layerMask = 1 << 28;
+        //
+        //
+        //     RaycastHit hit;
+        //
+        //
+        //     // 从pivot位置向camTrans方向进行射线检测
+        //     if (Physics.Raycast(follow, rayDir, out hit, defaultDistance, layerMask))
+        //     {
+        //         float distance = hit.distance;
+        //         distance = Mathf.Clamp(distance, minDistance, defaultDistance); //有问题这里
+        //         camTrans.position = Vector3.Lerp(camTrans.position, follow + rayDir * distance, d * followSpeed);
+        //     }
+        //     else
+        //     {
+        //         // 如果没有检测到碰撞，恢复到最大距离
+        //         pivot.localPosition = offset;
+        //         camTrans.localPosition = Vector3.zero;
+        //     }
+        // }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.yellow;
+            // 绘制摄像机球体检测位置和半径
+            Gizmos.DrawWireSphere(debugCandidatePos, debugCameraCollisionRadius);
+
+            // 在编辑器中也可视化射线: 
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(debugRayStart, debugRayStart + debugRayDir * debugRayDistance);
         }
 
 

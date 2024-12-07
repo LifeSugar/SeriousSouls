@@ -82,5 +82,11 @@ namespace rei
         {
             ScriptableObjectManager.CreateAsset<AudioScriptableObject>();
         }
+        
+        [MenuItem("Assets/Inventory/CreateKeyList")]
+        public static void CreateKeyList()
+        {
+            ScriptableObjectManager.CreateAsset<KeyScriptableObject>();
+        }
     }
 }

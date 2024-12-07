@@ -13,6 +13,7 @@ namespace rei
         {
             PickableItemsManager.instance.pick_items.Add(this);
         }
+        
 
         private void OnDestroy()
         {
@@ -21,7 +22,9 @@ namespace rei
     }
 
     [System.Serializable]
-    public class PickItemContainer {
+    public class PickItemContainer 
+    {
+        public int count;
         public string itemId;
         public ItemType itemType;
     }

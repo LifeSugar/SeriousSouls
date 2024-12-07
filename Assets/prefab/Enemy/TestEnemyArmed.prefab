@@ -257,8 +257,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -4.64, y: 0, z: 16}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1141974303673186326}
   - {fileID: 1569622767086121510}
@@ -384,7 +384,7 @@ MonoBehaviour:
   player: {fileID: 0}
   lockOnGameObject: {fileID: 980616196470989711}
   enemyCanvas: {fileID: 2760811254137856391}
-  dropGameObject: {fileID: 6018483788068061022, guid: f8d4cdb36d08e462da218e1972d5356d,
+  dropGameObject: {fileID: 8821332770254712528, guid: 980706499322746539cc9bc5d1df2d2d,
     type: 3}
   audioSource: {fileID: 0}
   defaultDamageCollider:
@@ -426,6 +426,33 @@ MonoBehaviour:
     cooldown: 2
     _cool: 0
     targetAnim: swordattack1
+    isDefaultDamageCollider: 1
+    damageCollider: []
+  - weight: 2
+    minDistance: 4
+    minAngle: 0
+    maxAngle: 35
+    cooldown: 2
+    _cool: 0
+    targetAnim: tuci1
+    isDefaultDamageCollider: 1
+    damageCollider: []
+  - weight: 2
+    minDistance: 4
+    minAngle: 0
+    maxAngle: 35
+    cooldown: 2
+    _cool: 0
+    targetAnim: tuci2
+    isDefaultDamageCollider: 1
+    damageCollider: []
+  - weight: 4
+    minDistance: 3
+    minAngle: 0
+    maxAngle: 35
+    cooldown: 2
+    _cool: 0
+    targetAnim: swordattack3
     isDefaultDamageCollider: 1
     damageCollider: []
   estates: {fileID: 3165713709226966478}
@@ -545,7 +572,6 @@ GameObject:
   - component: {fileID: 1569622767086121510}
   - component: {fileID: 2760811254137856391}
   - component: {fileID: 1768770177831298991}
-  - component: {fileID: 6844669010722386418}
   m_Layer: 0
   m_Name: EnemyCanvas
   m_TagString: Untagged
@@ -619,23 +645,6 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 1
---- !u!114 &6844669010722386418
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8998087405326734195}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!1001 &600002298452451325
 PrefabInstance:
   m_ObjectHideFlags: 0

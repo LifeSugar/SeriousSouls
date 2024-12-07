@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
+using DG.Tweening;
 
 
 namespace rei
@@ -470,9 +471,18 @@ namespace rei
             this.GetComponent<CapsuleCollider>().enabled = false;
             player.lockOnTarget = null;
             EnemyManager.instance.enemyTargets.Remove(enTarget);
-            // transform.DOMoveY(transform.position.y + 10, 10).SetEase(Ease.InOutQuad);
             yield return new WaitForSeconds(2.8f);
-            // HandleDropItem();
+            HandleDropItem();
+            foreach (var c in ragdollColliders)
+            {
+                c.isTrigger = true;
+            }
+            foreach (var r in ragdollRigids)
+            {
+                r.useGravity = false;
+            }
+            transform.DOMoveY(transform.position.y - 10, 10).SetEase(Ease.InOutQuad);
+            yield return new WaitForSeconds(1.8f);
             Destroy(this.gameObject);
         }
 
@@ -481,7 +491,7 @@ namespace rei
         {
             GameObject go = new GameObject();
             go = Instantiate(dropGameObject) as GameObject;
-            go.transform.position = this.transform.position;
+            go.transform.position = new Vector3(transform.position.x, transform.position.y + .5f, transform.position.z);
             player.pickManager.pick_items.Add(go.GetComponent<PickableItem>());
         }
 

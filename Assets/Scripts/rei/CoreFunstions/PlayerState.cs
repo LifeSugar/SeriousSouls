@@ -48,6 +48,7 @@ namespace rei
         public bool canRotate; // 是否可以旋转
         public bool canAttack; // 是否可以攻击
         public bool isSpellCasting; // 是否正在施法
+        public bool unfreezeY; //这个值可以通过动作的animation event来解锁，实现一些根运动上天的动作
         public bool enableIK; // 是否启用 IK（逆向动力学）
         public bool isTwoHanded; // 是否使用双手模式
         public bool usingItem; // 是否正在使用道具
@@ -198,7 +199,17 @@ namespace rei
 
             // 重置一些状态
             isBlocking = false; // 重置格挡状态
-            rigid.constraints &= ~RigidbodyConstraints.FreezePositionY; // 解除垂直方向上的刚体约束
+            if (onGround && !unfreezeY)
+            {
+                // 在地面上且没有特殊要求时，冻结 Y 轴位置
+                rigid.constraints |= RigidbodyConstraints.FreezePositionY;
+            }
+            else
+            {
+                // ，解除 Y 轴冻结
+                rigid.constraints &= ~RigidbodyConstraints.FreezePositionY;
+            }
+            
 
             // 3. 重置连续攻击的段数（延迟超过一定时间会重置）
             ResetActionIndex(d);
@@ -207,12 +218,12 @@ namespace rei
             if (onGround == true)
             {
                 // 使用道具状态
-                usingItem = anim.GetBool("interacting");
+                usingItem = anim.GetBool("usingItem");
                 anim.SetBool("spellcasting", isSpellCasting); // 更新施法状态
 
                 // 根据当前持有的武器或道具更新显示状态
                 if (inventoryManager.rightHandWeapon != null)
-                    inventoryManager.rightHandWeapon.weaponModel.SetActive(!usingItem && !inSkill); // 如果正在使用道具，隐藏武器
+                    inventoryManager.rightHandWeapon.weaponModel.SetActive(!usingItem && !inSkill && !anim.GetBool("interacting")); // 如果正在使用道具，交互，使用某些左手lt 隐藏武器
                 if (inventoryManager.curConsumable != null && inventoryManager.curConsumable.itemModel != null)
                     inventoryManager.curConsumable.itemModel.SetActive(usingItem); // 如果有当前道具，显示道具模型
 
@@ -236,7 +247,7 @@ namespace rei
             }
 
             // 5. 处理空闲状态和相关能力
-            onEmpty = anim.GetBool("OnEmpty"); // 检查是否处于空闲状态
+            onEmpty = anim.GetBool("OnEmpty") && !anim.GetBool("interacting"); // 检查是否处于空闲状态
             if (onEmpty)
             {
                 canMove = true; // 空闲时允许移动
@@ -394,6 +405,7 @@ namespace rei
 
             // 4. 重置 `damaged` 状态
             damaged = false; // 每帧结束时，将 `damaged` 状态重置为 false，准备下一次伤害检测
+            
         }
 
         #endregion
@@ -514,11 +526,13 @@ namespace rei
             Vector3 targetDir = pickManager.interactionCandidate.transform.position - transform.position; // 计算方向向量
             SnapToRotation(targetDir); // 调用方法，立即将玩家旋转到目标方向
 
-            // 5. 执行交互目标的实际交互逻辑
-            pickManager.interactionCandidate.InteractActual();
+            
 
             // 6. 播放交互动画
             PlayAnimation(interaction.anim);
+            
+            // 5. 执行交互目标的实际交互逻辑
+            pickManager.interactionCandidate.InteractActual();
 
             // 7. 清除当前交互候选对象
             pickManager.interactionCandidate = null;

@@ -630,6 +630,7 @@ namespace rei
         public List<Weapon> weapons = new List<Weapon>();
         public List<List<Consumable>> consumables = new List<List<Consumable>>();
         public List<Spell> spells = new List<Spell>();
+        public List<Key> keys = new List<Key>();
     }
 
     [System.Serializable]
@@ -683,6 +684,7 @@ namespace rei
     {
         weapon,
         item,
-        spell
+        spell,
+        key
     }
 }

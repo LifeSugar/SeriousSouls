@@ -314,6 +314,16 @@ namespace rei
                 eStates.rotateToTarget = false;
         }
 
+        public void UnfreezeY()
+        {
+            _playerStates.unfreezeY = true;
+        }
+
+        public void FreezeY()
+        {
+            _playerStates.unfreezeY = false;
+        }
+        
         // 消耗当前物品
         public void ConsumeCurrentItem()
         {
