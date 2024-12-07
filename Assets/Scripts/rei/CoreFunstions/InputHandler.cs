@@ -59,7 +59,7 @@ namespace rei
         float close_timer = 0;
         float a_input_count = 1.5f;
 
-        PlayerState _playerStates;
+        public PlayerState _playerStates;
         CameraManager camManager;
         UIManager uiManager;
         DialogueManager dialogueManager;
@@ -237,49 +237,57 @@ namespace rei
 
         void HandlePickAndInteract()
         {
-            if (a_input)
-                a_input_count++;
-            
-            
             if (!dialogueManager.dialogueActive)
             {
-                if (_playerStates.pickManager.itemCandidate != null || _playerStates.pickManager.interactionCandidate != null)
+                if (!uiManager.InteractionInfoActive)
                 {
-                    if (_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
+                    if (_playerStates.pickManager.itemCandidate != null || _playerStates.pickManager.interactionCandidate != null)
                     {
-                        if (preferItem)
+                        if (_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
+                        {
+                            if (preferItem)
+                            {
+                                PickupItem();
+                                return;
+                            }
+                            else
+                            {
+                                Interact();
+                                return;
+                            }
+                        }
+            
+                        if (_playerStates.pickManager.itemCandidate && !_playerStates.pickManager.interactionCandidate)
                         {
                             PickupItem();
+                            return;
                         }
-                        else
+            
+                        if (!_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
+                        {
                             Interact();
+                            return;
+                        }
                     }
-            
-                    if (_playerStates.pickManager.itemCandidate && !_playerStates.pickManager.interactionCandidate)
+                    else
                     {
-                        PickupItem();
-                    }
-            
-                    if (!_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
-                    {
-                        Interact();
+                        uiManager.CloseInteractCanvas();
+                        if (uiManager.ItemCards[0].gameObject.activeSelf == true
+                            || uiManager.ItemCards[1].gameObject.activeSelf == true
+                            || uiManager.ItemCards[2].gameObject.activeSelf == true
+                            || uiManager.ItemCards[3].gameObject.activeSelf == true
+                            || uiManager.ItemCards[4].gameObject.activeSelf == true)
+                            close_timer += 1;
+                        if (close_timer > 390)
+                        {
+                            close_timer = 0;
+                            uiManager.CloseItemCards();
+                        }
                     }
                 }
                 else
                 {
                     uiManager.CloseInteractCanvas();
-                    if (uiManager.ItemCards[0].gameObject.activeSelf == true
-                        || uiManager.ItemCards[1].gameObject.activeSelf == true
-                        || uiManager.ItemCards[2].gameObject.activeSelf == true
-                        || uiManager.ItemCards[3].gameObject.activeSelf == true
-                        || uiManager.ItemCards[4].gameObject.activeSelf == true)
-                        close_timer += 1;
-                    if (close_timer > 190)
-                    {
-                        close_timer = 0;
-                        uiManager.CloseItemCards();
-                        a_input = false;
-                    }
                 }
             }
             else
@@ -287,10 +295,12 @@ namespace rei
                 uiManager.CloseInteractCanvas();
             }
         
-            if (a_input_count > 1f)
+            if (uiManager.InteractionInfoActive)
             {
-                a_input = false;
-                a_input_count = 0;
+                if (Input.GetButtonDown(GlobalStrings.A))
+                {
+                    uiManager.CloseInteractionInfoCanvas();
+                }
             }
         }
         

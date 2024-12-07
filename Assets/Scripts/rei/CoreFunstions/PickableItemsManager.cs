@@ -83,11 +83,11 @@ namespace rei
                 return;
 
             // 遍历 itemCandidate 中包含的所有物品
-            for (int i = 0; i < itemCandidate.items.Length; i++)
+            foreach (var item in itemCandidate.items)
             {
                 // 获取物品容器中的每一个物品并调用 AddItem 添加至玩家库存
-                PickItemContainer c = itemCandidate.items[i];
-                AddItem(c.itemId, c.itemType, playerStates);
+                PickItemContainer c = item;
+                AddItem(c.itemId, c.itemType, c.count, playerStates);
             }
 
             // 从 pick_items 列表中移除 itemCandidate
@@ -107,9 +107,9 @@ namespace rei
         /// <param name="id">物品的唯一标识符。</param>
         /// <param name="type">物品的类型（武器、消耗品、法术）。</param>
         /// <param name="playerStates">当前玩家状态对象，包含库存管理器。</param>
-        public void AddItem(string id, ItemType type, PlayerState playerStates)
+        public void AddItem(string id, ItemType type, int count, PlayerState playerStates)
         {
-            UIManager.instance.item_idx = 0;
+            // UIManager.instance.item_idx = 0;
             // 1. 获取玩家的库存对象
             Inventory inventory = playerStates.inventoryManager.inventory;
 
@@ -134,7 +134,7 @@ namespace rei
                     inventory.weapons.Add(weapon);
 
                     // 在 UI 中显示新增物品卡片
-                    UIManager.instance.AddItemCard(weapon);
+                    UIManager.instance.AddItemCard(weapon, count);
                     break;
 
                 // 处理消耗品类型的物品
@@ -147,16 +147,18 @@ namespace rei
                     {
                         // 如果不存在，则添加到消耗品列表中
                         List<Consumable> items = new List<Consumable>();
-                        items.Add(item);
+                        for (int i = 0; i < count; i++)
+                            items.Add(item);
                         inventory.consumables.Add(items);
 
                         // 在 UI 中显示新增物品卡片
-                        UIManager.instance.AddItemCard(item);
+                        UIManager.instance.AddItemCard(item, count);
                     }
                     else
                     {
-                        inventory.consumables.Find(c => c[0].itemName == item.itemName).Add(item);
-                        UIManager.instance.AddItemCard(item);
+                        for (int i = 0; i < count; i++)
+                            inventory.consumables.Find(c => c[0].itemName == item.itemName).Add(item);
+                        UIManager.instance.AddItemCard(item, count);
                     }
                     break;
 
@@ -172,8 +174,13 @@ namespace rei
                         inventory.spells.Add(spell);
 
                         // 在 UI 中显示新增物品卡片
-                        UIManager.instance.AddItemCard(spell);
+                        UIManager.instance.AddItemCard(spell, count);
                     }
+                    break;
+                case ItemType.key:
+                    Key key = ResourceManager.instance.GetKey(id);
+                    inventory.keys.Add(key);
+                    UIManager.instance.AddItemCard(key, count);
                     break;
             }
             

@@ -26,6 +26,11 @@ namespace rei
 
         public GameObject interactCanvas;
         public Text instruction;
+        public bool interactCanvasActive;
+
+        public GameObject InteractionInfoCanvas;
+        public Text InteractionInfo;
+        public bool InteractionInfoActive;
 
         public int item_idx;
         public List<ItemCard> ItemCards; //捡到东西的时候现实的UI
@@ -131,18 +136,37 @@ namespace rei
                     break;
             }
 
+            interactCanvasActive = true;
             interactCanvas.SetActive(true);
+        }
+
+        public void OpenInteractionInfoCanvas(string s)
+        {
+            InteractionInfoActive = true;
+            InteractionInfoCanvas.SetActive(true);
+            InteractionInfo.text = s;
+        }
+
+        public void CloseInteractionInfoCanvas()
+        {
+            InteractionInfoActive = false;
+            InteractionInfoCanvas.SetActive(false);
+            InteractionInfo.text = string.Empty;
         }
 
         public void CloseInteractCanvas()
         {
+            interactCanvasActive = false;
             interactCanvas.SetActive(false);
         }
 
         //捡到东西的UI
-        public void AddItemCard(Item i)
+        public void AddItemCard(Item i, int count)
         {
-            ItemCards[item_idx].itemName.text = i.itemName;
+            if (count <= 1)
+                ItemCards[item_idx].itemName.text = i.itemName;
+            else
+                ItemCards[item_idx].itemName.text = i.itemName + " X" + count.ToString();
             ItemCards[item_idx].icon.sprite = i.icon;
             ItemCards[item_idx].gameObject.SetActive(true);
             item_idx++;

@@ -37,6 +37,11 @@ namespace rei
             {
                 AddToGrid(spell.icon, spellGrid, spell.itemName, ItemType.spell);
             }
+
+            foreach (var key in inventory.keys)
+            {
+                AddToGrid(key.icon, itemGrid, key.itemName, ItemType.key);
+            }
         }
 
         /// <summary>
