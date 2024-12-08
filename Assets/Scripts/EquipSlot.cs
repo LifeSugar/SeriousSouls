@@ -22,7 +22,7 @@ namespace rei
 
         private void Start()
         {
-            playerState = GameObject.Find("PlayerController").GetComponent<PlayerState>();
+            playerState = InputHandler.instance._playerStates;
             if (outline != null)
             {
                 defaultOutlineColor = outline.effectColor; // 保存初始边框颜色

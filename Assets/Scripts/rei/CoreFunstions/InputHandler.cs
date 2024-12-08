@@ -215,6 +215,7 @@ namespace rei
                 Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
                 ResetInputs();
+                EnemyManager.instance.ResetAllEnemies();
             }
             else
             {
@@ -226,7 +227,7 @@ namespace rei
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
                 _playerStates.Recover();
-                EnemyManager.instance.ResetAllEnemies();
+                
             }
 
             // 淡出黑屏

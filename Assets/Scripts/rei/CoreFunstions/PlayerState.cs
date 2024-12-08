@@ -591,25 +591,29 @@ namespace rei
                 return; // 如果所有攻击相关的输入按键都未按下，直接退出
 
             // 3. 检查体力是否足够
-            if (characterStats._stamina <= 
-                actionManager.GetActionFromInput(actionManager.GetActionInput(this)).staminaCost)
-                return; // 如果当前体力不足以执行动作，直接退出
+            // if (characterStats._stamina <=
+            //     actionManager.GetActionFromInput(actionManager.GetActionInput(this)).staminaCost ||
+            //     characterStats._focus <=
+            //     actionManager.GetActionFromInput(actionManager.GetActionInput(this)).staminaCost)
+            // {
+            //     return; // 如果当前体力不足以执行动作，直接退出
+            // }
+                
 
             // 4. 获取当前动作输入并保存
             ActionInput targetInput = actionManager.GetActionInput(this); // 获取动作输入
             storeActionInput = targetInput; // 保存当前输入，用于后续逻辑
 
             // 5. 如果正在连续动作中，尝试延续前一个动作
-            if (onEmpty == false && 
-                characterStats._stamina >= actionManager.GetActionFromInput(storePreviousAction).staminaCost)
+            if (onEmpty == false)
             {
                 a_hook.killDelta = true; // 动画钩子设置为立即触发下一个动作
                 targetInput = storePreviousAction; // 延续前一个动作
             }
 
             // 6. 如果体力不足以延续前一个动作，退出
-            if (characterStats._stamina <= 
-                actionManager.GetActionFromInput(storePreviousAction).staminaCost || characterStats._focus <= actionManager.GetActionFromInput(storePreviousAction).fpCost)
+            if ((characterStats._stamina <= 
+                actionManager.GetActionFromInput(storePreviousAction).staminaCost || characterStats._focus <= actionManager.GetActionFromInput(storePreviousAction).fpCost) && actionManager.GetActionFromInput(targetInput).staminaCost > characterStats._stamina )
             {
                 Debug.Log("actionquit"); // 输出调试信息
                 return; // 直接退出动作检测
@@ -653,7 +657,7 @@ namespace rei
         void AttackAction(Action slot)
         {
             // 1. 检查体力是否足够进行攻击
-            if (characterStats._stamina < slot.staminaCost)
+            if (characterStats._stamina < slot.staminaCost || characterStats._focus < slot.fpCost)
                 return; // 如果体力不足，直接退出
 
             // 2. 检查专注值是否足够（某些特殊攻击可能需要消耗专注值）
@@ -1389,7 +1393,7 @@ namespace rei
         public void ResetInput()
         {
             if (characterStats._stamina <
-                actionManager.GetActionFromInput(actionManager.GetActionInput(this)).staminaCost)
+                actionManager.GetActionFromInput(actionManager.GetActionInput(this)).staminaCost || characterStats._focus < actionManager.GetActionFromInput(actionManager.GetActionInput(this)).fpCost)
             {
                 rb = false;
                 rt = false;
