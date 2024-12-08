@@ -766,18 +766,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 423327141}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &425822422 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3611053158350594483, guid: 72aa46dbfbd944f03a459b393c11b4b9,
-    type: 3}
-  m_PrefabInstance: {fileID: 8728638400163822759}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbefcb1a41e2342a9b6f30cbb1c8b05a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &499534103
 GameObject:
   m_ObjectHideFlags: 0
@@ -2643,18 +2631,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c96fa9c692344829a073d4468bf1751, type: 3}
---- !u!114 &4666440377272499903 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7555860818629062801, guid: 8d3db628f20214463a972dd138d845cb,
-    type: 3}
-  m_PrefabInstance: {fileID: 682818890218444347}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbefcb1a41e2342a9b6f30cbb1c8b05a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &4666440377272499904 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3402283860841126070, guid: 8d3db628f20214463a972dd138d845cb,
@@ -2723,26 +2699,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1979191975962125773, guid: cd929fff7ec9f4e5c918487037f55c10,
-        type: 3}
-      propertyPath: pick_items.Array.data[0]
-      value: 
-      objectReference: {fileID: 425822422}
-    - target: {fileID: 1979191975962125773, guid: cd929fff7ec9f4e5c918487037f55c10,
-        type: 3}
-      propertyPath: pick_items.Array.data[1]
-      value: 
-      objectReference: {fileID: 4666440377272499903}
-    - target: {fileID: 1979191975962125773, guid: cd929fff7ec9f4e5c918487037f55c10,
-        type: 3}
-      propertyPath: interactions.Array.data[0]
-      value: 
-      objectReference: {fileID: 1012086626}
-    - target: {fileID: 1979191975962125773, guid: cd929fff7ec9f4e5c918487037f55c10,
-        type: 3}
-      propertyPath: interactions.Array.data[1]
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3230978356299313378, guid: cd929fff7ec9f4e5c918487037f55c10,
         type: 3}
