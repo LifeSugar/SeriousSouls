@@ -754,9 +754,11 @@ namespace rei
             // 4. 定义射线的方向（角色正前方）
             Vector3 rayDir = transform.forward;
 
+            LayerMask enemyLayer = 1 << 8;
+
             // 5. 使用射线检测前方的敌人
             RaycastHit hit;
-            if (Physics.Raycast(origin, rayDir, out hit, 2, ignoreLayers))
+            if (Physics.Raycast(origin, rayDir, out hit, 2, enemyLayer))
             {
                 // 如果检测到敌人，获取其 EnemyStates 组件
                 parryTarget = hit.transform.GetComponentInParent<EnemyStates>();
@@ -838,8 +840,9 @@ namespace rei
             Vector3 rayDir = transform.forward;
 
             // 5. 使用射线检测前方的敌人
+            LayerMask enemyLayer = 1 << 8;
             RaycastHit hit;
-            if (Physics.Raycast(origin, rayDir, out hit, 1, ignoreLayers))
+            if (Physics.Raycast(origin, rayDir, out hit, 1, enemyLayer))
             {
                 // 如果检测到敌人，获取其 EnemyStates 组件
                 backstab = hit.transform.GetComponentInParent<EnemyStates>();
@@ -1206,8 +1209,10 @@ namespace rei
                 // 在 Scene 中显示射线（用于调试）
                 Debug.DrawRay(origin, dir * dis, Color.cyan);
 
+                LayerMask grondLayer = 1 << 28;
+
                 // 3. 检测射线是否命中地面
-                if (Physics.Raycast(origin, dir, out hit, dis, ignoreLayers))
+                if (Physics.Raycast(origin, dir, out hit, dis, grondLayer))
                 {
                     // 如果检测到地面，设置标志为 true
                     r = true;
