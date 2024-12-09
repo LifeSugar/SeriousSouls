@@ -12,13 +12,22 @@ namespace rei
         private bool moved;
         public bool holding;
 
+        private Vector3 originalPosition;
+        private Vector3 targetPosition;
+
+        private void Start()
+        {
+            originalPosition = transform.localPosition;
+            targetPosition = originalPosition - new Vector3(0, moveDistance, 0);
+        }
+
         void Update()
         {
             if (!lift.isRunning && !holding && moved)
             {
                 moved = false;
                 // 玩家离开触发器后向上移动
-                transform.DOMove(transform.position + new Vector3(0, moveDistance, 0), 0.5f)
+                transform.DOLocalMove(originalPosition, 0.5f)
                     .OnComplete(() =>
                     {
                         moved = false; // 标记移动结束
@@ -36,7 +45,7 @@ namespace rei
                 if (!moved && !lift.isRunning)
                 {
                     // 玩家进入触发器后向下移动
-                    transform.DOMove(transform.position - new Vector3(0, moveDistance, 0), 0.5f)
+                    transform.DOLocalMove(targetPosition, 0.5f)
                         .OnComplete(() =>
                         {
                             // 移动完成后调用 LiftOperation

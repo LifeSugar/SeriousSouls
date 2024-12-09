@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.Serialization;
 
 
 namespace rei
@@ -47,7 +48,7 @@ namespace rei
         EnemyTarget enTarget;
         AnimatorHook a_hook;
         public PlayerState parriedBy;
-        public LayerMask ignoreLayers;
+        public LayerMask obscaleLayerMask; //索敌时
         public NavMeshAgent agent;
         public PlayerState player;
         public GameObject lockOnGameObject;//被锁定的标记
@@ -107,8 +108,8 @@ namespace rei
             parryIsOn = false;
 
             //添加交互的蒙版
-            gameObject.layer = 8;
-            ignoreLayers = ~(1 << 9);
+            this.gameObject.layer = 8;
+            // ignoreLayers = 1  << 28;
 
             lockOnGameObject.SetActive(false);
             
@@ -236,6 +237,7 @@ namespace rei
                     enemyCanvas.gameObject.SetActive(false);//关血条
                     // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("die").audio_clip);
                     EnableRagdoll(); //开启布娃娃效果
+                    this.GetComponent<AIHandler>().enabled = false;
                     StartCoroutine(StartSinking());//沉入地下
                 }
             }
@@ -481,9 +483,9 @@ namespace rei
             {
                 r.useGravity = false;
             }
-            transform.DOMoveY(transform.position.y - 10, 10).SetEase(Ease.InOutQuad);
-            yield return new WaitForSeconds(1.8f);
-            Destroy(this.gameObject);
+            transform.DOMoveY(transform.position.y - 1, 2).SetEase(Ease.InOutQuad).OnComplete(() => Destroy(this.gameObject));
+            
+            
         }
 
         //掉落东西
