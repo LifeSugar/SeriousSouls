@@ -115,16 +115,16 @@ namespace rei
             switch (t)
             {
                 case UIActionType.interact:
-                    instruction.text = "Interact : key";
+                    instruction.text = "Interact : Space";
                     break;
                 case UIActionType.open:
-                    instruction.text = "Open : key";
+                    instruction.text = "Open : Space";
                     break;
                 case UIActionType.pickup:
-                    instruction.text = "Pickup : key";
+                    instruction.text = "Pickup : Space";
                     break;
                 case UIActionType.talk:
-                    instruction.text = "Talk : key";
+                    instruction.text = "Talk : Space";
                     break;
                 case UIActionType.lit:
                     instruction.text = "Lit the lamp : Press Space";

@@ -22,7 +22,7 @@ namespace rei
 
         private void Start()
         {
-            playerState = GameObject.Find("PlayerController").GetComponent<PlayerState>();
+            playerState = InputHandler.instance._playerStates;
             if (outline != null)
             {
                 defaultOutlineColor = outline.effectColor; // 保存初始边框颜色
@@ -36,8 +36,8 @@ namespace rei
         /// </summary>
         public void OnDrop(PointerEventData eventData)
         {
-            Debug.Log($"Pointer Enter: {eventData.pointerEnter?.name}");
-            Debug.Log("OnDrop");
+            // Debug.Log($"Pointer Enter: {eventData.pointerEnter?.name}");
+            // Debug.Log("OnDrop");
             DraggableItem draggedItem = eventData.pointerDrag.GetComponent<DraggableItem>();
             if (draggedItem != null && draggedItem.itemType == slotType)
             {

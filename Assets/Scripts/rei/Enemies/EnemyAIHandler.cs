@@ -12,7 +12,9 @@ namespace rei
 
         public EnemyStates estates;
 
-        [FormerlySerializedAs("player_states")] public PlayerState playerPlayerStates; //角色
+        [FormerlySerializedAs("player_states")]
+        public PlayerState playerPlayerStates; //角色
+
         public Transform target;
 
         //管理可视范围
@@ -31,7 +33,8 @@ namespace rei
         float dis; //和目标的距离
         float angle; //和目标的角度
         float delta;
-        Vector3 dirToTarget;//指向目标的方向
+        Vector3 dirToTarget; //指向目标的方向
+
         void Start()
         {
             Init();
@@ -45,7 +48,7 @@ namespace rei
             estates.Init(); //初始化自身
             playerPlayerStates = estates.player;
             target = playerPlayerStates.transform;
-            InitDamageColliders();//初始化伤害盒
+            InitDamageColliders(); //初始化伤害盒
         }
 
         void InitDamageColliders()
@@ -113,7 +116,7 @@ namespace rei
 
         void GoToTarget()
         {
-            estates.hasDestination = false;//更新状态
+            estates.hasDestination = false; //更新状态
             estates.SetDestination(target.position); //更新目标位置到玩家并向目标移动
         }
 
@@ -121,12 +124,12 @@ namespace rei
         {
             #region delay handler
 
-            HandleCooldowns();//攻击冷却开始计算
+            HandleCooldowns(); //攻击冷却开始计算
 
             float d2 = Vector3.Distance(estates.targetDestionation, target.position); //储存的目标位置和玩家位置之间的距离
             if (d2 > 2 || dis > sight * 5) //如果目标位置与玩家位置存在偏差，或者距离太远，则向目标移动
-                GoToTarget();//重新索敌
-            if (dis < 2)//当距离很近的时候，关闭寻路，开打
+                GoToTarget(); //重新索敌
+            if (dis < 2) //当距离很近的时候，关闭寻路，开打
                 estates.agent.isStopped = true;
 
 
@@ -151,7 +154,7 @@ namespace rei
                 estates.anim.Play(a.targetAnim); //播放攻击动作动画
                 estates.anim.SetBool("OnEmpty", false); //设置参数 同时estates.canMove = false
                 estates.canMove = false;
-                a._cool = a.cooldown;//重置这个动作的冷却时间
+                a._cool = a.cooldown; //重置这个动作的冷却时间
                 estates.agent.isStopped = true; //关闭navi
                 estates.rotateToTarget = false; //关闭自动转向，在动作事件中修正方向
                 return;
@@ -166,7 +169,7 @@ namespace rei
         {
             foreach (var attack in ai_attacks)
             {
-                if (attack._cool <= 0) 
+                if (attack._cool <= 0)
                     continue;
 
                 attack._cool -= delta;
@@ -186,7 +189,7 @@ namespace rei
             foreach (var attack in ai_attacks)
             {
                 if (attack._cool > 0) continue; // 在冷却中，跳过
-                if (dis > attack.minDistance) continue; // 距离太近，跳过
+                if (dis > attack.attackRange) continue; // 距离太近，跳过
                 if (angle < attack.minAngle || angle > attack.maxAngle) continue; // 角度不符合，跳过
                 if (attack.weight == 0) continue; // 权重为0，跳过
 
@@ -224,11 +227,11 @@ namespace rei
             {
                 _frame = 0;
 
-                if (dis < sight)//到达可视距离
+                if (dis < sight) //到达可视距离
                 {
-                    if (angle < fov_angle)//到达可视范围（视锥）
+                    if (angle < fov_angle) //到达可视范围（视锥）
                     {
-                        aiState = AIState.close;//切换为近处状态
+                        aiState = AIState.close; //切换为近处状态
                     }
                 }
             }
@@ -237,7 +240,7 @@ namespace rei
         void HandleCloseSight()
         {
             _close++;
-            if (_close > closeCount)//十帧后开始监测是否跑出可视范围
+            if (_close > closeCount) //十帧后开始监测是否跑出可视范围
             {
                 _close = 0;
 
@@ -260,12 +263,12 @@ namespace rei
             dir.y += 0.5f;
 
             Debug.DrawRay(origin, dir, Color.red);
-            if (Physics.Raycast(origin, dir, out hit, sight, estates.ignoreLayers))
+            if (Physics.Raycast(origin, dir, out hit, sight, estates.obscaleLayerMask))
             {
                 PlayerState st = hit.transform.GetComponentInParent<PlayerState>();
                 if (st != null) //如果不存在遮挡 那么开始接敌动作
                 {
-                    estates.rotateToTarget = true; 
+                    estates.rotateToTarget = true;
                     aiState = AIState.inSight;
                 }
             }
@@ -291,21 +294,22 @@ namespace rei
             return a;
         }
     }
-
-    [System.Serializable]
-    public class AIAttacks
-    {
-        public int weight;
-        public float minDistance;
-        public float minAngle;
-        public float maxAngle;
-
-        public float cooldown = 2;
-        public float _cool;
-
-        public string targetAnim;
-
-        public bool isDefaultDamageCollider;
-        public GameObject[] damageCollider;
-    }
 }
+
+//     [System.Serializable]
+//     public class AIAttacks
+//     {
+//         public int weight;
+//         public float minDistance;
+//         public float minAngle;
+//         public float maxAngle;
+//
+//         public float cooldown = 2;
+//         public float _cool;
+//
+//         public string targetAnim;
+//
+//         public bool isDefaultDamageCollider;
+//         public GameObject[] damageCollider;
+//     }
+// }

@@ -215,6 +215,7 @@ namespace rei
                 Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
                 ResetInputs();
+                EnemyManager.instance.ResetAllEnemies();
             }
             else
             {
@@ -226,7 +227,7 @@ namespace rei
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
                 _playerStates.Recover();
-                EnemyManager.instance.ResetAllEnemies();
+                
             }
 
             // 淡出黑屏
@@ -352,18 +353,32 @@ namespace rei
             y_input = Input.GetButton(GlobalStrings.Y);
 
             // rb_input = Input.GetButton(GlobalStrings.RB);
-            if (Input.GetButtonDown(GlobalStrings.RB))
+            if (Input.GetButton(GlobalStrings.RB) && _playerStates.rbmarker)
                 _playerStates.rb = true;
-            if (Input.GetButtonDown(GlobalStrings.LB))
+            else
+                _playerStates.rb = false;
+            
+            if (Input.GetButton(GlobalStrings.LB) && _playerStates.lbmarker)
                 _playerStates.lb = true;
-            if (Input.GetButtonDown(GlobalStrings.RT))
+            else
+                _playerStates.lb = false;
+            if (Input.GetButton(GlobalStrings.RT) && _playerStates.rtmarker)
                 _playerStates.rt = true;
-            if (Input.GetButtonDown(GlobalStrings.LT))
+            else
+                _playerStates.rt = false;
+            if (Input.GetButton(GlobalStrings.LT) && _playerStates.ltmarker)
                 _playerStates.lt = true;
+            else
+                _playerStates.lt = false;
+            
+            if (Input.GetButtonDown(GlobalStrings.LB)) _playerStates.lbmarker = true;
+            if (Input.GetButtonDown(GlobalStrings.RB)) _playerStates.rbmarker = true;
+            if (Input.GetButtonDown(GlobalStrings.RT)) _playerStates.rtmarker = true;
+            if (Input.GetButtonDown(GlobalStrings.LT)) _playerStates.ltmarker = true;
 
             
-            rt_input = Input.GetButton(GlobalStrings.RT);
-            lt_input = Input.GetButton(GlobalStrings.LT);
+            // rt_input = Input.GetButton(GlobalStrings.RT);
+            // lt_input = Input.GetButton(GlobalStrings.LT);
             
             rightAxis_down = Input.GetButton(GlobalStrings.R);
             
