@@ -56,8 +56,9 @@ namespace rei
                 {
                     GameObject newEnemy = Instantiate(enemyInfo.prefab, enemyInfo.position, enemyInfo.rotation);
                     EnemyStates enemyStates = newEnemy.GetComponent<EnemyStates>();
-                    enemyStates.GetComponent<EnemyAIHandler>().Init();
+                    enemyStates.GetComponent<AIHandler>().Init();
                     enemyInfo.instance = enemyStates;
+                    newEnemy.transform.SetParent(this.transform);
 
                     // 初始化新实例
                     enemyStates.SaveInitialState();

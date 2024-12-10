@@ -36,8 +36,8 @@ namespace rei
         /// </summary>
         public void OnDrop(PointerEventData eventData)
         {
-            Debug.Log($"Pointer Enter: {eventData.pointerEnter?.name}");
-            Debug.Log("OnDrop");
+            // Debug.Log($"Pointer Enter: {eventData.pointerEnter?.name}");
+            // Debug.Log("OnDrop");
             DraggableItem draggedItem = eventData.pointerDrag.GetComponent<DraggableItem>();
             if (draggedItem != null && draggedItem.itemType == slotType)
             {

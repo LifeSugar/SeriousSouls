@@ -42,6 +42,8 @@ namespace rei
         public bool isGreatSword;
         public bool damaged = false;//是否受到伤害
 
+        public bool applyRootTransform;
+
         //与其他组件的dependence
         public Animator anim;
         public Rigidbody rigid;
@@ -52,7 +54,7 @@ namespace rei
         public NavMeshAgent agent;
         public PlayerState player;
         public GameObject lockOnGameObject;//被锁定的标记
-        public Canvas enemyCanvas;
+        public GameObject enemyCanvas;
         public GameObject dropGameObject;
         public AudioSource audioSource;
 
@@ -87,7 +89,7 @@ namespace rei
             audioSource.maxDistance = 3.5f;
             enTarget = GetComponent<EnemyTarget>();//获取EnemyTarget
             enTarget.Init(this);//初始化EnemyTarget
-
+            
             rigid = GetComponent<Rigidbody>();//获取rb
             agent = GetComponent<NavMeshAgent>();
             rigid.isKinematic = true; //设置为运动学物体，完全由脚本控制物体的运动和旋转
@@ -151,7 +153,7 @@ namespace rei
             
             agent.isStopped = true;
             agent.enabled = false;
-            StartCoroutine("CloseAnimator");
+            StartCoroutine(CloseAnimator());
             for (int i = 0; i < ragdollRigids.Count; i++)//历遍所有布娃娃组件，开启他们的碰撞和物理交互
             {
                 ragdollRigids[i].velocity = Vector3.zero;
@@ -170,14 +172,16 @@ namespace rei
         {
             this.GetComponentInChildren<AnimatorHook>().enabled = false;
             anim.enabled = false;
-            var ai = this.GetComponent<EnemyAIHandler>();
+            var ai = this.GetComponent<AIHandler>();
             ai.enabled = false;
+            
             yield return new WaitForEndOfFrame();
             // this.enabled = false;
         }
 
         public void Tick(float d)
         {
+            applyRootTransform = anim.applyRootMotion;
             if (isGreatSword) //大剑哥
                 anim.Play("gs_oh_idle_r");
             else //直剑哥
@@ -202,6 +206,8 @@ namespace rei
                     lockOnGameObject.SetActive(false);
                 }
             }
+            
+            
 
             //被砍了就打开血条
             if (damaged)
@@ -230,10 +236,15 @@ namespace rei
 
             if (health <= 0)
             {
+                // Debug.Log("dfdfdf");
+                anim.SetBool("44", true);
                 //鼠了捏
                 if (!isDead)
                 {
                     isDead = true;
+                    
+                    lockOnGameObject.SetActive(false);
+                    
                     enemyCanvas.gameObject.SetActive(false);//关血条
                     // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("die").audio_clip);
                     EnableRagdoll(); //开启布娃娃效果
@@ -318,7 +329,7 @@ namespace rei
             damaged = true;
             rotateToTarget = true;
             //int damage = StatsCalculations.CalculateBaseDamage(curWeapon.weaponStats, characterStats); 一些复杂的伤害计算方法还没写
-            int damage = 90; //凑合用先
+            int damage = 20; //凑合用先
             health -= damage;
             // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("slash_impact").audio_clip);//被砍音效
             if (canMove) //在没动作的情况下随机播放受伤动画
@@ -346,10 +357,10 @@ namespace rei
 
         public void HandleBlocked() //被格挡了
         {
-            audioSource.PlayOneShot(ResourceManager.instance.GetAudio("shield_impact").audio_clip);//乓的一声
+            // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("shield_impact").audio_clip);//乓的一声
             anim.Play("attack_interrupt"); //攻击被阻挡的动画
-            anim.SetFloat("interruptSpeed", 1.2f);
-            player.characterStats._stamina -= 40;
+            anim.SetFloat("interruptSpeed", 3f);
+            player.characterStats._stamina -= 90;
             Vector3 targetDir = transform.position - player.transform.position;
             player.SnapToRotation(targetDir);
             CloseDamageCollider();
@@ -357,6 +368,7 @@ namespace rei
 
         public void CheckForParry(Transform target, PlayerState playerStates) //检查是否被弹反到了，如果被弹反到了，那么就被处决
         {
+            // Debug.Log("Checking for parry");
             if (canBeParried == false || parryIsOn == false || isInvincible)
                 return;
 
@@ -369,7 +381,7 @@ namespace rei
 
             isInvincible = true;
             anim.Play("attack_interrupt");
-            anim.SetFloat("interruptSpeed", 0.5f);
+            anim.SetFloat("interruptSpeed", 1.2f);
             anim.applyRootMotion = true;
             anim.SetBool("canMove", false);
             			// states.parryTarget = this;
@@ -379,13 +391,24 @@ namespace rei
 
         public void IsGettingParried(Action a, Weapon curWeapon) //被处决
         {
+            damaged = true;
             //float damage = StatsCalculations.CalculateBaseDamage(curWeapon.weaponStats, characterStats, a.parryMultiplier);计算处决伤害
             float damage = 80;
+            if (health < damage)
+                anim.SetBool("44" , true);
 
-            health -= Mathf.RoundToInt(damage);
+            StartCoroutine(DoParriedDamage(damage));
+            agent.isStopped = true;
             dontDoAnything = true;
             anim.SetBool("canMove", false);
-            anim.Play("parry_received");
+            anim.applyRootMotion = true;
+            anim.Play("getting_parried");
+        }
+
+        IEnumerator DoParriedDamage(float damage)
+        {
+            yield return new WaitForSeconds(0.8f);
+            health -= Mathf.RoundToInt(damage);
         }
 
         public void IsGettingBackStabbed(Action a, Weapon curWeapon) //被背刺，直接死

@@ -137,7 +137,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1223446922025734353}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: PlayerController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -171,6 +171,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1246755145729762157}
   - component: {fileID: 2037722479513849943}
+  - component: {fileID: 9149788315365807092}
   m_Layer: 9
   m_Name: block collider
   m_TagString: Untagged
@@ -212,8 +213,20 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.5503635, y: 2.0789094, z: 0.5302677}
-  m_Center: {x: 0.27518177, y: 0.9256296, z: 0.36488318}
+  m_Size: {x: 1.03727, y: 1.3012936, z: 0.23390006}
+  m_Center: {x: 0.018634384, y: 1.0618157, z: 0.18432279}
+--- !u!114 &9149788315365807092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680004397622097860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 839fd3fca6094437a99b9d8d1613afc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2659319135749477024
 GameObject:
   m_ObjectHideFlags: 0
@@ -223,7 +236,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4025796143748969917}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: CamPivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -306,7 +319,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.42
+  m_Radius: 0.36
   m_Height: 1.6
   m_Direction: 1
   m_Center: {x: 0, y: 0.92, z: 0}
@@ -397,7 +410,7 @@ MonoBehaviour:
     _souls: 0
     _healthRecoverValue: 60
     _focusRecoverValue: 80
-    hp: 200
+    hp: 900
     fp: 100
     stamina: 120
     equipLoad: 0
@@ -433,6 +446,10 @@ MonoBehaviour:
   rb: 0
   lt: 0
   lb: 0
+  rtmarker: 0
+  rbmarker: 0
+  ltmarker: 0
+  lbmarker: 0
   rollInput: 0
   itemInput: 0
   rollDir: {x: 0, y: 0, z: 0}
@@ -441,8 +458,8 @@ MonoBehaviour:
   toGround: 0.5
   rollSpeed: 1
   rollCost: 35
-  parryOffset: 0.8
-  backstabOffset: 0.8
+  parryOffset: 1
+  backstabOffset: 1.2
   run: 0
   onGround: 1
   lockOn: 0
@@ -788,7 +805,7 @@ GameObject:
   - component: {fileID: 3133898817770443099}
   - component: {fileID: 1355381516966584706}
   - component: {fileID: 4077703012658500745}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -976,7 +993,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3683811345577498686}
   - component: {fileID: 2613129570789904282}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: CamManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1038,13 +1055,14 @@ GameObject:
   m_Component:
   - component: {fileID: 3555301809504400671}
   - component: {fileID: 5243827821243380359}
+  - component: {fileID: 6578385180378441449}
   m_Layer: 9
   m_Name: parryCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3555301809504400671
 Transform:
   m_ObjectHideFlags: 0
@@ -1070,7 +1088,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1079,8 +1097,21 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 0.74668163, z: 1.1948552}
-  m_Center: {x: 0, y: 0.25951567, z: 0.69717693}
+  m_Size: {x: 1.0816009, y: 1.9194391, z: 0.7114802}
+  m_Center: {x: 0.019794703, y: 0.8458944, z: 0.19544609}
+--- !u!114 &6578385180378441449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8147363040626020023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d72b655beb54346b8838e9e235c9b782, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxTimer: 0.6
 --- !u!1001 &8748633558007409920
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1718,5 +1749,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weight: 0
-  ikSnapShots: []
-  defaultHeadPos: {x: 0, y: 0, z: 0}
+  ikSnapShots:
+  - type: 2
+    handPos: {x: 0.181, y: -0.107, z: 0.399}
+    hand_eulers: {x: 165.777, y: 496.048, z: 80.799}
+    bodyPos: {x: -0.707, y: -0.89, z: 1.126}
+    overwriteHeadPos: 0
+    headPos: {x: 0, y: 0, z: 0}
+  - type: 3
+    handPos: {x: -0.09, y: -0.17, z: 0.38}
+    hand_eulers: {x: 23.746, y: 338.7, z: 84.7}
+    bodyPos: {x: 0.195, y: -0.452, z: 1.03}
+    overwriteHeadPos: 0
+    headPos: {x: 0, y: 0, z: 0}
+  defaultHeadPos: {x: 0, y: -0.35, z: 0}

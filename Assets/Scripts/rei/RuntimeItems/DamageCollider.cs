@@ -32,21 +32,42 @@ namespace rei
                 if (es != null)
                 {
                     es.DoDamage();
+                    this.gameObject.SetActive(false);
                 }
 
-                this.gameObject.SetActive(false);
+                
             }
 
             if (eStates)
             {
-                PlayerState st = other.transform.GetComponentInParent<PlayerState>();//找到有没有砍到玩家
-
-                if (st != null)
+                ParryCollider pc = other.transform.GetComponentInChildren<ParryCollider>();
+                BlockCollider bc = other.transform.GetComponentInChildren<BlockCollider>();
+                if (pc != null)
                 {
-                    st.DoDamage(eStates.GetCurrentAttack());
+                    // Debug.Log("this attack is parried by " + pc.GetComponentInParent<PlayerState>().name);
+                    this.gameObject.SetActive(false);
+                    PlayerState st = other.transform.GetComponentInParent<PlayerState>();
+                    eStates.CheckForParry(st.transform, st);
+                    
                 }
+                else if (bc != null)
+                {
+                    // Debug.Log("this attack is blocked");
+                    this.gameObject.SetActive(false);
+                    eStates.HandleBlocked();
+                }
+                else
+                {
+                    PlayerState st = other.transform.GetComponentInParent<PlayerState>();//找到有没有砍到玩家
 
-                this.gameObject.SetActive(false);
+                    if (st != null)
+                    {
+                        st.DoDamage(eStates.GetCurrentAttack());
+                    }
+
+                    this.gameObject.SetActive(false);
+                }
+                
             }
         }
     }

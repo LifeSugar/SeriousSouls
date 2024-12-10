@@ -32,6 +32,11 @@ namespace rei
             EnemyManager.instance.enemyTargets.Add(this);
         }
 
+        void OnDestroy()
+        {
+            EnemyManager.instance.enemyTargets.Remove(this);
+        }
+
         // needs  to be clarified. (4)
         public Transform GetTarget(bool negative = false)
         {

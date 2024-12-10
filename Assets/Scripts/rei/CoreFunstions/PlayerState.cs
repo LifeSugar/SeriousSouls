@@ -25,6 +25,7 @@ namespace rei
         public float moveAmount; // 移动量（结合水平和垂直输入计算）
         public Vector3 moveDir; // 移动方向向量
         public bool rt, rb, lt, lb; // 按键输入（RT/RB/左手攻击等）
+        public bool rtmarker, rbmarker, ltmarker, lbmarker;
         public bool rollInput; // 翻滚输入
         public bool itemInput; // 使用物品输入
         public Vector3 rollDir; // 翻滚方向（用于调试）
@@ -108,6 +109,10 @@ namespace rei
         /// /// </summary>
         public void Init()
         {
+            rbmarker = true;
+            rtmarker = true;
+            lbmarker = true;
+            ltmarker = true;
             //初始化关联组件和脚本
             Debug.Log("StateManager init");
             SetUpAnimator();
@@ -322,6 +327,7 @@ namespace rei
             {
                 moveSpeed = 5.5f; // 跑步速度
                 lockOn = false; // 跑步时取消锁定
+                isBlocking = true;
             }
             else
             {
@@ -656,8 +662,9 @@ namespace rei
         /// <param name="slot">当前攻击动作的输入信息。</param>
         void AttackAction(Action slot)
         {
+            ResetInputMarker();
             // 1. 检查体力是否足够进行攻击
-            if (characterStats._stamina < slot.staminaCost || characterStats._focus < slot.fpCost)
+            if (characterStats._stamina < slot.staminaCost)
                 return; // 如果体力不足，直接退出
 
             // 2. 检查专注值是否足够（某些特殊攻击可能需要消耗专注值）
@@ -740,6 +747,7 @@ namespace rei
         /// <returns>如果成功触发招架，返回 true；否则返回 false。</returns>
         bool CheckForParry(Action slot)
         {
+            Debug.Log("CheckForParry");
             // 1. 如果当前动作不允许招架，直接返回 false
             if (slot.canParry == false)
                 return false;
@@ -791,6 +799,7 @@ namespace rei
 
                 parryTarget.transform.rotation = eRotation; // 设置敌人的旋转
                 transform.rotation = ourRot; // 设置玩家的旋转
+                // transform.rotation = Quaternion.LookRotation(parryTarget.transform.forward);
 
                 // 11. 执行敌人被招架的逻辑
                 parryTarget.IsGettingParried(slot, inventoryManager.GetCurrentWeapon(slot.mirror));
@@ -880,7 +889,7 @@ namespace rei
 
                 // 13. 设置镜像动画（如果当前动作需要）
                 anim.SetBool("mirror", slot.mirror);
-                anim.CrossFade("parry_attack", 0.2f); // 播放背刺动画（可能与招架复用动画）
+                anim.CrossFade("parry_attack", 0.2f); // 播放背刺动画
 
                 // 14. 禁用右手输入，避免影响背刺流程
                 rb = false;
@@ -908,9 +917,16 @@ namespace rei
                 // 如果当前格挡动画正在播放
                 if (blockAnim)
                 {
-                    inventoryManager.CloseBlockCollider(); // 关闭格挡碰撞器（可能用于防御机制）
-                    anim.CrossFade(blockIdleAnim, 0.1f); // 切换到格挡结束后的空闲动画
+                    inventoryManager.CloseBlockCollider(); // 关闭格挡碰撞器
+                    anim.CrossFade(blockIdleAnim, 0.01f); // 切换到格挡结束后的空闲动画
+                    if (characterStats._stamina <= 1)
+                    {
+                        anim.SetFloat("interruptSpeed", 2f);
+                        anim.Play("attack_interrupt");
+                    }
+                    
                     blockAnim = false; // 标记格挡动画已结束
+                    ResetInputMarker();
                 }
             }
         }
@@ -921,16 +937,35 @@ namespace rei
         /// <param name="slot">当前动作的配置信息。</param>
         void BlockAction(Action slot)
         {
+            if (run)
+            {
+                ResetInputMarker();
+                isBlocking = false;
+                anim.CrossFade(blockIdleAnim, 0.01f); // 切换到格挡结束后的空闲动画
+                
+                return;
+            }
+            Debug.Log("BlockAction");
             isBlocking = true; // 标记玩家进入格挡状态
-            enableIK = true; // 启用 IK（用于控制武器或盾牌位置）
+            // enableIK = true; // 启用 IK（用于控制武器或盾牌位置）
             isLeftHand = slot.mirror; // 根据动作配置，判断是否使用左手格挡
 
             // 初始化 IK 的位置（左手或右手）
             a_hook.currentHand = (slot.mirror) ? AvatarIKGoal.LeftHand : AvatarIKGoal.RightHand;
             a_hook.InitIKForShield(slot.mirror); // 初始化 IK 数据
+            anim.SetBool("mirror", slot.mirror);
 
             // 打开格挡碰撞器
             inventoryManager.OpenBlockCollider();
+
+            if (isBlocking && characterStats._stamina <= 1)
+            {
+                Debug.Log(characterStats._stamina);
+                anim.SetBool("mirror", slot.mirror);
+                isBlocking = false;
+                inventoryManager.CloseBlockCollider();
+                anim.Play("attack_interrupt");
+            }
 
             // 如果格挡动画尚未播放
             if (blockAnim == false)
@@ -946,7 +981,7 @@ namespace rei
                 // 获取并播放格挡动作动画
                 string targetAnim = slot.targetAnim;
                 targetAnim += (isLeftHand) ? "_l" : "_r";
-                anim.CrossFade(targetAnim, 0.1f);
+                anim.CrossFade(targetAnim, 0.05f);
 
                 // 标记格挡动画正在播放
                 blockAnim = true;
@@ -959,6 +994,7 @@ namespace rei
         /// <param name="slot">当前动作的配置信息。</param>
         void ParryAction(Action slot)
         {
+            ResetInputMarker();
             string targetAnim = null;
 
             // 获取对应的动作分支动画
@@ -990,7 +1026,7 @@ namespace rei
             anim.SetBool("mirror", slot.mirror);
 
             // 播放招架动画
-            anim.CrossFade(targetAnim, 0.2f);
+            anim.CrossFade(targetAnim, 0.05f);
         }
 
         //法术 再说吧类了
@@ -1405,6 +1441,14 @@ namespace rei
                 lb = false;
                 lt = false;
             }
+        }
+
+        public void ResetInputMarker()
+        {
+            rtmarker = false;
+            rbmarker = false;
+            ltmarker = false;
+            lbmarker = false;
         }
 
         private void ResetActionIndex(float d)

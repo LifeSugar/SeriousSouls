@@ -40,6 +40,10 @@ namespace rei
         {
             _playerStates = st;
             UI.QuickSlot.instance.Init();
+            
+            ParryCollider pr = parryCollider.GetComponent<ParryCollider>();
+            pr.InitPlayer(_playerStates);
+            CloseParryCollider();
         }
 
         public void LoadInventory()
@@ -601,7 +605,7 @@ namespace rei
                 return null;
             }
 
-            Debug.Log(l.Count);
+            // Debug.Log(l.Count);
 
 
             // 遍历动作列表，找到与输入匹配的动作

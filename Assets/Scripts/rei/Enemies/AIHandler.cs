@@ -60,6 +60,10 @@ namespace rei
 
         void Start()
         {
+            Init();
+        }
+        public void Init()
+        {
             estates = GetComponent<EnemyStates>();
             estates.Init();
             playerPlayerStates = estates.player;
@@ -106,7 +110,8 @@ namespace rei
 
             UpdateCooldowns(); // 更新冷却时间
             UpdateAIState(); // 更新AI状态
-            HandleCurrentState(); // 根据当前状态执行逻辑
+            if (!estates.dontDoAnything && !estates.isDead)
+                HandleCurrentState(); // 根据当前状态执行逻辑
 
             // 执行EnemyStates中的Tick更新（例如动画等）
             estates.Tick(Time.deltaTime);
@@ -142,7 +147,7 @@ namespace rei
         {
             if (aiState == newState) return; // 如果状态未改变，则无需切换
             aiState = newState;
-            Debug.Log($"AI State changed to: {newState}");
+            // Debug.Log($"AI State changed to: {newState}");
         }
 
         [SerializeField] private bool inRange;
@@ -331,7 +336,7 @@ namespace rei
                 return;
             }
             
-            Debug.Log("塔塔开");
+            // Debug.Log("塔塔开");
 
             _attack = attackCount;
 
@@ -472,7 +477,7 @@ namespace rei
                 {
                     // 如果击中非玩家物体，视为阻挡
                     blocked = true;
-                    Debug.Log(hit.collider.gameObject.name);
+                    // Debug.Log(hit.collider.gameObject.name);
                 }
 
                 // 根据阻挡情况改变线条颜色
