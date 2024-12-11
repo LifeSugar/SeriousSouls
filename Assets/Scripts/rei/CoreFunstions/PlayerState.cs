@@ -1221,16 +1221,16 @@ namespace rei
             Vector3[] rayOrigins = new Vector3[]
             {
                 transform.position + (Vector3.up * toGround), // 中心
-                transform.position + (Vector3.up * toGround) + (Vector3.forward * 0.1f), // 前
-                transform.position + (Vector3.up * toGround) + (Vector3.back * 0.1f), // 后
-                transform.position + (Vector3.up * toGround) + (Vector3.left * 0.1f), // 左
+                transform.position + (Vector3.up * toGround) + (Vector3.forward * 0.2f), // 前
+                transform.position + (Vector3.up * toGround) + (Vector3.back * 0.2f), // 后
+                transform.position + (Vector3.up * toGround) + (Vector3.left * 0.2f), // 左
                 transform.position + (Vector3.up * toGround) + (Vector3.right * 0.1f), // 右
 
                 // 斜方向
-                transform.position + (Vector3.up * toGround) + (Vector3.forward * 0.1f) + (Vector3.left * 0.1f), // 左前
-                transform.position + (Vector3.up * toGround) + (Vector3.forward * 0.1f) + (Vector3.right * 0.1f), // 右前
-                transform.position + (Vector3.up * toGround) + (Vector3.back * 0.1f) + (Vector3.left * 0.1f), // 左后
-                transform.position + (Vector3.up * toGround) + (Vector3.back * 0.1f) + (Vector3.right * 0.1f) // 右后
+                transform.position + (Vector3.up * toGround) + (Vector3.forward * 0.2f) + (Vector3.left * 0.2f), // 左前
+                transform.position + (Vector3.up * toGround) + (Vector3.forward * 0.2f) + (Vector3.right * 0.2f), // 右前
+                transform.position + (Vector3.up * toGround) + (Vector3.back * 0.2f) + (Vector3.left * 0.2f), // 左后
+                transform.position + (Vector3.up * toGround) + (Vector3.back * 0.2f) + (Vector3.right * 0.2f) // 右后
             };
 
             // 2. 遍历所有射线

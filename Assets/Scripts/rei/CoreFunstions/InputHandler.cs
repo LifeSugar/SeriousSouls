@@ -215,7 +215,8 @@ namespace rei
                 Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
                 ResetInputs();
-                EnemyManager.instance.ResetAllEnemies();
+                if (EnemyManager.instance != null)
+                    EnemyManager.instance.ResetAllEnemies();
             }
             else
             {
@@ -310,7 +311,6 @@ namespace rei
             uiManager.OpenInteractCanvas(UIActionType.pickup);
             if (Input.GetButton(GlobalStrings.A))
             {
-                Debug.Log("pickup!");
                 Vector3 targetDir = _playerStates.pickManager.itemCandidate.transform.position - transform.position;
                 _playerStates.SnapToRotation(targetDir);
                 _playerStates.pickManager.PickCandidate(_playerStates);

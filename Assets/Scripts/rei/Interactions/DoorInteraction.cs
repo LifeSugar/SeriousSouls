@@ -37,6 +37,7 @@ namespace rei
 
         public override void InteractActual()
         {
+            Debug.Log(this.gameObject.name);
             if (oneSide)
             {
                 Vector3 openDir = transform.forward; //z轴正向
@@ -75,22 +76,48 @@ namespace rei
                     }
                 }
             }
+            else
+            {
+                if (needKey)
+                {
+                    if (InputHandler.instance._playerStates.inventoryManager.inventory.keys.Exists(c =>
+                            c.key == matchKey.key))
+                    {
+                        var key = InputHandler.instance._playerStates.inventoryManager.inventory.keys.Find(c =>
+                            c.key == matchKey.key);
+                        string keyName =key.itemName + " Used";
+                        UIManager.instance.OpenInteractionInfoCanvas(keyName);
+                        HandleDoorOpen();
+                        InputHandler.instance._playerStates.inventoryManager.inventory.keys.Remove(key);
+                    }
+                    else
+                    {
+                        InputHandler.instance._playerStates.anim.Play("Empty");
+                        UIManager.instance.OpenInteractionInfoCanvas("Locked");
+                        return;
+                    }
+                }
+                else
+                {
+                    HandleDoorOpen();
+                }
+            }
             
         }
 
         void HandleDoorOpen()
         {
             // 禁用碰撞器
-            doorObject.GetComponent<MeshCollider>().enabled = false;
+            // doorObject.GetComponent<MeshCollider>().enabled = false;
 
             switch (doorType)
             {
                 case Doors.SlidingDoorleft:
-                    Vector3 targetPosLeft = doorObject.transform.position - doorObject.transform.right * slideDistance;
+                    Vector3 targetPosLeft = doorObject.transform.position + doorObject.transform.right * slideDistance;
                     doorObject.transform.DOMove(targetPosLeft, doorOpenTime);
                     break;
                 case Doors.SlidingDoorright:
-                    Vector3 targetPosRight = doorObject.transform.position + doorObject.transform.right * slideDistance;
+                    Vector3 targetPosRight = doorObject.transform.position - doorObject.transform.right * slideDistance;
                     doorObject.transform.DOMove(targetPosRight, doorOpenTime);
                     break;
                 case Doors.PushingDoor:
