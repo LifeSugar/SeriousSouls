@@ -17951,9 +17951,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactionId: test
   actionType: 1
-  obj: {fileID: 1697911111}
-  riseHeight: 1
-  duration: 1
+  doorType: 0
+  oneSide: 0
+  doorObject: {fileID: 0}
+  needKey: 0
+  matchKey:
+    itemName: 
+    itemDescription: 
+    icon: {fileID: 0}
+    key: 0
+  doorOpenTime: 1.5
+  slideDistance: 1.5
+  openAngle: 90
 --- !u!65 &1697911113
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -18238,6 +18247,10 @@ MonoBehaviour:
   itemCount: {fileID: 1799355706}
   interactCanvas: {fileID: 340032688}
   instruction: {fileID: 159827109}
+  interactCanvasActive: 0
+  InteractionInfoCanvas: {fileID: 0}
+  InteractionInfo: {fileID: 0}
+  InteractionInfoActive: 0
   item_idx: 0
   ItemCards:
   - {fileID: 1646020002}
@@ -22479,6 +22492,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7555860818629062801, guid: 8d3db628f20214463a972dd138d845cb,
+        type: 3}
+      propertyPath: items.Array.data[0].count
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7555860818629062801, guid: 8d3db628f20214463a972dd138d845cb,
+        type: 3}
+      propertyPath: items.Array.data[1].count
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7555860818629062801, guid: 8d3db628f20214463a972dd138d845cb,
+        type: 3}
+      propertyPath: items.Array.data[2].count
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7555860818629062801, guid: 8d3db628f20214463a972dd138d845cb,
+        type: 3}
+      propertyPath: items.Array.data[3].count
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7555860818629062801, guid: 8d3db628f20214463a972dd138d845cb,
+        type: 3}
+      propertyPath: items.Array.data[4].count
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
