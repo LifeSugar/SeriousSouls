@@ -19,6 +19,9 @@ namespace rei
         public ScreenFadeController screenFadeController;
         private bool isFading = false;
         
+        [Header ("Death Screen")]
+        public ScreenFadeController deathScreenFadeController;
+        
         [Header("Inputs")] 
         float vertical;
         float horizontal;
@@ -136,7 +139,7 @@ namespace rei
 
         void Update()
         {
-            if (!inMenu && !onCampFire)
+            if (!inMenu && !onCampFire && !_playerStates.isDead)
             {
                 GetInput();
                 HandlePickAndInteract();

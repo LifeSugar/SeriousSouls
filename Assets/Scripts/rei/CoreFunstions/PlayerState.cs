@@ -1343,8 +1343,11 @@ namespace rei
 
         public void Recover()
         {
+            CameraManager.instance.ReSetCullingMask();
+            anim.Play("Empty Override");
             characterStats._health = characterStats.hp;
             characterStats._focus = characterStats.fp;
+            isDead = false;
         }
 
         public void MonitorStats()
@@ -1397,7 +1400,7 @@ namespace rei
             damaged = true;
 
             // 3. 定义伤害值（可扩展为从攻击信息 `a` 中读取具体伤害值）
-            int damage = 20;
+            int damage = 40;
 
             // 4. 扣减玩家生命值
             characterStats._health -= damage;
@@ -1426,9 +1429,25 @@ namespace rei
 
         public void Die()
         {
+            CameraManager.instance.SetCullingMask();
             isDead = true;
             isInvincible = true;
-            // StartCoroutine(sceneController.HandleGameOver());
+            anim.Play("dead");
+            StartCoroutine(InputHandler.instance.deathScreenFadeController.FadeIn());
+            StartCoroutine(Respawn());
+        }
+
+        IEnumerator Respawn()
+        {
+            yield return new WaitForSeconds(3.5f);
+            StartCoroutine(InputHandler.instance.screenFadeController.FadeIn());
+            StartCoroutine(InputHandler.instance.deathScreenFadeController.FadeOut());
+            yield return new WaitForSeconds(1.5f);
+            InputHandler.instance.transform.position = CampFireManager.instance.lastCampFire.playerStateInfo.position;
+            Recover();
+            
+            yield return new WaitForSeconds(3f);
+            StartCoroutine(InputHandler.instance.screenFadeController.FadeOut());
         }
 
         public void ResetInput()
