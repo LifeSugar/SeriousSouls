@@ -329,7 +329,7 @@ namespace rei
             damaged = true;
             rotateToTarget = true;
             //int damage = StatsCalculations.CalculateBaseDamage(curWeapon.weaponStats, characterStats); 一些复杂的伤害计算方法还没写
-            int damage = 20; //凑合用先
+            int damage = 100; //凑合用先
             health -= damage;
             // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("slash_impact").audio_clip);//被砍音效
             if (canMove) //在没动作的情况下随机播放受伤动画
@@ -497,7 +497,8 @@ namespace rei
             player.lockOnTarget = null;
             EnemyManager.instance.enemyTargets.Remove(enTarget);
             yield return new WaitForSeconds(2.8f);
-            HandleDropItem();
+            if (dropGameObject)
+                HandleDropItem();
             foreach (var c in ragdollColliders)
             {
                 c.isTrigger = true;
