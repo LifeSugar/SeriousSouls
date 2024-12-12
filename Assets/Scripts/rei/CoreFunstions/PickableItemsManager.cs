@@ -109,7 +109,7 @@ namespace rei
         /// <param name="playerStates">当前玩家状态对象，包含库存管理器。</param>
         public void AddItem(string id, ItemType type, int count, PlayerState playerStates)
         {
-            UIManager.instance.item_idx = 0;
+            
             // 1. 获取玩家的库存对象
             Inventory inventory = playerStates.inventoryManager.inventory;
 

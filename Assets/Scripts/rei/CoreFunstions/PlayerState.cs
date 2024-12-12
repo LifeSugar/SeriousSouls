@@ -98,6 +98,7 @@ namespace rei
         public Color flashColour = new Color(1f, 0f, 0f, 0.1f); // 受伤 UI 特效颜色
 
         [HideInInspector] public bool inSkill;
+        [HideInInspector] public bool powered;
 
         #endregion
 
@@ -1317,7 +1318,9 @@ namespace rei
             // 3. 如果切换回单手模式
             else
             {
-                anim.Play("Equip Weapon"); // 播放切换回单手的动画
+                anim.Play("change weapon"); // 播放切换回单手的动画
+                anim.Play("upempty");
+                anim.CrossFade(w.oh_idle, 0.2f);
                 actionManager.UpdateActionsOneHanded(); // 更新动作管理器以支持单手动作
 
                 // 如果当前武器在右手，启用左手武器模型
@@ -1343,8 +1346,11 @@ namespace rei
 
         public void Recover()
         {
+            CameraManager.instance.ReSetCullingMask();
+            anim.Play("Empty Override");
             characterStats._health = characterStats.hp;
             characterStats._focus = characterStats.fp;
+            isDead = false;
         }
 
         public void MonitorStats()
@@ -1389,6 +1395,8 @@ namespace rei
         /// <param name="a">包含攻击信息的对象（如攻击来源或攻击类型）。</param>
         public void DoDamage(AIAttacks a)
         {
+            if (isDead)
+                return;
             // 1. 如果玩家当前处于无敌状态，直接返回
             if (isInvincible)
                 return;
@@ -1397,7 +1405,7 @@ namespace rei
             damaged = true;
 
             // 3. 定义伤害值（可扩展为从攻击信息 `a` 中读取具体伤害值）
-            int damage = 20;
+            int damage = 40;
 
             // 4. 扣减玩家生命值
             characterStats._health -= damage;
@@ -1426,9 +1434,25 @@ namespace rei
 
         public void Die()
         {
+            CameraManager.instance.SetCullingMask();
             isDead = true;
             isInvincible = true;
-            // StartCoroutine(sceneController.HandleGameOver());
+            anim.Play("dead");
+            StartCoroutine(InputHandler.instance.deathScreenFadeController.FadeIn());
+            StartCoroutine(Respawn());
+        }
+
+        IEnumerator Respawn()
+        {
+            yield return new WaitForSeconds(3.5f);
+            StartCoroutine(InputHandler.instance.screenFadeController.FadeIn());
+            StartCoroutine(InputHandler.instance.deathScreenFadeController.FadeOut());
+            yield return new WaitForSeconds(1.5f);
+            InputHandler.instance.transform.position = CampFireManager.instance.lastCampFire.playerStateInfo.position;
+            Recover();
+            
+            yield return new WaitForSeconds(3f);
+            StartCoroutine(InputHandler.instance.screenFadeController.FadeOut());
         }
 
         public void ResetInput()

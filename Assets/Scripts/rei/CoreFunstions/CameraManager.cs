@@ -302,5 +302,43 @@ namespace rei
         {
             instance = this;
         }
+
+        public void ReSetCullingMask()
+        {
+            Camera mainCamera = Camera.main;
+
+            // 检查主相机是否存在
+            if (mainCamera == null)
+            {
+                Debug.LogError("主相机未找到！");
+                return;
+            }
+
+            // 设置需要渲染的层
+            mainCamera.cullingMask = 
+                (1 << LayerMask.NameToLayer("Default")) |
+                (1 << LayerMask.NameToLayer("UI")) |
+                (1 << LayerMask.NameToLayer("enemy")) |
+                (1 << LayerMask.NameToLayer("player")) |
+                (1 << LayerMask.NameToLayer("Inventory")) |
+                (1 << LayerMask.NameToLayer("Terrian"));
+        }
+
+        public void SetCullingMask()
+        {
+            Camera mainCamera = Camera.main;
+
+            // 检查主相机是否存在
+            if (mainCamera == null)
+            {
+                Debug.LogError("主相机未找到！");
+                return;
+            }
+
+            // 设置需要渲染的层
+            mainCamera.cullingMask =
+                (1 << LayerMask.NameToLayer("player"));
+
+        }
     }
 }

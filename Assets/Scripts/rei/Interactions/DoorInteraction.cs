@@ -37,7 +37,7 @@ namespace rei
 
         public override void InteractActual()
         {
-            Debug.Log(this.gameObject.name);
+            // Debug.Log(this.gameObject.name);
             if (oneSide)
             {
                 Vector3 openDir = transform.forward; //z轴正向

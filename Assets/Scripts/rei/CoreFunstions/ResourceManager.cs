@@ -33,6 +33,7 @@ namespace rei
             LoadInteractions();
             LoadNpcs();
             LoadAudios();
+            LoadKeys();
         }
 
         //将 WeaponScriptableObject 中所有武器项的名称和对应的索引加载到 weapon_ids 字典中，以便后续根据名称快速检索武器。

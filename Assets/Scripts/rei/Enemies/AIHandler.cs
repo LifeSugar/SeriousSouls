@@ -418,6 +418,8 @@ namespace rei
         {
             int totalWeight = 0;
             List<AIAttacks> validAttacks = new List<AIAttacks>();
+            if (estates.canMove == false)
+                return null;
 
             // 筛选所有符合条件的攻击动作
             foreach (var attack in aiAttacks)
