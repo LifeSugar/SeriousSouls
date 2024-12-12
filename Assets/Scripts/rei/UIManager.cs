@@ -115,22 +115,25 @@ namespace rei
             switch (t)
             {
                 case UIActionType.interact:
-                    instruction.text = "Interact : Space";
+                    instruction.text = "Interact : Press Space";
                     break;
                 case UIActionType.open:
-                    instruction.text = "Open : Space";
+                    instruction.text = "Open : Press Space";
                     break;
                 case UIActionType.pickup:
-                    instruction.text = "Pickup : Space";
+                    instruction.text = "Pickup : Press Space";
                     break;
                 case UIActionType.talk:
-                    instruction.text = "Talk : Space";
+                    instruction.text = "Talk : Press Space";
                     break;
                 case UIActionType.lit:
                     instruction.text = "Lit the lamp : Press Space";
                     break;
                 case UIActionType.sit:
                     instruction.text = " Rest at the lamp: Press Space";
+                    break;
+                case UIActionType.recollect:
+                    instruction.text = " Recollect : Press Space";
                     break;
                 default:
                     break;
@@ -169,7 +172,7 @@ namespace rei
                 ItemCards[item_idx].itemName.text = i.itemName + " X" + count.ToString();
             ItemCards[item_idx].icon.sprite = i.icon;
             ItemCards[item_idx].gameObject.SetActive(true);
-            if (item_idx <= ItemCards.Count - 1)
+            if (item_idx < ItemCards.Count - 1)
                 item_idx++;
             else
             {
@@ -215,6 +218,7 @@ namespace rei
         open,
         talk,
         lit,
-        sit
+        sit,
+        recollect
     }
 }

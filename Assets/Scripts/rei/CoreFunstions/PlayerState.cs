@@ -98,6 +98,7 @@ namespace rei
         public Color flashColour = new Color(1f, 0f, 0f, 0.1f); // 受伤 UI 特效颜色
 
         [HideInInspector] public bool inSkill;
+        [HideInInspector] public bool powered;
 
         #endregion
 
@@ -1394,6 +1395,8 @@ namespace rei
         /// <param name="a">包含攻击信息的对象（如攻击来源或攻击类型）。</param>
         public void DoDamage(AIAttacks a)
         {
+            if (isDead)
+                return;
             // 1. 如果玩家当前处于无敌状态，直接返回
             if (isInvincible)
                 return;

@@ -63,9 +63,11 @@ namespace rei
                     if (st != null)
                     {
                         st.DoDamage(eStates.GetCurrentAttack());
+                        if(!eStates.isBoss)
+                            this.gameObject.SetActive(false);
                     }
 
-                    this.gameObject.SetActive(false);
+                    
                 }
                 
             }

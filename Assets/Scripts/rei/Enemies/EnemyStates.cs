@@ -325,6 +325,8 @@ namespace rei
 
         public void DoDamage()//造成伤害
         {
+            if (!InputHandler.instance._playerStates.powered && isBoss)
+                return;
             if (isInvincible) //如果无敌那么无视发生
                 return;
             damaged = true;
