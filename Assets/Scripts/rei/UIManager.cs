@@ -169,7 +169,12 @@ namespace rei
                 ItemCards[item_idx].itemName.text = i.itemName + " X" + count.ToString();
             ItemCards[item_idx].icon.sprite = i.icon;
             ItemCards[item_idx].gameObject.SetActive(true);
-            item_idx++;
+            if (item_idx <= ItemCards.Count - 1)
+                item_idx++;
+            else
+            {
+                item_idx = 0;
+            }
         }
 
         public void CloseItemCards()

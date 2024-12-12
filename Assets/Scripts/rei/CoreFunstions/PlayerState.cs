@@ -1317,7 +1317,9 @@ namespace rei
             // 3. 如果切换回单手模式
             else
             {
-                anim.Play("Equip Weapon"); // 播放切换回单手的动画
+                anim.Play("change weapon"); // 播放切换回单手的动画
+                anim.Play("upempty");
+                anim.CrossFade(w.oh_idle, 0.2f);
                 actionManager.UpdateActionsOneHanded(); // 更新动作管理器以支持单手动作
 
                 // 如果当前武器在右手，启用左手武器模型

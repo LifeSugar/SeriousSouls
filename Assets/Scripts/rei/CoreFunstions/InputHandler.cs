@@ -432,7 +432,7 @@ namespace rei
             // if (b_input == false && b_timer > 0 && b_timer < 0.5f)
             //     states.rollInput = true;
 
-            if (y_input)
+            if (Input.GetButtonDown(GlobalStrings.Y))
             {
                 if (_playerStates.pickManager.itemCandidate && _playerStates.pickManager.interactionCandidate)
                 {

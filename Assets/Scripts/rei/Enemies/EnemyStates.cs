@@ -11,6 +11,7 @@ namespace rei
 {
     public class EnemyStates : MonoBehaviour
     {
+        public bool isBoss;
         [Header("States")] 
         public int health; //当前生命
         public int maxHealth; //生命上限
@@ -524,7 +525,18 @@ namespace rei
         //更新血条
         void UpdateEnemyHealthUI(int curHealth, int maxHealth)
         {
-            healthBar.rectTransform.sizeDelta = new Vector2((float)curHealth / (float)maxHealth , 0.05f);
+            if (!isBoss)
+                healthBar.rectTransform.sizeDelta = new Vector2((float)curHealth / (float)maxHealth , 0.05f);
+            else
+            {
+                Vector2 targetSize;
+                targetSize = new Vector2((float)curHealth / (float)maxHealth * 1000, 20f);
+
+                // 平滑过渡到目标尺寸
+                healthBar.rectTransform.sizeDelta = Vector2.Lerp(healthBar.rectTransform.sizeDelta, targetSize, Time.deltaTime * 5);
+            }
+                
+
         }
         
         
