@@ -8,7 +8,6 @@ public class Quit : MonoBehaviour
     {
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false; //如果是在unity编译器中
-
 #endif
         Application.Quit();
     }
