@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace rei
@@ -200,6 +201,14 @@ namespace rei
             CloseInteractCanvas();
             CloseItemCards();
         }
+        
+        //切换关卡
+        public void LoadMainMenu()
+        {
+            SceneManager.LoadScene("Start");
+        }
+        
+        
     }
 
     //三种数值条

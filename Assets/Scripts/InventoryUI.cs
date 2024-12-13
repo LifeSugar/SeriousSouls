@@ -12,6 +12,9 @@ namespace rei
         public Transform spellGrid;  // 法术网格区域
 
         public GameObject slotPrefab; // 用于显示物品的槽预制体
+        
+        public Image tutorialImage;
+        private bool tutorialOpen = false;
 
         /// <summary>
         /// 更新右侧库存网格UI
@@ -76,6 +79,22 @@ namespace rei
             DraggableItem draggable = slot.AddComponent<DraggableItem>(); // 添加拖拽功能
             draggable.
                 Setup(itemName, itemType); // 配置拖拽数据
+        }
+        
+        //教程
+        public void ShowTutorials()
+        {
+            if (!tutorialOpen)
+            {
+                tutorialOpen = true;
+                tutorialImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                tutorialOpen = false;
+                tutorialImage.gameObject.SetActive(false);
+            }
+                
         }
         
         

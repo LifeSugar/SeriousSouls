@@ -141,10 +141,20 @@ namespace rei
                 case ItemType.item:
                     // 从资源管理器中获取消耗品对象
                     Consumable item = ResourceManager.instance.GetConsumable(id);
+                    
 
                     // 检查库存中是否已经存在相同名称的消耗品
                     if (!inventory.consumables.Exists(c => c[0].itemName == item.itemName))
                     {
+                        if (playerStates.inventoryManager.runtime_consumables.Exists(c => c != null && c.instance != null && c.instance.itemName == item.itemName))
+                        {
+                            playerStates.inventoryManager.runtime_consumables
+                                .Find(c => c != null && c.instance != null && c.instance.itemName == item.itemName)
+                                .itemCount += count;
+                            // 在 UI 中显示新增物品卡片
+                            UIManager.instance.AddItemCard(item, count);
+                            return;
+                        }
                         // 如果不存在，则添加到消耗品列表中
                         List<Consumable> items = new List<Consumable>();
                         for (int i = 0; i < count; i++)

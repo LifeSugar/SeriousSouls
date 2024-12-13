@@ -30,6 +30,8 @@ namespace rei
         public float doorOpenTime = 1.5f;
         public float slideDistance = 1.5f;
         public float openAngle = 90;
+
+        public bool win;
         void Start()
         {
             PickableItemsManager.instance.interactions.Add(this);
@@ -131,7 +133,10 @@ namespace rei
                 default:
                     break;
             }
+            
 
+            if (win) 
+                InputHandler.instance.HandleWin();
             PickableItemsManager.instance.interactions.Remove(this);
         }
     }

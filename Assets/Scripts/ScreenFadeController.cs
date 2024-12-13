@@ -6,16 +6,24 @@ namespace rei
 {
     public class ScreenFadeController : MonoBehaviour
     {
+        public bool startFade = false;
         public CanvasGroup canvasGroup;
         public float fadeDuration = 1f;
 
         private void Awake()
         {
-            if (canvasGroup == null)
-                canvasGroup = GetComponent<CanvasGroup>();
+            if (!startFade)
+            {
+                if (canvasGroup == null)
+                    canvasGroup = GetComponent<CanvasGroup>();
 
-            // 初始化为全透明
-            canvasGroup.alpha = 0f;
+                // 初始化为全透明
+                canvasGroup.alpha = 0f;
+            }
+            else
+            {
+                StartCoroutine(FadeOut());
+            }
         }
 
         public IEnumerator FadeIn()

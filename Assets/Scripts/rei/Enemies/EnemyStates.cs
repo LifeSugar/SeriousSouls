@@ -245,6 +245,7 @@ namespace rei
                     isDead = true;
                     
                     lockOnGameObject.SetActive(false);
+                    InputHandler.instance._playerStates.characterStats._souls += 1000;
                     
                     enemyCanvas.gameObject.SetActive(false);//关血条
                     // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("die").audio_clip);
@@ -332,7 +333,7 @@ namespace rei
             damaged = true;
             rotateToTarget = true;
             //int damage = StatsCalculations.CalculateBaseDamage(curWeapon.weaponStats, characterStats); 一些复杂的伤害计算方法还没写
-            int damage = 100; //凑合用先
+            int damage = 60; //凑合用先
             health -= damage;
             // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("slash_impact").audio_clip);//被砍音效
             if (canMove) //在没动作的情况下随机播放受伤动画
@@ -363,7 +364,7 @@ namespace rei
             // audioSource.PlayOneShot(ResourceManager.instance.GetAudio("shield_impact").audio_clip);//乓的一声
             anim.Play("attack_interrupt"); //攻击被阻挡的动画
             anim.SetFloat("interruptSpeed", 3f);
-            player.characterStats._stamina -= 90;
+            player.characterStats._stamina -= 60;
             Vector3 targetDir = transform.position - player.transform.position;
             player.SnapToRotation(targetDir);
             CloseDamageCollider();
@@ -394,9 +395,11 @@ namespace rei
 
         public void IsGettingParried(Action a, Weapon curWeapon) //被处决
         {
+            if (isBoss && !InputHandler.instance._playerStates.powered)
+                return;
             damaged = true;
             //float damage = StatsCalculations.CalculateBaseDamage(curWeapon.weaponStats, characterStats, a.parryMultiplier);计算处决伤害
-            float damage = 80;
+            float damage = 180;
             if (health < damage)
                 anim.SetBool("44" , true);
 
@@ -406,6 +409,7 @@ namespace rei
             anim.SetBool("canMove", false);
             anim.applyRootMotion = true;
             anim.Play("getting_parried");
+            parriedBy = null;
         }
 
         IEnumerator DoParriedDamage(float damage)
@@ -416,6 +420,8 @@ namespace rei
 
         public void IsGettingBackStabbed(Action a, Weapon curWeapon) //被背刺，直接死
         {
+            if (isBoss && !InputHandler.instance._playerStates.powered)
+                return;
             dontDoAnything = true;
             anim.SetBool("canMove", false);
             anim.Play("getting_backstabbed");
@@ -559,6 +565,9 @@ namespace rei
         {
             transform.position = initialPosition;
             transform.rotation = initialRotation;
+            
+            this.lockOnGameObject.SetActive(false);
+            this.enemyCanvas.SetActive(false);
 
             health = initialHealth;
             isDead = false;

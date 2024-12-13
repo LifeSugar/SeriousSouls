@@ -22,6 +22,10 @@ namespace rei
         [Header ("Death Screen")]
         public ScreenFadeController deathScreenFadeController;
         
+        [Header ("Win Screen")]
+        public ScreenFadeController winScreenFadeController;
+        [HideInInspector]public bool win = false;
+        
         [Header("Inputs")] 
         float vertical;
         float horizontal;
@@ -139,7 +143,7 @@ namespace rei
 
         void Update()
         {
-            if (!inMenu && !onCampFire && !_playerStates.isDead)
+            if (!inMenu && !onCampFire && !_playerStates.isDead && !win)
             {
                 GetInput();
                 HandlePickAndInteract();
@@ -175,7 +179,7 @@ namespace rei
             camManager.FixedTick(delta);
         }
 
-        void HandleMenu()
+        public void HandleMenu()
         {
             if (inMenu == false)
             {
@@ -218,8 +222,7 @@ namespace rei
                 Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
                 ResetInputs();
-                if (EnemyManager.instance != null)
-                    EnemyManager.instance.ResetAllEnemies();
+                
             }
             else
             {
@@ -231,6 +234,11 @@ namespace rei
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
                 _playerStates.Recover();
+                if (EnemyManager.instance != null)
+                {
+                    // 等待 ResetAllEnemies 完成
+                    yield return StartCoroutine(EnemyManager.instance.ResetAllEnemies());
+                }
                 
             }
 
@@ -663,6 +671,15 @@ namespace rei
             p_d_right = false;
             leftAxis_down = false;
             rightAxis_down = false;
+        }
+
+        public void HandleWin()
+        {
+            win = true;
+            winScreenFadeController.gameObject.SetActive(true);
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            StartCoroutine(winScreenFadeController.FadeIn());
         }
     }
 }

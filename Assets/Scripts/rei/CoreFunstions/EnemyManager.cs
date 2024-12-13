@@ -9,6 +9,7 @@ namespace rei
     {
         public List<EnemyTarget> enemyTargets = new List<EnemyTarget>();//所有的Enemy Target列表
         public float detectRange; //监测距离
+        public EnemyStates prefab;
 
         public List<EnemyInfo> enemyInfos = new List<EnemyInfo>();
 
@@ -27,6 +28,44 @@ namespace rei
             }
 
             return r;
+        }
+
+        void Start()
+        {
+            InitEnenmies();
+        }
+
+        void InitEnenmies()
+        {
+            // 清空当前的 enemyInfos 列表以确保初始化干净
+            enemyInfos.Clear();
+
+            // 遍历当前对象的所有子物体
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                // 获取子物体
+                Transform child = transform.GetChild(i);
+
+                // 尝试获取子物体上的 EnemyStates 脚本
+                EnemyStates enemyStates = child.GetComponent<EnemyStates>();
+                if (enemyStates != null)
+                {
+                    // 创建一个新的 EnemyInfo
+                    EnemyInfo ei = new EnemyInfo();
+
+                    // 获取与子物体相关的初始信息
+                    ei.instance = enemyStates;
+                    ei.position = child.position;
+                    ei.rotation = child.rotation;
+
+                    // 尝试从 EnemyStates 中获取 prefab，如果没有则默认使用子物体本身
+                    // ei.prefab = enemyStates.GetPrefab() != null ? enemyStates.GetPrefab() : child.gameObject;
+                    ei.prefab = prefab.gameObject;
+
+                    // 将创建的 EnemyInfo 添加到列表中
+                    enemyInfos.Add(ei);
+                }
+            }
         }
         
         /// <summary>
@@ -48,27 +87,30 @@ namespace rei
         /// <summary>
         /// 重置所有敌人
         /// </summary>
-        public void ResetAllEnemies()
+        public IEnumerator ResetAllEnemies()
         {
             foreach (var enemyInfo in enemyInfos)
             {
-                if (enemyInfo.instance == null) // 如果敌人实例已被销毁，则重新实例化
+                if (enemyInfo.instance == null)
                 {
                     GameObject newEnemy = Instantiate(enemyInfo.prefab, enemyInfo.position, enemyInfo.rotation);
                     EnemyStates enemyStates = newEnemy.GetComponent<EnemyStates>();
                     enemyStates.GetComponent<AIHandler>().Init();
                     enemyInfo.instance = enemyStates;
                     newEnemy.transform.SetParent(this.transform);
+                    newEnemy.gameObject.SetActive(true);
 
-                    // 初始化新实例
                     enemyStates.SaveInitialState();
                 }
-                else // 如果实例还存在，则重置状态
+                else
                 {
                     enemyInfo.instance.transform.position = enemyInfo.position;
                     enemyInfo.instance.transform.rotation = enemyInfo.rotation;
                     enemyInfo.instance.ResetState();
                 }
+
+                // 如果需要模拟异步操作，可在每个敌人重置后添加一点延迟
+                yield return null; // 在每次循环后暂停一帧
             }
         }
 

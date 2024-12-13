@@ -859,7 +859,7 @@ namespace rei
             }
 
             // 6. 如果没有检测到敌人，返回 false
-            if (backstab == null)
+            if (backstab == null || backstab.isBoss)
                 return false;
 
             // 7. 计算玩家与敌人之间的方向向量
@@ -1450,6 +1450,7 @@ namespace rei
             yield return new WaitForSeconds(1.5f);
             InputHandler.instance.transform.position = CampFireManager.instance.lastCampFire.playerStateInfo.position;
             Recover();
+            EnemyManager.instance.ResetAllEnemies();
             
             yield return new WaitForSeconds(3f);
             StartCoroutine(InputHandler.instance.screenFadeController.FadeOut());

@@ -11,6 +11,7 @@ namespace rei
             InputHandler.instance._playerStates.powered = true;
             InputHandler.instance._playerStates.anim.Play("taking");
             UIManager.instance.OpenInteractionInfoCanvas("Gained An Inexplicable Strength In My Heart.");
+            Destroy(gameObject);
         }
 
         void OnDestroy()

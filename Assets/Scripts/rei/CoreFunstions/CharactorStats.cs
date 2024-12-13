@@ -13,7 +13,7 @@ namespace rei
         public float _stamina;          // 当前精力值
         public int _souls;              // 当前拥有的魂
 
-        public float _healthRecoverValue = 60; // 生命恢复值
+        public float _healthRecoverValue = 120; // 生命恢复值
         public float _focusRecoverValue = 80;  // 集中恢复值
         
         [Header("Base Power")]
