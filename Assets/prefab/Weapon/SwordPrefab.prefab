@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4697008865317341071}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SwordPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 2454729662021548693}
   - component: {fileID: 8256763285492808559}
   - component: {fileID: 7485181257658996425}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -165,6 +165,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Sword_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2c5403a7836784db0a3dec7b841b178f,
+        type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

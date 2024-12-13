@@ -64,6 +64,28 @@ MonoBehaviour:
       backstabMultiplier: 0
       overrideDamageAnim: 0
       damageAnim: 
+    - input: 3
+      type: 0
+      spellClass: 0
+      targetAnim: 
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 3
+          targetAnim: kick 1
+          audio_ids: 
+      mirror: 0
+      canBeParried: 0
+      changeSpeed: 1
+      animSpeed: 1.3
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 40
+      fpCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
     two_handedActions: []
     parryMultiplier: 0
     backstabMultiplier: 0
@@ -82,8 +104,8 @@ MonoBehaviour:
     model_scale: {x: 0, y: 0, z: 0}
   - itemName: sword
     itemDescription: "\u4E00\u628A\u4E0D\u53EF\u4EE5\u53D6\u6D88\u7684\u76F4\u5251"
-    icon: {fileID: 21300000, guid: 4515762330b4a473b868edfb65de0494, type: 3}
-    oh_idle: sword_idle
+    icon: {fileID: 21300000, guid: 3d7b3726fe13d499cbf5c262b926ba30, type: 3}
+    oh_idle: oh_idle
     th_idle: sword_idle
     itemType: 0
     actions:
@@ -109,8 +131,8 @@ MonoBehaviour:
       canBeParried: 0
       changeSpeed: 1
       animSpeed: 1.3
-      canParry: 0
-      canBackStab: 0
+      canParry: 1
+      canBackStab: 1
       staminaCost: 20
       fpCost: 0
       parryMultiplier: 0
@@ -125,12 +147,128 @@ MonoBehaviour:
       steps:
       - branches:
         - input: 2
-          targetAnim: kick
+          targetAnim: tuci1
+          audio_ids: 
+      - branches:
+        - input: 2
+          targetAnim: tuci2
+          audio_ids: 
+      - branches:
+        - input: 2
+          targetAnim: tuci3
+          audio_ids: 
+      mirror: 0
+      canBeParried: 1
+      changeSpeed: 1
+      animSpeed: 1.6
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 40
+      fpCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    - input: 3
+      type: 0
+      spellClass: 0
+      targetAnim: swordskill
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 3
+          targetAnim: swordskill
           audio_ids: 
       mirror: 0
       canBeParried: 0
       changeSpeed: 1
+      animSpeed: 1
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 40
+      fpCost: 40
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    two_handedActions: []
+    parryMultiplier: 0
+    backstabMultiplier: 0
+    LeftHandMirror: 0
+    modelPrefab: {fileID: 5711938177780789762, guid: b4d04d8e812904b6a91e24d81ee70570,
+      type: 3}
+    weaponStats:
+      physical: 0
+      strike: 0
+      slash: 0
+      thrust: 0
+      magic: 0
+    r_model_pos: {x: 0, y: 0.197, z: -0.092}
+    l_model_pos: {x: -0.139, y: 0.163, z: -0.096}
+    r_model_eulers: {x: 287.86877, y: 82.030495, z: 91.08958}
+    l_model_eulers: {x: 275.67657, y: 280.29752, z: 266.61847}
+    model_scale: {x: 0.7, y: 0.7, z: 0.7}
+  - itemName: shield
+    itemDescription: "\u4E00\u628A\u4E0D\u53EF\u4EE5\u53D6\u6D88\u7684\u76F4\u5251"
+    icon: {fileID: 21300000, guid: 04fed0b9948404046b23c4a73d7f10a8, type: 3}
+    oh_idle: oh_idle
+    th_idle: sword_idle
+    itemType: 0
+    actions:
+    - input: 0
+      type: 1
+      spellClass: 0
+      targetAnim: shield
+      audio_ids: 
+      steps: []
+      mirror: 0
+      canBeParried: 0
+      changeSpeed: 0
       animSpeed: 1.3
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 5
+      fpCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    - input: 2
+      type: 3
+      spellClass: 0
+      targetAnim: 
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 2
+          targetAnim: parry
+          audio_ids: 
+      mirror: 0
+      canBeParried: 0
+      changeSpeed: 1
+      animSpeed: 1.6
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 40
+      fpCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    - input: 3
+      type: 3
+      spellClass: 0
+      targetAnim: 
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 3
+          targetAnim: parry
+          audio_ids: 
+      mirror: 1
+      canBeParried: 0
+      changeSpeed: 1
+      animSpeed: 1.6
       canParry: 0
       canBackStab: 0
       staminaCost: 40
@@ -143,7 +281,7 @@ MonoBehaviour:
     parryMultiplier: 0
     backstabMultiplier: 0
     LeftHandMirror: 0
-    modelPrefab: {fileID: 4395498417709231943, guid: d04b040191f2c47a1bc55b2e27f64ee7,
+    modelPrefab: {fileID: 8265141290145167105, guid: 30b9e74611a414982b3a33033bd17225,
       type: 3}
     weaponStats:
       physical: 0
@@ -151,8 +289,198 @@ MonoBehaviour:
       slash: 0
       thrust: 0
       magic: 0
-    r_model_pos: {x: -0.019, y: 0.065, z: 0.026}
-    l_model_pos: {x: 4.850153, y: 1.368638, z: 87.397644}
-    r_model_eulers: {x: 4.850153, y: 1.368638, z: 87.397644}
-    l_model_eulers: {x: 0, y: 0, z: 0}
-    model_scale: {x: 0.8, y: 0.8, z: 0.8}
+    r_model_pos: {x: -0.026, y: 0.075, z: 0.033}
+    l_model_pos: {x: 0.026194837, y: 0.06361554, z: 0.032434713}
+    r_model_eulers: {x: 320, y: 270, z: 267.13}
+    l_model_eulers: {x: 320, y: 90, z: 90}
+    model_scale: {x: 0.7518794, y: 0.7518791, z: 0.7518796}
+  - itemName: greatsword
+    itemDescription: "\u4E00\u628A\u4E0D\u53EF\u4EE5\u53D6\u6D88\u7684\u76F4\u5251"
+    icon: {fileID: 21300000, guid: 2df9f11d584754a56a93152a9512aadb, type: 3}
+    oh_idle: greatswordidle
+    th_idle: gs_th_idle
+    itemType: 0
+    actions:
+    - input: 0
+      type: 0
+      spellClass: 0
+      targetAnim: 
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 0
+          targetAnim: gs_oh_attack_1
+          audio_ids: 
+      - branches:
+        - input: 0
+          targetAnim: gs_oh_attack_2
+          audio_ids: 
+      mirror: 0
+      canBeParried: 0
+      changeSpeed: 1
+      animSpeed: 1.3
+      canParry: 1
+      canBackStab: 1
+      staminaCost: 50
+      fpCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    - input: 2
+      type: 0
+      spellClass: 0
+      targetAnim: 
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 2
+          targetAnim: tuci3
+          audio_ids: 
+      mirror: 0
+      canBeParried: 1
+      changeSpeed: 1
+      animSpeed: 1.6
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 50
+      fpCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    - input: 3
+      type: 0
+      spellClass: 0
+      targetAnim: greatswordskill
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 3
+          targetAnim: greatswordskill
+          audio_ids: 
+      mirror: 0
+      canBeParried: 0
+      changeSpeed: 1
+      animSpeed: 1
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 50
+      fpCost: 40
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    two_handedActions:
+    - input: 0
+      type: 0
+      spellClass: 0
+      targetAnim: 
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 0
+          targetAnim: th_attack_1
+          audio_ids: 
+      - branches:
+        - input: 0
+          targetAnim: th_attack_2
+          audio_ids: 
+      mirror: 0
+      canBeParried: 0
+      changeSpeed: 1
+      animSpeed: 1.8
+      canParry: 1
+      canBackStab: 1
+      staminaCost: 50
+      fpCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    - input: 2
+      type: 0
+      spellClass: 0
+      targetAnim: 
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 2
+          targetAnim: tuci1
+          audio_ids: 
+      mirror: 0
+      canBeParried: 1
+      changeSpeed: 1
+      animSpeed: 1.3
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 50
+      fpCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    - input: 3
+      type: 0
+      spellClass: 0
+      targetAnim: greatswordskill
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 3
+          targetAnim: greatswordskill
+          audio_ids: 
+      mirror: 0
+      canBeParried: 0
+      changeSpeed: 1
+      animSpeed: 1
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 50
+      fpCost: 40
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    - input: 1
+      type: 0
+      spellClass: 0
+      targetAnim: greatswordskill
+      audio_ids: 
+      steps:
+      - branches:
+        - input: 0
+          targetAnim: th_attack_1
+          audio_ids: 
+      - branches:
+        - input: 0
+          targetAnim: th_attack_2
+          audio_ids: 
+      mirror: 0
+      canBeParried: 0
+      changeSpeed: 1
+      animSpeed: 1
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 50
+      fpCost: 40
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnim: 0
+      damageAnim: 
+    parryMultiplier: 0
+    backstabMultiplier: 0
+    LeftHandMirror: 0
+    modelPrefab: {fileID: 7678016340474696239, guid: 71776148ab6c2459e9999a7e9c075934,
+      type: 3}
+    weaponStats:
+      physical: 0
+      strike: 0
+      slash: 0
+      thrust: 0
+      magic: 0
+    r_model_pos: {x: 0.017, y: 0.07, z: 0}
+    l_model_pos: {x: -0.035, y: 0.07, z: 0}
+    r_model_eulers: {x: 270, y: 90, z: 90}
+    l_model_eulers: {x: 270, y: 270, z: 270}
+    model_scale: {x: 0.65, y: 0.65, z: 0.65}

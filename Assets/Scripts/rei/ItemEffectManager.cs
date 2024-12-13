@@ -8,7 +8,7 @@ namespace rei
     {
         Dictionary<string, int> effects = new Dictionary<string, int>();
 
-        public void CastEffect(string effectId, StateManager states) {
+        public void CastEffect(string effectId, PlayerState playerStates) {
             int i = GetIntFromId(effectId);
             if (i < 0)
                 return;
@@ -16,29 +16,29 @@ namespace rei
             switch (i)
             {
                 case 0: //bestus
-                    AddHealth(states);
+                    AddHealth(playerStates);
                     break;
                 case 1: //focus
-                    AddFocus(states);
+                    AddFocus(playerStates);
                     break;
                 case 2: //souls
-                    AddSouls(states);
+                    AddSouls(playerStates);
                     break;
             }
         }
 
         #region Effects Actual
-        void AddHealth(StateManager states) {
-            states.characterStats._health += states.characterStats._healthRecoverValue;
+        void AddHealth(PlayerState playerStates) {
+            playerStates.characterStats._health += playerStates.characterStats._healthRecoverValue;
         }
 
-        void AddFocus(StateManager states) {
-            states.characterStats._focus += states.characterStats._focusRecoverValue;
+        void AddFocus(PlayerState playerStates) {
+            playerStates.characterStats._focus += playerStates.characterStats._focusRecoverValue;
         }
 
-        void AddSouls(StateManager states)
+        void AddSouls(PlayerState playerStates)
         {
-            states.characterStats._souls += 100;
+            playerStates.characterStats._souls += 100;
         }
         #endregion
 
@@ -52,7 +52,7 @@ namespace rei
         }
 
         void InitEffectsId() {
-            effects.Add("bestus", 0);
+            effects.Add("AddHealth", 0);
             effects.Add("focus", 1);
             effects.Add("souls", 2);
         }

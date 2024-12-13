@@ -12,4 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b9a0818ffaae49ba889c2a44676d668, type: 3}
   m_Name: rei.ConsumablesScriptableObject
   m_EditorClassIdentifier: 
-  consumables: []
+  consumables:
+  - itemName: health
+    itemDescription: 
+    icon: {fileID: 21300000, guid: 4d662772dc92a4743af2013e4aa90f45, type: 3}
+    consumableEffect: AddHealth
+    audio_id: 
+    targetAnim: heyao
+    itemType: 1
+    itemPrefab: {fileID: 6888957902142679756, guid: f0b58d21cec7549a19a4facdecac9a82,
+      type: 3}
+    r_model_pos: {x: 0.0433, y: 0.0493, z: -0.0027}
+    r_model_eulers: {x: 84.540016, y: 180, z: 180}
+    model_scale: {x: 0.8, y: 0.8, z: 0.8}
+  - itemName: focus
+    itemDescription: 
+    icon: {fileID: 21300000, guid: 5a87d91c1923441f0859f71ba97c428e, type: 3}
+    consumableEffect: focus
+    audio_id: 
+    targetAnim: heyao
+    itemType: 1
+    itemPrefab: {fileID: 6888957902142679756, guid: f0b58d21cec7549a19a4facdecac9a82,
+      type: 3}
+    r_model_pos: {x: 0.0433, y: 0.0493, z: -0.0027}
+    r_model_eulers: {x: 84.540016, y: 180, z: 180}
+    model_scale: {x: 0.8, y: 0.8, z: 0.8}

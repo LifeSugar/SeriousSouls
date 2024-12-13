@@ -10,9 +10,9 @@ namespace rei
 
         Animator anim; // 用于角色动画控制的Animator对象
 
-        StateManager states; // 管理角色状态的StateManager
+        PlayerState _playerStates; // 管理角色状态的StateManager
 
-        // EnemyStates eStates;           // 管理敌人状态的EnemyStates
+        EnemyStates eStates;           // 管理敌人状态的EnemyStates
         Rigidbody rigid; // 用于物理控制的Rigidbody
 
         public float rm_multi; // 动画移动速度的倍数，用于调整动画根运动
@@ -20,6 +20,8 @@ namespace rei
         float roll_t; // 用于翻滚动画的时间计数器
         float delta; // 帧间隔时间
         AnimationCurve roll_curve; // 定义翻滚动画曲线的AnimationCurve
+        
+        
 
         HandleIK ik_handler; // 处理逆向运动学（IK）的HandleIK组件
         public bool useIK; // 是否启用IK
@@ -30,24 +32,25 @@ namespace rei
         //-----------------------------------------------------------------------
 
         // 初始化方法，传入StateManager和EnemyStates
-        public void Init(StateManager st /*EnemyStates eSt*/)
+        public void Init(PlayerState st , EnemyStates eSt)
         {
-            states = st;
-            // eStates = eSt;
+            _playerStates = st;
+            eStates = eSt;
 
-            // 根据StateManager或EnemyStates的状态初始化Animator和Rigidbody
+            // player/enemy二选一
             if (st != null)
             {
                 anim = st.anim;
                 rigid = st.rigid;
-                roll_curve = states.roll_curve;
-                delta = states.delta;
+                roll_curve = _playerStates.roll_curve;
+                delta = _playerStates.delta;
             }
-            // if (eSt != null) {
-            //     anim = eSt.anim;
-            //     rigid = eSt.rigid;
-            //     delta = eSt.delta;
-            // }
+            
+            if (eSt != null) {
+                anim = eSt.anim;
+                rigid = eSt.rigid;
+                delta = eSt.delta;
+            }
 
             // 初始化IK处理器
             ik_handler = gameObject.GetComponent<HandleIK>();
@@ -82,26 +85,27 @@ namespace rei
             }
 
             // 没有角色(或敌人)状态时直接返回
-            if (states == null /*&& eStates == null*/)
+            if (_playerStates == null && eStates == null)
                 return;
 
-            if (rigid == null)
+            if (rigid == null)//总体思路还是靠控制rigidbody来进行运动（所以使用animation physic方法）
                 return;
 
             // 检查动作状态（onEmpty等），如果满足条件则退出
-            if (states != null)
+            if (_playerStates != null)
             {
-                if (states.onEmpty)
+                if (_playerStates.onEmpty)
                     return;
-                delta = states.delta;
+                delta = _playerStates.delta; //animator采用的updateMode是Animate Physics,这里的delta是fixeddeltatime
             }
-            // if (eStates != null) {
-            //     if (eStates.canMove)
-            //         return;
-            //     delta = eStates.delta;
-            // }
+            if (eStates != null) 
+            {
+                if (eStates.canMove)
+                    return;
+                delta = eStates.delta;
+            }
 
-            rigid.drag = 0; // 动画中禁用拖拽
+            rigid.drag = 0; 
 
             // 检查rm_multi是否初始化
             if (rm_multi == 0)
@@ -110,39 +114,40 @@ namespace rei
             // 根据不同状态处理动画根运动
             if (!rolling)
             {
-                Vector3 delta2 = anim.deltaPosition;
-                if (killDelta)
+                
+                Vector3 deltaPos = anim.deltaPosition;
+                if (killDelta) //立刻停止根运动
                 {
                     killDelta = false;
-                    delta2 = Vector3.zero;
+                    deltaPos = Vector3.zero;
                 }
 
-                Vector3 v = (delta2 * rm_multi) / delta;
-                v.y = rigid.velocity.y;
+                Vector3 v = (deltaPos * rm_multi) / delta; //deltaPos/delta = velocity换句话说这里v = rm_multi * rb.rm_multi
+                v.y = rigid.velocity.y;//这里保留了垂直高度的速度
 
-                // if (eStates)
-                //     eStates.agent.velocity = v;
-                // else
-                rigid.velocity = v;
+                if (eStates)
+                    eStates.agent.velocity = v;
+                else
+                    rigid.velocity = v; //相当于给xz方向的速度做了个加速，y方向的保留，当然速度快了距离也自然更远了
             }
             else
             {
-                roll_t += delta / 0.6f;
+                roll_t += delta / _playerStates.rollDuration; //每帧增加的时间进度
                 if (roll_t > 1)
                 {
                     roll_t = 1;
                 }
 
-                if (states == null)
+                if (_playerStates == null)
                     return;
 
-                float zValue = states.roll_curve.Evaluate(roll_t);
-                Vector3 v1 = Vector3.forward * zValue;
-                Vector3 relative = transform.TransformDirection(v1);
+                float zValue = _playerStates.roll_curve.Evaluate(roll_t);
+                Vector3 v1 = (_playerStates.lockOn) ? _playerStates.moveDir : Vector3.forward;
+                Vector3 relative = (_playerStates.lockOn) ? _playerStates.moveDir * zValue : transform.TransformDirection(v1 * zValue);
                 Vector3 v2 = (relative * rm_multi);
                 v2.y = rigid.velocity.y;
-                rigid.constraints = RigidbodyConstraints.FreezePositionY;
-                rigid.velocity = v2 * 3.2f;
+                rigid.constraints |= RigidbodyConstraints.FreezePositionY;
+                rigid.velocity =(_playerStates.lockOn) ? anim.deltaPosition * 0.8f * zValue / delta : v2 * 3.2f; //自行理解
             }
         }
 
@@ -179,26 +184,26 @@ namespace rei
         // 开启攻击状态
         public void OpenAttack()
         {
-            if (states)
-                states.canAttack = true;
+            if (_playerStates)
+                _playerStates.canAttack = true;
         }
 
         // 开启移动状态
         public void OpenCanMove()
         {
-            if (states)
+            if (_playerStates)
             {
-                states.canMove = true;
+                _playerStates.canMove = true;
             }
         }
 
         // 开启伤害碰撞体
         public void OpenDamageColliders()
         {
-            if (states)
-                states.inventoryManager.OpenAllDamageColliders();
-            // if (eStates)
-            //     eStates.OpenDamageCollier();
+            if (_playerStates)
+                _playerStates.inventoryManager.OpenAllDamageColliders();
+            if (eStates)
+                eStates.OpenDamageCollier();
 
             OpenParryFlag();
         }
@@ -206,10 +211,10 @@ namespace rei
         // 关闭伤害碰撞体
         public void CloseDamageColliders()
         {
-            if (states)
-                states.inventoryManager.CloseAllDamageColliders();
-            // if (eStates)
-            //     eStates.CloseDamageCollider();
+            if (_playerStates)
+                _playerStates.inventoryManager.CloseAllDamageColliders();
+            if (eStates)
+                eStates.CloseDamageCollider();
 
             CloseParryFlag();
         }
@@ -217,63 +222,65 @@ namespace rei
         // 开启格挡标志
         public void OpenParryFlag()
         {
-            if (states)
+            if (_playerStates)
             {
-                states.parryIsOn = true;
+                _playerStates.parryIsOn = true;
             }
 
-            // if (eStates) {
-            //     eStates.parryIsOn = true;
-            // }
+            if (eStates) 
+            {
+                eStates.parryIsOn = true;
+            }
         }
 
         // 关闭格挡标志
         public void CloseParryFlag()
         {
-            if (states)
+            if (_playerStates)
             {
-                states.parryIsOn = false;
+                _playerStates.parryIsOn = false;
             }
 
-            // if (eStates) {
-            //     eStates.parryIsOn = false;
-            // }
+            if (eStates) 
+            {
+                eStates.parryIsOn = false;
+            }
         }
 
         // 开启格挡碰撞体
         public void OpenParryCollider()
         {
-            if (states == null)
+            if (_playerStates == null)
                 return;
 
-            states.inventoryManager.OpenParryCollider();
+            _playerStates.inventoryManager.OpenParryCollider();
         }
 
         // 关闭格挡碰撞体
         public void CloseParryCollider()
         {
-            if (states == null)
+            if (_playerStates == null)
                 return;
 
-            states.inventoryManager.CloseParryCollider();
+            _playerStates.inventoryManager.CloseParryCollider();
         }
 
         // 关闭法术粒子效果
         public void CloseParticle()
         {
-            if (states)
+            if (_playerStates)
             {
-                if (states.inventoryManager.currentSpell.currentParticle != null)
-                    states.inventoryManager.currentSpell.currentParticle.SetActive(false);
+                if (_playerStates.inventoryManager.currentSpell.currentParticle != null)
+                    _playerStates.inventoryManager.currentSpell.currentParticle.SetActive(false);
             }
         }
 
         // 发射法术弹道
         public void InitiateThrowForProjectile()
         {
-            if (states)
+            if (_playerStates)
             {
-                states.ThrowProjectile();
+                _playerStates.ThrowProjectile();
             }
         }
 
@@ -292,38 +299,68 @@ namespace rei
         // 开启旋转控制
         public void OpenRotationControl()
         {
-            if (states)
-                states.canRotate = true;
-            // if (eStates)
-            //     eStates.rotateToTarget = true;
+            if (_playerStates)
+                _playerStates.canRotate = true;
+            if (eStates)
+                eStates.rotateToTarget = true;
         }
 
         // 关闭旋转控制
         public void CloseRotationControl()
         {
-            if (states)
-                states.canRotate = false;
-            // if (eStates)
-            //     eStates.rotateToTarget = false;
+            if (_playerStates)
+                _playerStates.canRotate = false;
+            if (eStates)
+                eStates.rotateToTarget = false;
         }
 
+        public void UnfreezeY()
+        {
+            _playerStates.unfreezeY = true;
+        }
+
+        public void FreezeY()
+        {
+            _playerStates.unfreezeY = false;
+        }
+        
         // 消耗当前物品
         public void ConsumeCurrentItem()
         {
-            if (states && states.inventoryManager.curConsumable)
+            if (_playerStates && _playerStates.inventoryManager.curConsumable)
             {
-                states.inventoryManager.curConsumable.itemCount--;
-                ItemEffectManager.singleton.CastEffect(states.inventoryManager.curConsumable.instance.consumableEffect,
-                    states);
+                _playerStates.inventoryManager.curConsumable.itemCount--;
+                ItemEffectManager.singleton.CastEffect(_playerStates.inventoryManager.curConsumable.instance.consumableEffect,
+                    _playerStates);
             }
         }
 
         // 播放音效
         public void PlaySoundEffect()
         {
-            if (states)
+            if (_playerStates)
             {
-                states.audio_source.PlayOneShot(states.audio_clip);
+                _playerStates.audio_source.PlayOneShot(_playerStates.audio_clip);
+            }
+        }
+
+        public void HideRightHandWeapon()
+        {
+            if (_playerStates.inventoryManager.hasRightHandWeapon && _playerStates.inventoryManager.hasLeftHandWeapon)
+            {
+                Debug.Log("skill both handed");
+                _playerStates.inSkill = true;
+                _playerStates.inventoryManager.rightHandWeapon.weaponModel.SetActive(false);
+            }
+        }
+
+        public void UnhideRightHandWeapons()
+        {
+            if (_playerStates.inventoryManager.hasRightHandWeapon && _playerStates.inventoryManager.hasLeftHandWeapon)
+            {
+                Debug.Log("skill both handed close");
+                _playerStates.inSkill = false;
+                _playerStates.inventoryManager.rightHandWeapon.weaponModel.SetActive(true);
             }
         }
     }

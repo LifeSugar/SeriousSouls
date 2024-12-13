@@ -12,4 +12,133 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8677bac0d74a64b53a0df126db919633, type: 3}
   m_Name: rei.NPCScriptableObject
   m_EditorClassIdentifier: 
-  npcs: []
+  npcs:
+  - npc_id: TestNPC
+    dialogue:
+    - dialogueText:
+      - '"Testing"'
+      - 'Oh, yes...Tarnished, are we? '
+      - 'Come to the lands between for the Elden Ring, hmm? '
+      - 'Come to the lands between for the Elden Ring, hmm? '
+      - Of course you have, No shame in it.
+      - Unfortunately for you, however, you are maidenless.
+      - 'Without guidance, without the strength of runes, '
+      - and without an invitation to the Roundtable Hold...
+      - You are fated, it seems, to die in obscurity
+      increaseIndex: 1
+    - dialogueText:
+      - 1
+      - 'Luckily for you, however, there is one shinny ray of hope for even the maidenless. '
+      - 'Me, Varre. Take care to listen. '
+      - ' Are you familiar with grace? The golden light that gives life to you Tarnished.'
+      - You may behold its golden rays pointing at a particular direction at times.
+      - That is the guidance of grace. The path that a Tarnished must travel.
+      - "Mm, indeed. Grace\u2019s guidance holds the answer."
+      - ' It will lead you Tarnished to the path you are meant to follow. '
+      - Even if it leads to your grave.
+      increaseIndex: 1
+    - dialogueText:
+      - ' '
+      - "Grace\u2018s guidance will reveal the pass forward, most certainly. "
+      - To castle stormveil,  over on the cliff.
+      - The home of the decrepit demigod Godrick the Grafted.
+      increaseIndex: 1
+    - dialogueText:
+      - ' '
+      - It is time you set off, I should think.
+      - To castle stormveil, on the cliff, where grace would guide you.
+      increaseIndex: 1
+    - dialogueText:
+      - ' '
+      - ' If you seek the Elden Ring, maidenless as you are.'
+      increaseIndex: 0
+  - npc_id: T-Run
+    dialogue:
+    - dialogueText:
+      - 
+      - '"WASD+hold on Shift"'
+      increaseIndex: 0
+  - npc_id: T-Roll
+    dialogue:
+    - dialogueText:
+      - 
+      - '"WASD+Shift"'
+      increaseIndex: 0
+  - npc_id: T-Attack
+    dialogue:
+    - dialogueText:
+      - 
+      - '"Left Click"'
+      increaseIndex: 0
+  - npc_id: 1
+    dialogue:
+    - dialogueText:
+      - 
+      - How many days has it been since doing nothing?
+      - 'Everyone is busy; no one will revolve around you. '
+      - You're too fragile, and that's why you keep wasting your time.
+      increaseIndex: 0
+  - npc_id: 2
+    dialogue:
+    - dialogueText:
+      - 
+      - How many days has it been since doing nothing?
+      - 'Everyone is busy; no one will revolve around you. '
+      - You're too fragile, and that's why you keep wasting your time.
+      increaseIndex: 0
+    - dialogueText:
+      - 
+      - "This one\u2014will it look bad? That one\u2014don\u2019t even know how to
+        wear it out..."
+      - "It\u2019s not a big deal, so why are you overthinking it?"
+      - Anyway, you always look terrible.
+      increaseIndex: 0
+  - npc_id: 3
+    dialogue:
+    - dialogueText:
+      - 
+      - "So much to do, but can\u2019t move. Just want to stay here forever."
+      - "Stop pretending. Everyone knows you\u2019re just avoiding it. "
+      - "Honestly, you\u2019re just too lazy to do anything, aren\u2019t you?"
+      increaseIndex: 0
+  - npc_id: 4
+    dialogue:
+    - dialogueText:
+      - 
+      - "Before, there were always things that gave life meaning, but they\u2019re
+        all in the past now."
+      - "Yes, you are so mediocre. No matter how hard you try, it\u2019s all in vain."
+      - This is all your fault.
+      increaseIndex: 0
+  - npc_id: 5
+    dialogue:
+    - dialogueText:
+      - 
+      - "Don\u2019t want to see myself like that..."
+      - "No, that person isn\u2019t me..."
+      - I hate her...
+      increaseIndex: 0
+  - npc_id: 6
+    dialogue:
+    - dialogueText:
+      - 
+      - "I don\u2019t even have the courage to look in the mirror..."
+      increaseIndex: 0
+  - npc_id: 7
+    dialogue:
+    - dialogueText:
+      - 
+      - You disappoint everyone, including yourself.
+      increaseIndex: 0
+  - npc_id: 8
+    dialogue:
+    - dialogueText:
+      - 
+      - Even if you walk out, what difference will it make?
+      increaseIndex: 0
+  - npc_id: 9
+    dialogue:
+    - dialogueText:
+      - 
+      - "Don\u2019t look at me... I don\u2019t want you to see."
+      increaseIndex: 0

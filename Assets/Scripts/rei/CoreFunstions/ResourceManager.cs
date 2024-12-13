@@ -16,6 +16,9 @@ namespace rei
         Dictionary<string, int> interaction_ids = new Dictionary<string, int>();
         Dictionary<string, int> npc_ids = new Dictionary<string, int>();
         Dictionary<string, int> audio_ids = new Dictionary<string, int>();
+        
+        Dictionary<string, int> key_ids = new Dictionary<string, int>();
+
 
         public static ResourceManager instance;
 
@@ -30,6 +33,7 @@ namespace rei
             LoadInteractions();
             LoadNpcs();
             LoadAudios();
+            LoadKeys();
         }
 
         //将 WeaponScriptableObject 中所有武器项的名称和对应的索引加载到 weapon_ids 字典中，以便后续根据名称快速检索武器。
@@ -432,5 +436,53 @@ namespace rei
 
             return obj.audio_list[index];
         }
+        
+        
+        void LoadKeys()
+        {
+            KeyScriptableObject obj = Resources.Load("rei.KeyScriptableObject") as KeyScriptableObject;
+            if (obj == null)
+            {
+                Debug.Log("rei.KeyScriptableObject could not be loaded!");
+                return;
+            }
+
+            for (int i = 0; i < obj.keys.Count; i++)
+            {
+                if (key_ids.ContainsKey(obj.keys[i].itemName))
+                {
+                    Debug.Log("Key item is a duplicate");
+                }
+                else
+                {
+                    key_ids.Add(obj.keys[i].itemName, i);
+                }
+            }
+        }
+
+        int GetKeyIdFromString(string name)
+        {
+            int index = -1;
+            key_ids.TryGetValue(name, out index);
+            return index;
+        }
+
+        public Key GetKey(string name)
+        {
+            KeyScriptableObject obj = Resources.Load("rei.KeyScriptableObject") as KeyScriptableObject;
+            if (obj == null)
+            {
+                Debug.Log("rei.KeyScriptableObject could not be loaded!");
+                return null;
+            }
+
+            int index = GetKeyIdFromString(name);
+            if (index == -1)
+                return null;
+
+            return obj.keys[index];
+        }
     }
+    
+    
 }

@@ -214,6 +214,9 @@ MonoBehaviour:
   turnSmoothing: 0.1
   minAngle: -35
   maxAngle: 35
+  defaultDistance: 0
+  offset: {x: 0, y: 1.3, z: 0}
+  lockOffset: 0.5
   targetDir: {x: 0, y: 0, z: 0}
   lookAngle: 0
   tiltAngle: 0
@@ -3657,6 +3660,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 767ebd2aaf8e343658873b22271b526b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  unarmedAction:
+    itemName: 
+    itemDescription: 
+    icon: {fileID: 0}
+    oh_idle: 
+    th_idle: 
+    itemType: 0
+    actions: []
+    two_handedActions: []
+    parryMultiplier: 0
+    backstabMultiplier: 0
+    LeftHandMirror: 0
+    modelPrefab: {fileID: 0}
+    weaponStats:
+      physical: 0
+      strike: 0
+      slash: 0
+      thrust: 0
+      magic: 0
+    r_model_pos: {x: 0, y: 0, z: 0}
+    l_model_pos: {x: 0, y: 0, z: 0}
+    r_model_eulers: {x: 0, y: 0, z: 0}
+    l_model_eulers: {x: 0, y: 0, z: 0}
+    model_scale: {x: 0, y: 0, z: 0}
   actionIndex: 0
   actionSlots:
   - input: 0
@@ -3802,6 +3829,7 @@ MonoBehaviour:
   lb: 0
   rollInput: 0
   itemInput: 0
+  rollDir: {x: 0, y: 0, z: 0}
   moveSpeed: 3
   rotateSpeed: 5
   toGround: 0.5
@@ -3853,6 +3881,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  rollDuration: 0.6
+  rbvz: 0
+  rbvx: 0
   anim: {fileID: 0}
   rigid: {fileID: 0}
   a_hook: {fileID: 0}
@@ -3898,6 +3929,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b2ea6ce3be0049d8a3a34384b29bac7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  b_input: 0
+  a_input: 0
+  x_input: 0
+  y_input: 0
+  d_up: 0
+  d_down: 0
+  d_right: 0
+  d_left: 0
+  b_timer: 0
 --- !u!4 &1193076952
 Transform:
   m_ObjectHideFlags: 0

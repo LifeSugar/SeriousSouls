@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace rei
@@ -26,8 +27,13 @@ namespace rei
 
         public GameObject interactCanvas;
         public Text instruction;
+        public bool interactCanvasActive;
 
-        private int item_idx;
+        public GameObject InteractionInfoCanvas;
+        public Text InteractionInfo;
+        public bool InteractionInfoActive;
+
+        public int item_idx;
         public List<ItemCard> ItemCards; //捡到东西的时候现实的UI
 
 
@@ -73,7 +79,7 @@ namespace rei
             r_vis.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, value_actual);
         }
 
-        public void Tick(CharacterStats stats, float deltaTime, StateManager states)
+        public void Tick(CharacterStats stats, float deltaTime, PlayerState playerStates)
         {
             
             //这个方法还有可以优化的地方
@@ -86,9 +92,9 @@ namespace rei
                 Mathf.RoundToInt(Mathf.Lerp(currentSouls, stats._souls,
                     deltaTime * lerpSpeed * 10));
             souls.text = currentSouls.ToString();
-            if (states.inventoryManager.curConsumable != null)
+            if (playerStates.inventoryManager.curConsumable != null)
             {
-                itemCount.text = states.inventoryManager.curConsumable.itemCount.ToString();
+                itemCount.text = playerStates.inventoryManager.curConsumable.itemCount.ToString();
             }
            
 
@@ -97,7 +103,7 @@ namespace rei
             stamina_vis.value = Mathf.Lerp(stamina_vis.value, stats._stamina, deltaTime * lerpSpeed);
         }
 
-        public void AffectAll(int h, int f, int s)
+        public void InitBars(int h, int f, int s)
         {
             InitSlider(StatSliderType.health, h);
             InitSlider(StatSliderType.focus, f);
@@ -110,40 +116,69 @@ namespace rei
             switch (t)
             {
                 case UIActionType.interact:
-                    instruction.text = "Interact : key";
+                    instruction.text = "Interact : Press Space";
                     break;
                 case UIActionType.open:
-                    instruction.text = "Open : key";
+                    instruction.text = "Open : Press Space";
                     break;
                 case UIActionType.pickup:
-                    instruction.text = "Pickup : key";
+                    instruction.text = "Pickup : Press Space";
                     break;
                 case UIActionType.talk:
-                    instruction.text = "Talk : key";
+                    instruction.text = "Talk : Press Space";
+                    break;
+                case UIActionType.lit:
+                    instruction.text = "Lit the lamp : Press Space";
+                    break;
+                case UIActionType.sit:
+                    instruction.text = " Rest at the lamp: Press Space";
+                    break;
+                case UIActionType.recollect:
+                    instruction.text = " Recollect : Press Space";
                     break;
                 default:
                     break;
             }
 
+            interactCanvasActive = true;
             interactCanvas.SetActive(true);
+        }
+
+        public void OpenInteractionInfoCanvas(string s)
+        {
+            InteractionInfoActive = true;
+            InteractionInfoCanvas.SetActive(true);
+            InteractionInfo.text = s;
+        }
+
+        public void CloseInteractionInfoCanvas()
+        {
+            InteractionInfoActive = false;
+            InteractionInfoCanvas.SetActive(false);
+            InteractionInfo.text = string.Empty;
         }
 
         public void CloseInteractCanvas()
         {
+            interactCanvasActive = false;
             interactCanvas.SetActive(false);
         }
 
         //捡到东西的UI
-        public void AddItemCard(Item i)
+        public void AddItemCard(Item i, int count)
         {
-            Debug.Log(i.itemName);
-            Debug.Log(i.icon != null);
-            
-            ItemCards[item_idx].itemName.text = i.itemName;
+            if (count <= 1)
+                ItemCards[item_idx].itemName.text = i.itemName;
+            else
+                ItemCards[item_idx].itemName.text = i.itemName + " X" + count.ToString();
             ItemCards[item_idx].icon.sprite = i.icon;
             ItemCards[item_idx].gameObject.SetActive(true);
-            item_idx++;
-            Debug.Log("AddItemCard");
+            if (item_idx < ItemCards.Count - 1)
+                item_idx++;
+            else
+            {
+                item_idx = 0;
+            }
         }
 
         public void CloseItemCards()
@@ -166,6 +201,14 @@ namespace rei
             CloseInteractCanvas();
             CloseItemCards();
         }
+        
+        //切换关卡
+        public void LoadMainMenu()
+        {
+            SceneManager.LoadScene("Start");
+        }
+        
+        
     }
 
     //三种数值条
@@ -182,6 +225,9 @@ namespace rei
         pickup,
         interact,
         open,
-        talk
+        talk,
+        lit,
+        sit,
+        recollect
     }
 }

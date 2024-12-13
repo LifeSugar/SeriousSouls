@@ -6,10 +6,10 @@ namespace rei
 {
     public class InventoryManager : MonoBehaviour
     {
-        public List<string> rh_weapons = new List<string>();
-        public List<string> lh_weapons = new List<string>();
-        public List<string> spells = new List<string>();
-        public List<string> consumable = new List<string>();
+        [Header("Inventory")]
+        public Inventory inventory;
+        
+        [Header("Runtime")]
 
         public int r_idx;
         public int l_idx;
@@ -29,16 +29,21 @@ namespace rei
         public bool hasRightHandWeapon = false;
 
 
+        [Header("Colliders")]
         public GameObject parryCollider;
         public GameObject breathCollider;
         public GameObject blockCollider;
 
-        StateManager states;
+        PlayerState _playerStates;
 
-        public void Init(StateManager st)
+        public void Init(PlayerState st)
         {
-            states = st;
+            _playerStates = st;
             UI.QuickSlot.instance.Init();
+            
+            ParryCollider pr = parryCollider.GetComponent<ParryCollider>();
+            pr.InitPlayer(_playerStates);
+            CloseParryCollider();
         }
 
         public void LoadInventory()
@@ -65,22 +70,53 @@ namespace rei
                     l_idx = 0; // 如果达到列表末尾，循环回到第一个武器
 
                 // 调用 EquipWeapon 方法，装备左手的当前武器
-                EquipWeapon(runtime_l_weapons[l_idx], true);
+                if (runtime_l_weapons[l_idx] != null)
+                    EquipWeapon(runtime_l_weapons[l_idx], true);
+                else
+                { 
+                    _playerStates.anim.SetBool("mirror", isLeft);
+                    _playerStates.anim.Play("change weapon");
+                    // var currentWeapon = gameObject.GetComponentInChildren<WeaponHook>()
+                    if (leftHandWeapon) leftHandWeapon.weaponModel.SetActive(false);
+                    hasLeftHandWeapon = false;
+                    leftHandWeapon = null;
+                    // 更新UI快捷槽中的图标
+                    UI.QuickSlot uiSlot = UI.QuickSlot.instance;
+                    uiSlot.UpdateSlot((isLeft) ? UI.QSlotType.lh : UI.QSlotType.rh,null);
+                }
+                    
             }
             else
             {
                 // 如果是右手武器，检查是否已到达右手武器列表的末尾
-                if (r_idx < runtime_l_weapons.Count - 1)
+                if (r_idx < runtime_r_weapons.Count - 1)
                     r_idx++; // 增加右手武器索引
                 else
                     r_idx = 0; // 循环回到第一个武器
 
                 // 调用 EquipWeapon 方法，装备右手的当前武器
-                EquipWeapon(runtime_r_weapons[r_idx], false);
+                if (runtime_r_weapons[r_idx] != null)
+                    EquipWeapon(runtime_r_weapons[r_idx], false);
+                else
+                {
+                    _playerStates.anim.SetBool("mirror", isLeft);
+                    _playerStates.anim.Play("change weapon");
+                    // Transform p = _playerStates.anim.GetBoneTransform(HumanBodyBones.RightHand);
+                    // var currentWeapon = p.GetComponentInChildren<WeaponHook>();
+                    // if (currentWeapon)
+                    //     currentWeapon.gameObject.SetActive(false);
+                    if (rightHandWeapon) rightHandWeapon.weaponModel.SetActive(false);
+                    hasRightHandWeapon = false;
+                    rightHandWeapon = null;
+                    // 更新UI快捷槽中的图标
+                    UI.QuickSlot uiSlot = UI.QuickSlot.instance;
+                    uiSlot.UpdateSlot((isLeft) ? UI.QSlotType.lh : UI.QSlotType.rh, null);
+                }
+                    
             }
 
             // 更新动作管理器中的单手武器动作
-            states.actionManager.UpdateActionsOneHanded();
+            _playerStates.actionManager.UpdateActionsOneHanded();
         }
 
         //用于将指定的 RuntimeWeapon 武器实例装备到角色的左手或右手。该方法处理了旧武器的隐藏、新武器的显示、动画状态的设置，以及更新 UI 中快捷槽的图标
@@ -124,10 +160,10 @@ namespace rei
             }
 
             // 设置动画控制器中的 "mirror" 参数，以适应左手或右手武器的动画
-            states.anim.SetBool("mirror", isLeft);
+            _playerStates.anim.SetBool("mirror", isLeft);
             // 播放换武器动画，然后切换到目标idle动画
-            states.anim.Play("changeWeapon");
-            states.anim.Play(targetIdle);
+            _playerStates.anim.Play("change weapon");
+            _playerStates.anim.Play(targetIdle);
 
             // 更新UI快捷槽中的图标
             UI.QuickSlot uiSlot = UI.QuickSlot.instance;
@@ -139,7 +175,7 @@ namespace rei
 
 
         //将传入的 Weapon 对象转换为 RuntimeWeapon 对象。RuntimeWeapon 是武器在运行时的实例对象，包含实际的武器模型、碰撞器和与动画的绑定等。
-        public RuntimeWeapon WeaponToRuntimeWeapon(Weapon w, bool isLeftHand = false)
+        public RuntimeWeapon WeaponToRuntimeWeapon(Weapon w, int index, bool isLeftHand = false)
         {
             // 创建一个新的空游戏对象，用于承载 RuntimeWeapon 组件
             GameObject g0 = new GameObject();
@@ -154,7 +190,7 @@ namespace rei
             // 实例化武器模型，并将其设置为手部的子对象
             ist.weaponModel = Instantiate(ist.instance.modelPrefab);
             Transform p =
-                states.anim.GetBoneTransform((isLeftHand)
+                _playerStates.anim.GetBoneTransform((isLeftHand)
                     ? HumanBodyBones.LeftHand
                     : HumanBodyBones.RightHand); // 获取手部骨骼的 Transform
             ist.weaponModel.transform.parent = p; // 设置模型的父对象为手部骨骼
@@ -168,13 +204,13 @@ namespace rei
 
             // 获取武器模型中的 WeaponHook 组件，用于控制武器的碰撞器
             ist.w_hook = ist.weaponModel.GetComponentInChildren<WeaponHook>();
-            ist.w_hook.InitDamageColliders(states); // 初始化碰撞器
+            ist.w_hook.InitDamageColliders(_playerStates); // 初始化碰撞器
 
             // 根据武器是否是左手装备，将 RuntimeWeapon 添加到相应的列表中
             if (isLeftHand)
-                runtime_l_weapons.Add(ist); // 添加到左手武器列表
+                runtime_l_weapons[index] = ist; // 添加到左手武器列表
             else
-                runtime_r_weapons.Add(ist); // 添加到右手武器列表
+                runtime_r_weapons[index] = ist; // 添加到右手武器列表
 
             // 初始状态下将武器模型设为不可见，交由 EquipWeapon 方法处理显示和隐藏
             ist.weaponModel.SetActive(false);
@@ -246,7 +282,7 @@ namespace rei
             {
                 // 获取手部骨骼的 Transform，根据 isLeft 参数判断是左手还是右手
                 Transform p =
-                    states.anim.GetBoneTransform((isLeft) ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand);
+                    _playerStates.anim.GetBoneTransform((isLeft) ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand);
 
                 // 将粒子效果挂载在手部骨骼上
                 inst.currentParticle.transform.parent = p;
@@ -275,22 +311,22 @@ namespace rei
         //以下三个方法用于处理消耗品的转换，装备和切换（果粒橙和脉动）
 
         //将消耗品（静态对象）转换为正在装备的消耗品（运行实例）
-        public RuntimeConsumable ConsumableToRuntimeConsumable(Consumable c)
+        public RuntimeConsumable ConsumableToRuntimeConsumable(List<Consumable> c, int index)
         {
             // 创建一个新的空 GameObject 作为消耗品的运行时实例
             GameObject g0 = new GameObject();
             RuntimeConsumable inst = g0.AddComponent<RuntimeConsumable>(); // 添加 RuntimeConsumable 组件
-            g0.name = c.itemName; // 设置 GameObject 的名称为消耗品名称
+            g0.name = c[0].itemName; // 设置 GameObject 的名称为消耗品名称
 
             // 创建一个新的 Consumable 实例，并将原始数据完全复制到 inst.instance
             inst.instance = new Consumable();
-            GlobalFuntions.DeepCopyConsumable(inst.instance, c); // 使用 DeepCopyConsumable 方法复制数据
+            GlobalFuntions.DeepCopyConsumable(inst.instance, c[0]); // 使用 DeepCopyConsumable 方法复制数据
 
             // 如果消耗品有对应的模型预制体，则实例化该模型
             if (inst.instance.itemPrefab != null)
             {
                 GameObject model = Instantiate(inst.instance.itemPrefab) as GameObject; // 实例化模型
-                Transform p = states.anim.GetBoneTransform(HumanBodyBones.RightHand); // 获取角色右手的 Transform
+                Transform p = _playerStates.anim.GetBoneTransform(HumanBodyBones.RightHand); // 获取角色右手的 Transform
                 model.transform.parent = p; // 将模型作为右手的子对象
 
                 // 设置模型的位置、旋转和缩放
@@ -304,9 +340,10 @@ namespace rei
 
                 inst.itemModel = model; // 将模型赋值给 RuntimeConsumable 的 itemModel 属性
                 inst.itemModel.SetActive(false); // 初始状态下隐藏模型
+                inst.itemCount = c.Count;
             }
 
-            runtime_consumables.Add(inst); // 将生成的 RuntimeConsumable 添加到运行时消耗品列表中
+            runtime_consumables[index] = inst; // 将生成的 RuntimeConsumable 添加到运行时消耗品列表中
             return inst; // 返回生成的 RuntimeConsumable 实例
         }
 
@@ -322,20 +359,33 @@ namespace rei
         //切换
         public void ChangeToNextConsumable()
         {
+            
             // 检查当前索引是否小于列表的最后一个索引
             if (consumable_idx < runtime_consumables.Count - 1)
+            {
                 consumable_idx++; // 如果是，增加索引，指向下一个消耗品
+                if (runtime_consumables[consumable_idx] == null)
+                {
+                    if (consumable_idx < runtime_consumables.Count - 1)
+                        consumable_idx++;
+                    else
+                    {
+                        consumable_idx = 0;
+                    }
+                }
+            }
             else
                 consumable_idx = 0; // 如果达到列表末尾，循环回到第一个消耗品
 
             // 装备新的消耗品
-            EquipConsumable(runtime_consumables[consumable_idx]);
+            if (runtime_consumables[consumable_idx] != null)
+                EquipConsumable(runtime_consumables[consumable_idx]);
         }
 
         public void OpenAllDamageColliders()
         {
             // 如果右手武器的 WeaponHook 存在，打开其伤害碰撞器
-            if (rightHandWeapon.w_hook != null)
+            if (rightHandWeapon != null && rightHandWeapon.w_hook != null)
                 rightHandWeapon.w_hook.OpenDamageColliders();
 
             // 如果左手装备了武器且 WeaponHook 存在，打开左手武器的伤害碰撞器
@@ -349,7 +399,7 @@ namespace rei
         public void CloseAllDamageColliders()
         {
             // 如果右手武器的 WeaponHook 存在，关闭其伤害碰撞器
-            if (rightHandWeapon.w_hook != null)
+            if (rightHandWeapon != null && rightHandWeapon.w_hook != null)
                 rightHandWeapon.w_hook.CloseDamageColliders();
 
             // 如果左手装备了武器且 WeaponHook 存在，关闭左手武器的伤害碰撞器
@@ -360,18 +410,122 @@ namespace rei
             }
         }
 
-        public void InitAllDamageColliders(StateManager states)
+        public void InitAllDamageColliders(PlayerState playerStates)
         {
             // 初始化右手武器的碰撞器，将 StateManager 传入以提供角色的状态信息
             if (rightHandWeapon.w_hook != null)
-                rightHandWeapon.w_hook.InitDamageColliders(states);
+                rightHandWeapon.w_hook.InitDamageColliders(playerStates);
 
             // 如果左手装备了武器，初始化左手武器的碰撞器
             if (hasLeftHandWeapon)
             {
                 if (leftHandWeapon.w_hook != null)
-                    leftHandWeapon.w_hook.InitDamageColliders(states);
+                    leftHandWeapon.w_hook.InitDamageColliders(playerStates);
             }
+        }
+
+
+        //以下三加三个方法在UI中被调用
+        public void EquipWeaponUI(string itemName, bool isLeftHand, int index)
+        {
+            Weapon weapon = inventory.weapons.Find(w => w.itemName == itemName);
+            if (weapon != null)
+            {
+                WeaponToRuntimeWeapon(weapon, index, isLeftHand); // 调用现有逻辑
+                if (!isLeftHand)
+                {
+                    if (r_idx == index)
+                        EquipWeapon(runtime_r_weapons[r_idx], isLeftHand);
+                    // 更新动作管理器中的单手武器动作
+                    _playerStates.actionManager.UpdateActionsOneHanded();
+                }
+                else
+                {
+                    if (l_idx == index)
+                        EquipWeapon(runtime_l_weapons[l_idx], isLeftHand);
+                    // 更新动作管理器中的单手武器动作
+                    _playerStates.actionManager.UpdateActionsOneHanded();
+                }
+            }
+        }
+        
+        public void RemoveWeaponFromInventory(string weaponName)
+        {
+            for (int i = 0; i < inventory.weapons.Count; i++)
+            {
+                if (inventory.weapons[i].itemName == weaponName)
+                {
+                    inventory.weapons.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+        public void EquipConsumableUI(string itemName, int index)
+        {
+            List<Consumable> items = inventory.consumables.Find(c => c[0].itemName == itemName);
+            if (items != null)
+            {
+                ConsumableToRuntimeConsumable(items, index); // 调用现有逻辑
+
+                if (consumable_idx == index)
+                {
+                    EquipConsumable(runtime_consumables[index]);
+                }
+            }
+        }
+        
+        public void RemoveItemFromInventory(string itemName)
+        {
+            for (int i = 0; i < inventory.consumables.Count; i++)
+            {
+                if (inventory.consumables[i][0].itemName == itemName)
+                {
+                    inventory.consumables.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
+        public void EquipSpellUI(string itemName, int index)
+        {
+            Spell spell = inventory.spells.Find(s => s.itemName == itemName);
+            if (spell != null)
+            {
+                SpellToRuntimeSpell(spell); // 调用现有逻辑
+
+                if (sp_idx == index)
+                {
+                    EquipSpells(runtime_spells[index]);
+                }
+            }
+        }
+        
+        
+        public void RemoveSpellFromInventory(string spellName)
+        {
+            for (int i = 0; i < inventory.spells.Count; i++)
+            {
+                if (inventory.spells[i].itemName == spellName)
+                {
+                    inventory.spells.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+        
+        public void AddWeaponToInventory(Weapon weapon)
+        {
+            inventory.weapons.Add(weapon);
+        }
+
+        public void AddItemToInventory(List<Consumable> items)
+        {
+            inventory.consumables.Add(items);
+        }
+
+        public void AddSpellToInventory(Spell spell)
+        {
+            inventory.spells.Add(spell);
         }
 
         //招架
@@ -451,7 +605,7 @@ namespace rei
                 return null;
             }
 
-            Debug.Log(l.Count);
+            // Debug.Log(l.Count);
 
 
             // 遍历动作列表，找到与输入匹配的动作
@@ -472,6 +626,15 @@ namespace rei
         public Vector3 r_model_eulers; // 右手模型旋转角度
         public Vector3 l_model_eulers; // 左手模型旋转角度
         public Vector3 model_scale; // 武器模型的缩放比例
+    }
+    
+    [System.Serializable]
+    public class Inventory
+    {
+        public List<Weapon> weapons = new List<Weapon>();
+        public List<List<Consumable>> consumables = new List<List<Consumable>>();
+        public List<Spell> spells = new List<Spell>();
+        public List<Key> keys = new List<Key>();
     }
 
     [System.Serializable]
@@ -511,16 +674,21 @@ namespace rei
         public string targetAnim;
         public ItemType itemType;
 
+        public ConsumbleEffect Effect;
+
         public GameObject itemPrefab;
         public Vector3 r_model_pos;
         public Vector3 r_model_eulers;
         public Vector3 model_scale;
     }
 
+    public delegate void ConsumbleEffect(PlayerState playerStates);
+
     public enum ItemType
     {
         weapon,
         item,
-        spell
+        spell,
+        key
     }
 }

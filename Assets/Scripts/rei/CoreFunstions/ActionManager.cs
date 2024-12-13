@@ -7,6 +7,7 @@ namespace rei
     public class ActionManager : MonoBehaviour
     {
         public Weapon unarmedAction;
+
         // 当前动作索引，用于跟踪动作序列中的位置
         public int actionIndex;
 
@@ -14,7 +15,7 @@ namespace rei
         public List<Action> actionSlots = new List<Action>();
 
         // 引用 StateManager，用于管理玩家的状态（如健康、耐力）
-        StateManager states;
+        PlayerState _playerStates;
 
         // 构造函数：通过枚举值为每个动作槽赋值初始动作，设置输入类型
         ActionManager()
@@ -28,14 +29,12 @@ namespace rei
         }
 
         // 初始化函数，设置 ActionManager 的 StateManager 引用
-        public void Init(StateManager st)
+        public void Init(PlayerState st)
         {
-            states = st;
+            _playerStates = st;
             // 初始化单手武器的动作，仅在游戏开始时更新动作
             unarmedAction = ResourceManager.instance.GetWeapon("Unarmed");
             UpdateActionsOneHanded();
-            
-            
         }
 
         // 清空所有动作槽，将动作槽属性重置为默认值
@@ -61,61 +60,84 @@ namespace rei
         {
             EmptyAllSlots(); // 清空所有现有动作
 
-             
-           
-            
-            //如果装备了右手武器，则将右手武器动作映射rb，rt，否则映射空手rb，rt
-             if (states.inventoryManager.hasRightHandWeapon)
-             {
-                 GlobalFuntions.DeepCopyAction(states.inventoryManager.rightHandWeapon.instance, ActionInput.rb,
-                     ActionInput.rb, actionSlots);
-                 GlobalFuntions.DeepCopyAction(states.inventoryManager.rightHandWeapon.instance, ActionInput.rt,
-                     ActionInput.rt, actionSlots);
-                 // // 如果装备了左手武器，则为左手输入映射相应动作；否则，将右手动作映射到左手输入
-                 // if (states.inventoryManager.hasLeftHandWeapon)
-                 // {
-                 //     GlobalFuntions.DeepCopyAction(states.inventoryManager.leftHandWeapon.instance, ActionInput.rb,
-                 //         ActionInput.lb, actionSlots, true);
-                 //     GlobalFuntions.DeepCopyAction(states.inventoryManager.leftHandWeapon.instance, ActionInput.rt,
-                 //         ActionInput.lt, actionSlots, true);
-                 // }
-                 // else
-                 // {
-                 //     GlobalFuntions.DeepCopyAction(states.inventoryManager.rightHandWeapon.instance, ActionInput.lb,
-                 //         ActionInput.lb, actionSlots);
-                 //     GlobalFuntions.DeepCopyAction(states.inventoryManager.rightHandWeapon.instance, ActionInput.lt,
-                 //         ActionInput.lt, actionSlots);
-                 // }
-             }
-             else
-             {
-                 Debug.Log("righthand unarmed");
-                 GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.rb, actionSlots);
-                 GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rt, ActionInput.rt, actionSlots);
-             }
-             // 如果装备了左手武器，则为左手输入映射相应动作；否则，将空手动作映射到左手输入
-             if (states.inventoryManager.hasLeftHandWeapon)
-             {
-                 GlobalFuntions.DeepCopyAction(states.inventoryManager.leftHandWeapon.instance, ActionInput.rb,
-                     ActionInput.lb, actionSlots, true);
-                 GlobalFuntions.DeepCopyAction(states.inventoryManager.leftHandWeapon.instance, ActionInput.rt,
-                     ActionInput.lt, actionSlots, true);
-             }
-             else
-             {
-                 GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.lb, actionSlots, true);
-                 GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rt, ActionInput.lt, actionSlots, true);
-             }
-            
+            if (_playerStates.inventoryManager.rightHandWeapon != null)
+                _playerStates.inventoryManager.hasRightHandWeapon = true;
+            else
+                _playerStates.inventoryManager.hasRightHandWeapon = false;
 
-            
+            if (_playerStates.inventoryManager.leftHandWeapon != null)
+                _playerStates.inventoryManager.hasLeftHandWeapon = true;
+            else
+                _playerStates.inventoryManager.hasLeftHandWeapon = false;
+
+
+            //如果装备了右手武器，则将右手武器动作映射rb，rt，否则映射空手rb，rt
+            if (_playerStates.inventoryManager.hasRightHandWeapon)
+            {
+                if (!_playerStates.inventoryManager.hasLeftHandWeapon)
+                {
+                    GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance,
+                        ActionInput.rb,
+                        ActionInput.rb, actionSlots);
+                    GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.lb, actionSlots, true);
+                    GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance,
+                        ActionInput.rt,
+                        ActionInput.rt, actionSlots);
+                    GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance,
+                        ActionInput.lt, ActionInput.lt, actionSlots);
+                }
+                else
+                {
+                    GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance,
+                        ActionInput.rb,
+                        ActionInput.rb, actionSlots);
+                    GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.rightHandWeapon.instance,
+                        ActionInput.rt,
+                        ActionInput.rt, actionSlots);
+                    GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance,
+                        ActionInput.rb, ActionInput.lb, actionSlots, true);
+                    GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance,
+                        ActionInput.lt, ActionInput.lt, actionSlots, true);
+                }
+            }
+            else
+            {
+                Debug.Log("righthand unarmed");
+                GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.rb, actionSlots);
+                GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rt, ActionInput.rt, actionSlots);
+                if (_playerStates.inventoryManager.hasLeftHandWeapon)
+                {
+                    GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance,
+                        ActionInput.rb, ActionInput.lb, actionSlots, true);
+                    GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance,
+                        ActionInput.lt, ActionInput.lt, actionSlots, true);
+                }
+                else
+                {
+                    GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.lb, actionSlots, true);
+                    GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rt, ActionInput.lt, actionSlots, true);
+                }
+            }
+            // // 如果装备的是左手武器，则为左手输入映射相应动作；否则，将空手动作映射到左手输入
+            // if (_playerStates.inventoryManager.hasLeftHandWeapon)
+            // {
+            //     GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance, ActionInput.rb,
+            //         ActionInput.lb, actionSlots, true);
+            //     // GlobalFuntions.DeepCopyAction(_playerStates.inventoryManager.leftHandWeapon.instance, ActionInput.rt,
+            //     //     ActionInput.lt, actionSlots, true);
+            // }
+            // else
+            // {
+            //     GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rb, ActionInput.lb, actionSlots, true);
+            //     // GlobalFuntions.DeepCopyAction(unarmedAction, ActionInput.rt, ActionInput.lt, actionSlots, true);
+            // }
         }
 
         // 更新双手武器的动作设置，清空槽并分配双手动作
         public void UpdateActionsTwoHanded()
         {
             EmptyAllSlots(); // 清空所有现有动作
-            Weapon w = states.inventoryManager.rightHandWeapon.instance;
+            Weapon w = _playerStates.inventoryManager.rightHandWeapon.instance;
 
             // 将右手武器的双手动作分配给动作槽
             for (int i = 0; i < w.two_handedActions.Count; i++)
@@ -127,14 +149,14 @@ namespace rei
         }
 
         // 根据 StateManager 判断当前按下的输入（rb, lb, rt, lt）
-        public ActionInput GetActionInput(StateManager st)
+        public ActionInput GetActionInput(PlayerState st)
         {
             if (st.rb)
             {
                 // Debug.Log("RB pressed");
                 return ActionInput.rb;
             }
-                
+
             if (st.lb)
                 return ActionInput.lb;
             if (st.rt)
@@ -146,7 +168,7 @@ namespace rei
         }
 
         // 返回与 StateManager 中检测到的输入相对应的当前动作槽
-        public Action GetActionSlot(StateManager st)
+        public Action GetActionSlot(PlayerState st)
         {
             ActionInput a_input = GetActionInput(st);
             return GlobalFuntions.GetAction(a_input, actionSlots); // 根据输入获取动作
@@ -222,7 +244,7 @@ namespace rei
                 // 如果索引超出了步骤列表的范围，将索引重置为0
                 if (indx > steps.Count - 1)
                     indx = 0;
-        
+
                 // 取出当前索引处的动作步骤（ActionStep）
                 ActionStep retVal = steps[indx];
 
