@@ -98,7 +98,7 @@ namespace rei
         public Color flashColour = new Color(1f, 0f, 0f, 0.1f); // 受伤 UI 特效颜色
 
         [HideInInspector] public bool inSkill;
-        [HideInInspector] public bool powered;
+         public bool powered;
 
         #endregion
 
