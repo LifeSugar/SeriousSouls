@@ -27912,10 +27912,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -37789,15 +37789,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2049126822}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -40342,6 +40342,11 @@ PrefabInstance:
       propertyPath: tutorialImage
       value: 
       objectReference: {fileID: 1450595998}
+    - target: {fileID: 6530173340869144152, guid: 08f3002351f0d4c079581bcb04cb955f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7216584191557685920, guid: 08f3002351f0d4c079581bcb04cb955f,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -40985,13 +40990,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2613129570789904282, guid: cd929fff7ec9f4e5c918487037f55c10,
         type: 3}
+      propertyPath: minAngle
+      value: -30
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613129570789904282, guid: cd929fff7ec9f4e5c918487037f55c10,
+        type: 3}
       propertyPath: offset.y
-      value: 1.6
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2613129570789904282, guid: cd929fff7ec9f4e5c918487037f55c10,
         type: 3}
       propertyPath: offset.z
       value: -1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613129570789904282, guid: cd929fff7ec9f4e5c918487037f55c10,
+        type: 3}
+      propertyPath: lockOffset
+      value: 2.8
       objectReference: {fileID: 0}
     - target: {fileID: 3133898817770443099, guid: cd929fff7ec9f4e5c918487037f55c10,
         type: 3}
@@ -41036,7 +41051,7 @@ PrefabInstance:
     - target: {fileID: 3683811345577498686, guid: cd929fff7ec9f4e5c918487037f55c10,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.6
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3683811345577498686, guid: cd929fff7ec9f4e5c918487037f55c10,
         type: 3}
@@ -56735,7 +56750,7 @@ PrefabInstance:
     - target: {fileID: 4265450688297349915, guid: 9bfe7bb5e64f2452886af41d490fc46b,
         type: 3}
       propertyPath: active
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5307670034407821472, guid: 9bfe7bb5e64f2452886af41d490fc46b,
         type: 3}
