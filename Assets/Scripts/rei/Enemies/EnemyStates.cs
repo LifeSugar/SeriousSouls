@@ -395,8 +395,8 @@ namespace rei
 
         public void IsGettingParried(Action a, Weapon curWeapon) //被处决
         {
-            if (isBoss && !InputHandler.instance._playerStates.powered)
-                return;
+            // if (isBoss && !InputHandler.instance._playerStates.powered)
+            //     return;
             damaged = true;
             //float damage = StatsCalculations.CalculateBaseDamage(curWeapon.weaponStats, characterStats, a.parryMultiplier);计算处决伤害
             float damage = 180;
